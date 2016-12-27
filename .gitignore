@@ -1,0 +1,13 @@
+
+# databases
+*.db
+*.sql
+*.sqlite
+
+# binary
+*.pyc
+
+# secrets
+secrets.py
+local_settings.py
+
