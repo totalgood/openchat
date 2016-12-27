@@ -5,17 +5,26 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import object  # NOQA
 
+import os  # NOQA
 import time  # NOQA
 import random  # NOQA
 import sys  # NOQA
 import json  # NOQA
 from traceback import format_exc  # NOQA
 
-import peewee as pw  # NOQA
+# import peewee as pw  # NOQA
 import tweepy  # NOQA
 
-from secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET  # NOQA
-import models  # NOQA
+from twote.secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET  # NOQA
+
+try:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(BASE_DIR)
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hackor.settings")
+except:
+    pass
+
+from twote import models  # NOQA
 
 
 class Bot(object):
@@ -82,7 +91,7 @@ class Bot(object):
         tag_list = [d['text'] for d in tweet.entities.get('hashtags', [])]
 
         # Find or create the user that tweeted
-        user, created = models.User.get_or_create(id_str=str(tweet.user.id))
+        user, created = models.User.objects.get_or_create(id_str=str(tweet.user.id))
         user.verified = tweet.user.verified  # v4
         user.time_zone = tweet.user.time_zone  # v4
         user.utc_offset = tweet.user.utc_offset  # -28800 (v4)
@@ -99,7 +108,7 @@ class Bot(object):
         # Find or create the tweet this tweet is replying to
         in_reply_to_id_str = tweet.in_reply_to_status_id_str
         if in_reply_to_id_str:
-            in_reply_to, created = models.Tweet.get_or_create(id_str=in_reply_to_id_str)
+            in_reply_to, created = models.Tweet.objects.get_or_create(id_str=in_reply_to_id_str)
             print("Tweet that this was a reply to: {}".format(in_reply_to_id_str))
             print("Prompt: " + in_reply_to.text)
             print(" Reply: " + tweet.text)
@@ -108,7 +117,7 @@ class Bot(object):
 
         # Find or create a Place for the location of this tweet
         if tweet.place:
-            place, created = models.Place.get_or_create(id_str=tweet.place.id)
+            place, created = models.Place.objects.get_or_create(id_str=tweet.place.id)
             place.url = tweet.place.url
             place.name = tweet.place.name
             place.full_name = tweet.place.full_name
@@ -121,7 +130,7 @@ class Bot(object):
             place = None
 
         # Finally we can create the Tweet DB record that depends on all the others
-        tweet_record, created = models.Tweet.get_or_create(id_str=tweet.id_str)
+        tweet_record, created = models.Tweet.objects.get_or_create(id_str=tweet.id_str)
         tweet_record.in_reply_to_id_str = in_reply_to_id_str
         tweet_record.in_reply_to = in_reply_to
         tweet_record.id_str = tweet.id_str
