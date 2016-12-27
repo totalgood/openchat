@@ -12,8 +12,8 @@ def dict_to_model(d, cls):
 
 
 class Place(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
-    id_str = models.CharField(max_length=255, db_index=True)
+    id = models.AutoField(primary_key=True)
+    id_str = models.CharField(max_length=255, db_index=True, default='')
     place_type = models.CharField(max_length=255, blank=True, null=True)
     country_code = models.CharField(max_length=255, blank=True, null=True)
     country = models.CharField(max_length=255, blank=True, null=True)
@@ -27,8 +27,8 @@ class Place(models.Model):
 
 
 class Tweet(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
-    id_str = models.CharField(max_length=255, db_index=True)
+    id = models.AutoField(primary_key=True)
+    id_str = models.CharField(max_length=255, db_index=True, default='')
     in_reply_to_id_str = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     in_reply_to = models.ForeignKey('self', blank=True, null=True)
     user = models.ForeignKey('User', blank=True, null=True)
@@ -45,8 +45,8 @@ class Tweet(models.Model):
 
 
 class User(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
-    id_str = models.CharField(max_length=255, db_index=True)
+    id = models.AutoField(primary_key=True)
+    id_str = models.CharField(max_length=255, db_index=True, default='')
     screen_name = models.CharField(max_length=255, blank=True, null=True)
     verified = models.IntegerField(blank=True, null=True)
     time_zone = models.CharField(max_length=255, blank=True, null=True)
