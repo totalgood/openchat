@@ -2,6 +2,7 @@ from __future__ import division, print_function, unicode_literals
 
 import datetime
 from collections import Mapping
+from hackor.model_utils import representation
 
 from django.contrib.gis.db import models
 from django.forms.models import model_to_dict  # this will miss out on ManyToMany fields since they aren't actually database fields
@@ -29,16 +30,23 @@ class Place(models.Model):
 class Tweet(models.Model):
     id = models.AutoField(primary_key=True)
     id_str = models.CharField(max_length=255, db_index=True, default='')
+
+    created_date = models.DateTimeField(auto_now_add=True, null=True)
+    modified_date = models.DateTimeField(auto_now=True, null=True)
+    created_at = models.DateTimeField(null=True)
+
     in_reply_to_id_str = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     in_reply_to = models.ForeignKey('self', blank=True, null=True)
     user = models.ForeignKey('User', blank=True, null=True)
     source = models.CharField(max_length=255, blank=True, null=True)
     text = models.CharField(max_length=255, blank=True, null=True)
     tags = models.CharField(max_length=255, blank=True, null=True)
-    created_date = models.DateTimeField()
     location = models.CharField(max_length=255, blank=True, null=True)
     place = models.ForeignKey(Place, blank=True, null=True)
-    favorite_count = models.IntegerField()
+    favorite_count = models.IntegerField(default=-1, null=True)
+
+    def __str__(self):
+        return representation(self)
 
     class Meta:
         db_table = 'twote_tweet'
@@ -55,10 +63,13 @@ class User(models.Model):
     location = models.CharField(max_length=255, blank=True, null=True)
     lang = models.CharField(max_length=255, blank=True, null=True)
     followers_count = models.IntegerField(blank=True, null=True)
-    created_date = models.DateTimeField()
+    created_date = models.DateTimeField(null=True)
     statuses_count = models.IntegerField(blank=True, null=True)
     friends_count = models.IntegerField(blank=True, null=True)
-    favourites_count = models.IntegerField()
+    favourites_count = models.IntegerField(default=-1, null=True)
+
+    def __str__(self):
+        return representation(self)
 
     class Meta:
         db_table = 'twote_user'
