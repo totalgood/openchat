@@ -69,7 +69,7 @@ class User(models.Model):
     favourites_count = models.IntegerField(default=-1, null=True)
 
     def __str__(self):
-        return representation(self)
+        return str(self.screen_name)
 
     class Meta:
         db_table = 'twote_user'

@@ -51,9 +51,8 @@ class Bot(object):
         tags = ' '.join(tags) if isinstance(tags, (list, tuple)) else tags
         return models.Tweet.objects.count() if tags is None else models.Tweet.objects.filter(tags=' '.join(sorted(tags.split())))
 
-    def tag_search(self, string, quantity=1):
-        search_tag = '#{}'.format(string)
-        tweet_list = self.api.search(q=search_tag,
+    def search(self, query, quantity=1):
+        tweet_list = self.api.search(q=query,
                                      count=quantity,
                                      lang='en')
         print("Retrieved {} tweets.".format(len(tweet_list)))
@@ -117,7 +116,7 @@ class Bot(object):
         in_reply_to_id_str = tweet.in_reply_to_status_id_str
         if in_reply_to_id_str:
             in_reply_to, created = models.Tweet.objects.get_or_create(id_str=in_reply_to_id_str)
-            print("Tweet that this was a reply to: {}".format(in_reply_to_id_str))
+            print("This was reply to: {}".format(in_reply_to_id_str))
             print("Prompt: {}".format(getattr(in_reply_to, 'text', None)))
             print(" Reply: {}".format(getattr(tweet, 'text', None)))
         else:
@@ -171,7 +170,7 @@ def parse_args(args):
         del args[args.index('--picky')]
         picky = True
     hashtags = []
-    # the first float found on the command line is the delay in seconds between twitter search queries
+    # the first float found on the command line is the delay in seconds between twitter search queries (default 1 minute)
     # the first int after the first float is the number of tweets to retrieve with each twitter search query
     for arg in args[1:]:
         try:
@@ -180,8 +179,8 @@ def parse_args(args):
             try:
                 delay = float(arg) if delay is None else float('unfloatable')
             except ValueError:
-                hashtags += [arg.lstrip('#')]
-    delay = 60 * 15 if delay is None else delay
+                hashtags += [arg]
+    delay = 5.0 if delay is None else delay
     num_tweets = num_tweets or 100
     arg_dict = {
         'num_tweets': num_tweets,
@@ -200,16 +199,16 @@ if __name__ == '__main__':
     min_delay = 0.5
     delay_std = args['delay'] * 0.1
 
+    num_before = bot.count()
     while True:
-        num_before = bot.count()
         print('=' * 80)
         # TODO: hashtags attribute of Bot
         #       if more than 15 hashtags just search for them in pairs, tripplets, etc
         for ht in args['hashtags']:
-            print('Looking for #{}'.format(ht))
+            print('Looking for {}'.format(ht))
             last_tweets = []
             try:
-                for tweet in bot.tag_search(ht, args['num_tweets']):
+                for tweet in bot.search(ht, args['num_tweets']):
                     acceptable_tweet = bot._is_acceptable(tweet, ht, picky=args['picky'])
                     if acceptable_tweet:
                         try:
@@ -255,9 +254,10 @@ if __name__ == '__main__':
             print('--' * 80)
             sleep_seconds = max(random.gauss(args['delay'], delay_std), min_delay)
             print('sleeping for {} s ...'.format(round(sleep_seconds, 2)))
+            num_after = bot.count()
+            print("Retrieved {} new tweets with the hash tag {} for a total of {}".format(
+                num_after - num_before, repr(ht), num_after))
+            num_before = num_after
             time.sleep(sleep_seconds)
 
-        num_after = bot.count()
-        print("Retrieved {} tweets with the hash tags {} for a total of {}".format(
-            num_after - num_before, args['hashtags'], num_after))
         # bot.tweet(m[:140])
