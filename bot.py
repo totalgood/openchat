@@ -26,18 +26,37 @@ import tweepy  # NOQA
 
 from twote.secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET  # NOQA
 
-DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,' +
+DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,#pythonic' +
                    '#sarcastic,#sarcasm,#happy,#sad,#angry,#mad,#epic,#cool,#notcool,' +
+                   '#jobs,#career,#techwomen,' +
+                   '#angularjs,#reactjs,#framework,#pinax,#security,#pentest,#bug,#programming,#bot,#robot,' +
                    '#calagator,#pdxevents,#events,#portlandevents,#techevents,' +
-                   '#javascript,#ruby,#rubyonrails,#django,#java,#clojure,#nodejs,#lisp,#golang,' +
-                   '#dataviz,#d3js,#datascience,#machinelearning,#ai,#neuralnet,#deeplearning,#iot,' +
+                   '#r,#matlab,#octave,#javascript,#ruby,#rubyonrails,#django,#java,#clojure,#nodejs,#lisp,#golang,' +
+                   '#science,#astronomy,#math,#physics,#chemistry,#biology,#medicine,#statistics,#computerscience,#complexity,' +
+                   '#informationtheory,#knowledge,#philosophy,#space,#nasa,' +
+                   '#social,#economics,#prosocial,#peaceandcookies,#hugs,#humility,#shoutout,' +
+                   '#opendata,#openscience,#openai,#opensource,' +
+                   '#data,#dataviz,#d3js,#datascience,#machinelearning,#ai,#neuralnet,#deeplearning,#iot,' +
                    '#hack,#hacking,#hackathon,#compsci,#coding,#coder,' +
-                   '#depressed,#depressing,#gross,#crude,#mean,' +
-                   '#kind,#bekind,#nice,#peace,#inspired,#inspiration,#inspiring,#quote,#awesome,#beawesome,' +
-                   '#thankful,#gratitude,#healthy,#yoga,#positivity,#meditation,#bliss,' +
+                   '#depressed,#depressing,#gross,#crude,#mean,#tragedy,#lonely,#alone,' +
+                   '#mondaymotivation,#motivation,#life,#mind,' +
+                   '#play,#game,#logic,#gametheory,#winning,' +
+                   '#kind,#bekind,#hope,#nice,#polite,#peace,#inspired,#motivated,#inspiration,#inspiring,#quote,' +
+                   '#awesome,#beawesome,#payitforward,#give,#giving,#giveandtake,#love,#pause,#quiet,' +
+                   '#windows,#linux,#ubuntu,#osx,#android,#ios,' +
+                   '#thankful,#gratitude,#healthy,#yoga,#positivity,#community,#ecosystem,#planet,#meditation,#bliss,' +
                    '@pycon,@calagator,@portlandevents,@PDX_TechEvents,' +
-                   'good people,good times,mean people,' +
-                   'portland,pdx,pycon,"portland or","portland oregon",pycon2017,"pycon 2017"'
+                   '"good people","good times","mean people","not good","not bad","pretty good",' +
+                   'portland,pdx,pycon,"portland or","portland oregon",pycon2017,"pycon 2017"' +
+                   'singularity,"machine intelligence","control problem",future,planet,ecology,"global warming",' +
+                   'classifier,regression,bayes,' +
+                   '"global warming","greater good","common good",generous,commons,friends,family,' +
+                   'scikit-learn,scipy,pandas,tensorflow,pythonic,' +
+                   'tired,frustrated,upset,automation,robotics,database,' +
+                   'flower,insect,fish,animal,forest,garden,' +
+                   'coursera,udacity,udemy,codecademy,codepen,kaggle,khanacademy,"khan academy",' +
+                   ':),;),:-),:(,:-(,<3,xoxo,#lol,#rofl,' +
+                   '"portland or","convention center","portland oregon",pycon2017,"pycon 2017",repl'
                    ).split(',')
 
 try:
@@ -110,8 +129,20 @@ class Bot(object):
         ids = [str(ids)] if isinstance(ids, (basestring, int)) else list(ids)
         tweets = []
         for i in range(int(len(ids) / 100.) + 1):
-            if i * 100 < len(ids):
-                tweets += list(self.api.statuses_lookup(ids[i * 100:min((i + 1) * 100, len(ids))]))
+            try:
+                if i * 100 < len(ids):
+                    tweets += list(self.api.statuses_lookup(ids[i * 100:min((i + 1) * 100, len(ids))]))
+                # sort-of exponential backoff
+                if not i % 2:
+                    bot.rate_limit_status = bot.api.rate_limit_status()
+                    if bot.rate_limit_status['resources']['application']['remaining'] < 12:
+                        time.sleep(8.)
+                    if bot.rate_limit_status['resources']['application']['remaining'] < 6:
+                        time.sleep(60.)
+                    if bot.rate_limit_status['resources']['application']['remaining'] < 2:
+                        time.sleep(240.)
+            except:
+                print(format_exc())
         return tweets
 
     def save_tweet(self, tweet):
