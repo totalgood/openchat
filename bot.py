@@ -19,6 +19,7 @@ import random  # NOQA
 import sys  # NOQA
 import json  # NOQA
 from traceback import format_exc  # NOQA
+from random import shuffle  # NOQA
 
 # import peewee as pw  # NOQA
 import tweepy  # NOQA
@@ -242,6 +243,7 @@ if __name__ == '__main__':
         print('=' * 80)
         # TODO: hashtags attribute of Bot
         #       if more than 15 hashtags just search for them in pairs, tripplets, etc
+        shuffle(args['hashtags'])
         for ht in args['hashtags']:
             print('Looking for {}'.format(ht))
             last_tweets = []
