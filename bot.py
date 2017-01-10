@@ -25,6 +25,20 @@ import tweepy  # NOQA
 
 from twote.secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET  # NOQA
 
+DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,' +
+                   '#sarcastic,#sarcasm,#happy,#sad,#angry,#mad,#epic,#cool,#notcool,' +
+                   '#calagator,#pdxevents,#events,#portlandevents,#techevents,' +
+                   '#javascript,#ruby,#rubyonrails,#django,#java,#clojure,#nodejs,#lisp,#golang,' +
+                   '#dataviz,#d3js,#datascience,#machinelearning,#ai,#neuralnet,#deeplearning,#iot,' +
+                   '#hack,#hacking,#hackathon,#compsci,#coding,#coder,' +
+                   '#depressed,#depressing,#gross,#crude,#mean,' +
+                   '#kind,#bekind,#nice,#peace,#inspired,#inspiration,#inspiring,#quote,#awesome,#beawesome,' +
+                   '#thankful,#gratitude,#healthy,#yoga,#positivity,#meditation,#bliss,' +
+                   '@pycon,@calagator,@portlandevents,@PDX_TechEvents,' +
+                   'good people,good times,mean people,' +
+                   'portland,pdx,pycon,"portland or","portland oregon",pycon2017,"pycon 2017"'
+                   ).split(',')
+
 try:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.append(BASE_DIR)
@@ -38,6 +52,7 @@ from twote import models  # NOQA
 class Bot(object):
 
     def __init__(self):
+        self.tweet_id_queue = []
         self.auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
         self.auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
         self.api = tweepy.API(self.auth)
@@ -51,18 +66,14 @@ class Bot(object):
         tags = ' '.join(tags) if isinstance(tags, (list, tuple)) else tags
         return models.Tweet.objects.count() if tags is None else models.Tweet.objects.filter(tags=' '.join(sorted(tags.split())))
 
-    def search(self, query, quantity=1):
+    def search(self, query, quantity=100):
         tweet_list = self.api.search(q=query,
                                      count=quantity,
                                      lang='en')
-        print("Retrieved {} tweets.".format(len(tweet_list)))
-        # print(" starting with:")
-        # if tweet_list:
-        #     print(tweet_list[0])
-
+        print("Retrieved {} candidate tweets.".format(len(tweet_list)))
         return tweet_list
 
-    def _is_acceptable(self, tweet, tag, picky=False):
+    def _is_acceptable(self, tweet, tag=None, picky=False):
         """
         @brief     This will pull off hash tags just at the end of
                    tweet.  If your tag is not in the ending list
@@ -90,9 +101,17 @@ class Bot(object):
                         break
             else:
                 tag_list = [d['text'].lower() for d in tweet.entities.get('hashtags', [])]
-            if tag not in tag_list:
+            if tag is not None and tag not in tag_list:
                 return False
         return tweet
+
+    def get_tweets(self, ids):
+        ids = [str(ids)] if isinstance(ids, (basestring, int)) else list(ids)
+        tweets = []
+        for i in range(int(len(ids) / 100.) + 1):
+            if i * 100 < len(ids):
+                tweets += list(self.api.statuses_lookup(ids[i * 100:min((i + 1) * 100, len(ids))]))
+        return tweets
 
     def save_tweet(self, tweet):
         tag_list = [d['text'] for d in tweet.entities.get('hashtags', [])]
@@ -119,6 +138,7 @@ class Bot(object):
             print("This was reply to: {}".format(in_reply_to_id_str))
             print("Prompt: {}".format(getattr(in_reply_to, 'text', None)))
             print(" Reply: {}".format(getattr(tweet, 'text', None)))
+            self.tweet_id_queue += [in_reply_to_id_str]
         else:
             in_reply_to = None
 
@@ -148,7 +168,7 @@ class Bot(object):
         tweet_record.source = tweet.source
         tweet_record.tags = ' '.join(sorted(tag_list))
         tweet_record.save()
-        print(tweet_record.user.screen_name + ': ' + tweet_record.text)
+        print('SAVED   ' + tweet_record.user.screen_name + ': ' + tweet_record.text)
         return tweet_record
 
     def clean_tweet(self, tweet):
@@ -161,9 +181,25 @@ class Bot(object):
                 filter_list.append(word)
         return " ".join(filter_list)
 
+    def process_queue(self, ids=None):
+        self.tweet_id_queue += list(ids) if isinstance(ids, (list, tuple)) else []
+        original_queue = list(self.tweet_id_queue)
+        tweets = self.get_tweets(self.tweet_id_queue)
+        processed_ids = []
+        for tw in tweets:
+            processed_ids += [getattr(self.save_tweet(tw), 'id_str', None)]
+        print('Retrieved {} prompts out of {}'.format(sum([1 for i in processed_ids if i is not None]),
+                                                      len(tweets)))
+        leftovers = [i for i in original_queue if i not in processed_ids]
+        print('Unable to retrieve these IDs: {}'.format(leftovers))
+        self.tweet_id_queue = [i for i in self.tweet_id_queue if i not in processed_ids]
+        print('New reply_to ID queue: {}'.format(self.tweet_id_queue))
+        return len(leftovers)
+
 
 # FIXME: use builtin argparse module instead
 def parse_args(args):
+    min_queries = 20
     num_tweets, delay, picky = None, None, None
     # --picky flag means to ignore any tweets that contain "http" and does not end with one of the desired hashtags
     if '--picky' in args:
@@ -180,6 +216,8 @@ def parse_args(args):
                 delay = float(arg) if delay is None else float('unfloatable')
             except ValueError:
                 hashtags += [arg]
+    if len(hashtags) < min_queries:
+        hashtags += list(DEFAULT_QUERIES)
     delay = 5.0 if delay is None else delay
     num_tweets = num_tweets or 100
     arg_dict = {
@@ -209,40 +247,24 @@ if __name__ == '__main__':
             last_tweets = []
             try:
                 for tweet in bot.search(ht, args['num_tweets']):
-                    acceptable_tweet = bot._is_acceptable(tweet, ht, picky=args['picky'])
+                    acceptable_tweet = bot._is_acceptable(tweet,
+                                                          tag=None if not ht.startswith('#') or not args['picky'] else ht.lstrip('#'),
+                                                          picky=args['picky'])
                     if acceptable_tweet:
                         try:
                             last_tweets += [bot.save_tweet(acceptable_tweet)]
                         # print(json.dumps(last_tweets, default=models.Serializer(), indent=2))
                         except TypeError:
-                            # Traceback (most recent call last):
-                            #   File "/webapps/hackor/hackor/twote/bot.py", line 215, in <module>
-                            #     last_tweets += [bot.save_tweet(acceptable_tweet)]
-                            #   File "/webapps/hackor/hackor/twote/bot.py", line 121, in save_tweet
-                            #     print("Prompt: " + in_reply_to.text)
-                            # TypeError: coercing to Unicode: need string or buffer, NoneType found
-
-                            # Search Rate Limit Status
-                            # {
-                            #   "/search/tweets": {
-                            #     "reset": 1483911729,
-                            #     "limit": 180,
-                            #     "remaining": 180
-                            #   }
-                            # }
-                            # Application Rate Limit Status
-                            # {
-                            #   "/application/rate_limit_status": {
-                            #     "reset": 1483911729,
-                            #     "limit": 180,
-                            #     "remaining": 179
-                            #   }
-                            # }
                             print('!' * 80)
                             print(format_exc())
                             print()
                             print('Unable to save this tweet: {}'.format(acceptable_tweet))
             except:
+                # typical Application Rate Limit Status
+                # { "/application/rate_limit_status": {
+                #     "reset": 1483911729,
+                #     "limit": 180,
+                #     "remaining": 179 } }
                 print('!' * 80)
                 print(format_exc())
                 bot.rate_limit_status = bot.api.rate_limit_status()
@@ -259,5 +281,6 @@ if __name__ == '__main__':
                 num_after - num_before, repr(ht), num_after))
             num_before = num_after
             time.sleep(sleep_seconds)
+        bot.process_queue()
 
         # bot.tweet(m[:140])
