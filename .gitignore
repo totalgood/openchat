@@ -8,6 +8,6 @@
 *.pyc
 
 # secrets
-secrets.py
-local_settings.py
+secrets.py*
+local_settings.py*
 
