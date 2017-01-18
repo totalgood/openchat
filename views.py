@@ -10,9 +10,9 @@ from twote.serializers import TweetSerializer
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
-        'Returns tweets based on their hashtags': reverse('hashtag-list', request=request, format=format),
-        'Returns all tweets made by a given user': reverse('user-tweet-list', request=request, format=format),
-        'Returns tweets with exactly one hashtag and no URL links': reverse('hashtag-strict', request=request, format=format),
+        'Returns tweets based on their hashtags': reverse('twote:hashtag-list', request=request, format=format),
+        'Returns all tweets made by a given user': reverse('twote:user-tweet-list', request=request, format=format),
+        'Returns tweets with exactly one hashtag and no URL links': reverse('twote:hashtag-strict', request=request, format=format),
     })
 
 
