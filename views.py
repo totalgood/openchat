@@ -10,8 +10,9 @@ from twote.serializers import TweetSerializer
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
-        'Endpoint that returns tweets based on their hashtags': reverse('hashtag-list', request=request, format=format),
-        'Endpoint that returns all tweets made by a given user': reverse('user-tweet-list', request=request, format=format),
+        'Returns tweets based on their hashtags': reverse('hashtag-list', request=request, format=format),
+        'Returns all tweets made by a given user': reverse('user-tweet-list', request=request, format=format),
+        'Returns tweets with exactly one hashtag and no URL links': reverse('hashtag-strict', request=request, format=format),
     })
 
 
@@ -74,3 +75,37 @@ class UserTweetsList(generics.ListAPIView):
             querysetTweet = querysetTweet.filter(user=userPK)
 
         return querysetTweet
+
+
+class StrictHashtagList(generics.ListAPIView):
+    """Returns a list of tweets that only have one hashtag and no links included.
+
+       Ex.
+       twote/strict --> returns subset of tweets with 1 tag, and no links 
+
+       You can optionally search this subset of tweets for a specific hashtag
+       by entering a 'hashtag' parameter in a query string.
+
+       Ex.
+       twote/strict/?hashtag=Frog
+       This query will return all tweets from the strict subset where hashtag = Frog
+    """
+
+    serializer_class = TweetSerializer
+
+    def get_queryset(self):
+        queryset = Tweet.objects.all()
+
+        # only keep tweets with exactly one hashtag
+        queryset = queryset.filter(tags__regex=r'^(\w+)$')
+
+        # filter out tweets with linked urls, got regex from SO
+        url_regex = r'((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?'
+        queryset = queryset.exclude(text__regex=url_regex)
+
+        hashtag = self.request.query_params.get('hashtag', None)
+
+        if hashtag is not None:
+            queryset = queryset.filter(tags__regex=r"\y{}\y".format(hashtag))
+        return queryset
+
