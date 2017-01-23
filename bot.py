@@ -26,6 +26,7 @@ import tweepy  # NOQA
 
 from twote.secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET  # NOQA
 
+# 220 unique tags (approximately 20 minutes worth) and 6 repeated tags for pycon2017
 DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,#pythonic' +
                    '#sarcastic,#sarcasm,#happy,#sad,#angry,#mad,#epic,#cool,#notcool,' +
                    '#jobs,#career,#techwomen,' +
@@ -37,7 +38,7 @@ DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2
                    '#social,#economics,#prosocial,#peaceandcookies,#hugs,#humility,#shoutout,' +
                    '#opendata,#openscience,#openai,#opensource,' +
                    '#data,#dataviz,#d3js,#datascience,#machinelearning,#ai,#neuralnet,#deeplearning,#iot,' +
-                   '#hack,#hacking,#hackathon,#compsci,#coding,#coder,' +
+                   '#hack,#hacking,#hackathon,#compsci,#coding,#coder,#qs,' +
                    '#depressed,#depressing,#gross,#crude,#mean,#tragedy,#lonely,#alone,' +
                    '#mondaymotivation,#motivation,#life,#mind,' +
                    '#play,#game,#logic,#gametheory,#winning,' +
@@ -45,18 +46,29 @@ DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2
                    '#awesome,#beawesome,#payitforward,#give,#giving,#giveandtake,#love,#pause,#quiet,' +
                    '#windows,#linux,#ubuntu,#osx,#android,#ios,' +
                    '#thankful,#gratitude,#healthy,#yoga,#positivity,#community,#ecosystem,#planet,#meditation,#bliss,' +
+                   '@hackoregon,' +
+                   '@potus,@peotus,' +
                    '@pycon,@calagator,@portlandevents,@PDX_TechEvents,' +
                    '"good people","good times","mean people","not good","not bad","pretty good",' +
-                   'portland,pdx,pycon,"portland or","portland oregon",pycon2017,"pycon 2017"' +
+                   'portland,pdx,' +
                    'singularity,"machine intelligence","control problem",future,planet,ecology,"global warming",' +
                    'classifier,regression,bayes,' +
-                   '"global warming","greater good","common good",generous,commons,friends,family,' +
+                   'pdxpython,pdxruby,pdxdata,quantifiedself,' +
+                   '"greater good","total good","common good",totalgood,utilitarianism,generous,commons,friends,family,' +
                    'scikit-learn,scipy,pandas,tensorflow,pythonic,' +
                    'tired,frustrated,upset,automation,robotics,database,' +
                    'flower,insect,fish,animal,forest,garden,' +
                    'coursera,udacity,udemy,codecademy,codepen,kaggle,khanacademy,"khan academy",' +
                    ':),;),:-),:(,:-(,<3,xoxo,#lol,#rofl,' +
-                   '"portland or","convention center","portland oregon",pycon2017,"pycon 2017",repl'
+                   'happy,grateful,excited,' +
+                   '"convention center",repl,' +
+                   # 6 important tags worth repeating
+                   '"portland oregon","portland oregon",' +
+                   '"portland or","portland or",' +
+                   'pycon,pycon,' +
+                   'pycon2017,pycon2017,' +
+                   '"pycon 2017","pycon 2017",' +
+                   'pyconopenspaces,pyconopenspaces'
                    ).split(',')
 
 try:
