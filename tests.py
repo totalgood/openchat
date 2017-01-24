@@ -12,9 +12,9 @@ class StrictViewTest(TestCase):
 
     def get_request_helper(self, hashtag=None):
         if hashtag is not None:
-            response = self.c.get('/twote/strict/?hashtag={}'.format(hashtag))
+            response = self.c.get('/twote/strict/?hashtag={}?format=json'.format(hashtag))
         else:
-            response = self.c.get('/twote/strict/')
+            response = self.c.get('/twote/strict/?format=json')
         return json.loads(response.content)
 
     def test_get_request_sends_200(self):
@@ -23,6 +23,6 @@ class StrictViewTest(TestCase):
 
     def test_each_tweet_only_has_one_hashtag(self):
         response = self.get_request_helper()
-        hashtags = [tweet["tags"] for tweet in response]
+        hashtags = [tweet["tags"] for tweet in response["results"]]
 
-        self.assertEqual(len(response), len(hashtags))
+        self.assertEqual(len(response["results"]), len(hashtags))
