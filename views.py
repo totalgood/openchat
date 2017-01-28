@@ -94,10 +94,8 @@ class StrictHashtagList(generics.ListAPIView):
     serializer_class = TweetSerializer
 
     def get_queryset(self):
-        queryset = Tweet.objects.all()
-
         # only keep tweets with exactly one hashtag
-        queryset = queryset.filter(tags__regex=r'^(\w+)$')
+        queryset = Tweet.objects.filter(tags__regex=r'^(\w+)$')
 
         # filter out tweets with linked urls, got regex from SO
         url_regex = r'((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?'
