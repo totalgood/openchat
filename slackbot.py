@@ -78,28 +78,19 @@ def send_slack_messages(messages):
 		  attachments=_message['attachments'],
 		)
 
-# if __name__ == '__main__':
-# 	print 'came here'
-# 	print message
-# 	slack_token = os.environ["SLACK_API_TOKEN"]
-# 	sc = SlackClient(slack_token)
-# 	sc.api_call(
-# 		  "chat.postMessage",
-# 		  channel=os.environ.get("SLACK_CHANNEL"),
-# 		  text=message['text'],
-# 		  attachments=message['attachments'],
-# 	)
 
-bot = RetweetBot()
+if __name__ == '__main__':
+  bot = RetweetBot()
 
-for topic in topic_list[0:2]:
-	if topic.startswith('#'):
-		print topic
-		bot.get_tweets(topic + " filter:safe filter:media")
-		bot.compute_relevance_scores()
-		messages = bot.compose_relevant_slack_messages(1)
-		# print messages
-		send_slack_messages(messages)
-		bot.clear_tweets()
-		time.sleep(60)
+  for topic in topic_list[0:2]:
+  	if topic.startswith('#'):
+  		print topic
+  		bot.get_tweets(topic + " filter:safe filter:media")
+  		bot.compute_relevance_scores()
+  		messages = bot.compose_relevant_slack_messages(1)
+  		# print messages
+  		send_slack_messages(messages)
+  		bot.clear_tweets()
+  		time.sleep(60)
+
 

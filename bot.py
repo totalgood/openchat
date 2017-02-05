@@ -226,17 +226,17 @@ class Bot(object):
         return " ".join(filter_list)
 
     def process_queue(self, ids=None):
-        self.tweet_id_queue += list(ids) if isinstance(ids, (list, tuple)) else []
-        original_queue = list(self.tweet_id_queue)
+        self.tweet_id_queue += sorted(set([str(i) for i in ids])) if isinstance(ids, (list, tuple, set)) else []
+        original_queue = sorted(set(self.tweet_id_queue))
         tweets = self.get_tweets(self.tweet_id_queue)
         processed_ids = []
         for tw in tweets:
             processed_ids += [getattr(self.save_tweet(tw), 'id_str', None)]
         print('Retrieved {} prompts out of {}'.format(sum([1 for i in processed_ids if i is not None]),
                                                       len(tweets)))
-        leftovers = [i for i in original_queue if i not in processed_ids]
+        leftovers = sorted(set([i for i in original_queue if i not in processed_ids]))
         print('Unable to retrieve these IDs: {}'.format(leftovers))
-        self.tweet_id_queue = [i for i in self.tweet_id_queue if i not in processed_ids]
+        self.tweet_id_queue = sorted(set([i for i in self.tweet_id_queue if i not in processed_ids]))
         print('New reply_to ID queue: {}'.format(self.tweet_id_queue))
         return len(leftovers)
 

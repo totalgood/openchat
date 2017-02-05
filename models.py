@@ -14,14 +14,14 @@ def dict_to_model(d, cls):
 
 class Place(models.Model):
     id = models.AutoField(primary_key=True)
-    id_str = models.CharField(max_length=255, db_index=True, default='')
-    place_type = models.CharField(max_length=255, blank=True, null=True)
-    country_code = models.CharField(max_length=255, blank=True, null=True)
-    country = models.CharField(max_length=255, blank=True, null=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
-    full_name = models.CharField(max_length=255, blank=True, null=True)
-    url = models.CharField(max_length=255, blank=True, null=True)
-    bounding_box_coordinates = models.CharField(max_length=255, blank=True, null=True)
+    id_str = models.CharField(max_length=256, db_index=True, default='')
+    place_type = models.CharField(max_length=256, blank=True, null=True)
+    country_code = models.CharField(max_length=256, blank=True, null=True)
+    country = models.CharField(max_length=256, blank=True, null=True)
+    name = models.CharField(max_length=256, blank=True, null=True)
+    full_name = models.CharField(max_length=256, blank=True, null=True)
+    url = models.CharField(max_length=256, blank=True, null=True)
+    bounding_box_coordinates = models.CharField(max_length=256, blank=True, null=True)
 
     class Meta:
         db_table = 'twote_place'
@@ -29,19 +29,19 @@ class Place(models.Model):
 
 class Tweet(models.Model):
     id = models.AutoField(primary_key=True)
-    id_str = models.CharField(max_length=255, db_index=True, default='')
+    id_str = models.CharField(max_length=256, db_index=True, default='')
 
     created_date = models.DateTimeField(auto_now_add=True, null=True)
     modified_date = models.DateTimeField(auto_now=True, null=True)
     created_at = models.DateTimeField(null=True)
 
-    in_reply_to_id_str = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    in_reply_to_id_str = models.CharField(max_length=256, blank=True, null=True, db_index=True)
     in_reply_to = models.ForeignKey('self', blank=True, null=True)
     user = models.ForeignKey('User', blank=True, null=True)
-    source = models.CharField(max_length=255, blank=True, null=True)
-    text = models.CharField(max_length=255, blank=True, null=True)
-    tags = models.CharField(max_length=255, blank=True, null=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
+    source = models.CharField(max_length=256, blank=True, null=True)
+    text = models.CharField(max_length=256, blank=True, null=True)
+    tags = models.CharField(max_length=256, blank=True, null=True)
+    location = models.CharField(max_length=256, blank=True, null=True)
     place = models.ForeignKey(Place, blank=True, null=True)
     favorite_count = models.IntegerField(default=-1, null=True)
 
@@ -54,14 +54,14 @@ class Tweet(models.Model):
 
 class User(models.Model):
     id = models.AutoField(primary_key=True)
-    id_str = models.CharField(max_length=255, db_index=True, default='')
-    screen_name = models.CharField(max_length=255, blank=True, null=True)
+    id_str = models.CharField(max_length=256, db_index=True, default='')
+    screen_name = models.CharField(max_length=256, blank=True, null=True)
     verified = models.IntegerField(blank=True, null=True)
-    time_zone = models.CharField(max_length=255, blank=True, null=True)
+    time_zone = models.CharField(max_length=256, blank=True, null=True)
     utc_offset = models.IntegerField(blank=True, null=True)
     protected = models.IntegerField(blank=True, null=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
-    lang = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=256, blank=True, null=True)
+    lang = models.CharField(max_length=256, blank=True, null=True)
     followers_count = models.IntegerField(blank=True, null=True)
     created_date = models.DateTimeField(null=True)
     statuses_count = models.IntegerField(blank=True, null=True)

@@ -3,6 +3,12 @@ import tweepy
 import os
 import requests
 import re
+import nltk
+from nltk import word_tokenize
+from nltk.corpus import stopwords
+from sutime import SUTime
+import json
+
 
 BAD_WORDS_URL='https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en'
 MAX_NEGATIVE = -10000000
@@ -23,6 +29,19 @@ class RetweetBot:
 		# bad words
 		response = requests.get(BAD_WORDS_URL)
 		self.bad_words = response.text.split('\n')
+
+		# stop words
+		self.stopwords = list(stopwords.words('english'))
+
+		# sutime
+		jar_files = os.environ.get('JAR_FILES','../python-sutime/jars')
+		self.sutime = SUTime(jars=jar_files, mark_time_ranges=True)
+
+		# nltk data append
+		nltk.data.path.append(os.environ.get('NLTK_CORPUS','/webapps/hackor/hackor/nltk_data'))
+
+
+
 
 	'''
 	 	Get all tweets
@@ -100,8 +119,39 @@ class RetweetBot:
 				break
 		return result
 
+	'''
+		Get time and room number from a tweet
+	'''
+	def get_time_and_room(self,tweet):
+
+		result = {}
+		result['date'] = []
+		result['room'] = []
+
+		
+		time_slots = self.sutime.parse(tweet)
+		tweet_without_time = tweet
+
+		for time_slot in time_slots:
+			tweet_without_time = tweet_without_time.replace(time_slot.get('text'),'')
+			result['date'].append(time_slot.get('value'))
+		
+		filter_known_words = [word.lower() for word in word_tokenize(tweet_without_time) if word.lower() not in (self.stopwords + nltk.corpus.words.words())]
+
+		# regular expression for room
+		room_re = re.compile('([a-zA-Z](\d{3})[-+]?(\d{3})?)')
+
+		for word in filter_known_words:
+			if room_re.match(word):
+				result['room'].append(room_re.match(word).group())
+
+		return result
 
 
+
+if __name__ == '__main__':
+	bot = RetweetBot()
+	print bot.get_time_and_room('#importantigravity (acro yoga: poses for pair programmers) @ 5pm in open space B114! #pycon #pyconopenspaces :-)')
 
         
 
