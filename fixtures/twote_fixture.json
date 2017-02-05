@@ -1,0 +1,163 @@
+[
+    {
+        "model": "twote.Tweet",
+        "pk": 1,
+        "fields": {
+            "id": 4676433,
+            "id_str": "821834630345195520",
+            "created_date": "2017-01-18T21:53:08.963752",
+            "modified_date": "2017-01-19T03:47:26.559374Z",
+            "created_at": null,
+            "in_reply_to_id_str": null,
+            "source": "Twitter Web Client",
+            "text": "Michael Sandel offers a suggestion for #basicincome where you bring both mutual indebtedness &amp; everyone contributing to common good together",
+            "tags": "basicincome",
+            "location": null,
+            "favorite_count": 0,
+            "in_reply_to": null,
+            "user": null,
+            "place": null
+        }
+    },
+    {
+        "model": "twote.Tweet",
+        "pk": 2,
+        "fields": {
+            "id": 4676487,
+            "id_str": "821837782956081152",
+            "created_date": "2017-01-18T21:53:23.863863",
+            "modified_date": "2017-01-18T21:53:23.867036Z",
+            "created_at": null,
+            "in_reply_to_id_str": null,
+            "source": "Mobile Web (M5)",
+            "text": "RT @DareToBeHappier: Simply love #NoOffence. Brilliant stories and acting. Though can't believe it's not illegal to impersonate a paramedic…",
+            "tags": "NoOffence",
+            "location": null,
+            "favorite_count": 0,
+            "in_reply_to": null,
+            "user": null,
+            "place": null
+        }
+    },
+    {
+        "model": "twote.Tweet",
+        "pk": 3,
+        "fields": {
+            "id": 4676940,
+            "id_str": "821837138345992192",
+            "created_date": "2017-01-18T21:54:28.690000",
+            "modified_date": "2017-01-18T21:54:28.692367Z",
+            "created_at": null,
+            "in_reply_to_id_str": null,
+            "source": "Hootsuite",
+            "text": "Every decision made has consequences https://t.co/8aevjEBSvs #lifeunsettled #motivation #success #retirement",
+            "tags": "lifeunsettled motivation retirement success",
+            "location": null,
+            "favorite_count": 0,
+            "in_reply_to": null,
+            "user": null,
+            "place": null
+        }
+    },
+    {
+        "model": "twote.Tweet",
+        "pk": 4,
+        "fields": {
+            "id": 4676941,
+            "id_str": "821837133489078272",
+            "created_date": "2017-01-18T21:54:28.703779",
+            "modified_date": "2017-01-18T21:54:28.705892Z",
+            "created_at": null,
+            "in_reply_to_id_str": null,
+            "source": "Hootsuite",
+            "text": "#Quoteoftheday What's meant to be will always find a way. #quote #motivation #humpday https://t.co/Hn3sDdSmhd",
+            "tags": "Quoteoftheday humpday motivation quote",
+            "location": null,
+            "favorite_count": 0,
+            "in_reply_to": null,
+            "user": null,
+            "place": null
+        }
+    },
+    {
+        "model": "twote.Tweet",
+        "pk": 5,
+        "fields": {
+            "id": 4676944,
+            "id_str": "821837102623129601",
+            "created_date": "2017-01-18T21:54:28.739742",
+            "modified_date": "2017-01-18T21:54:28.741904Z",
+            "created_at": null,
+            "in_reply_to_id_str": null,
+            "source": "Staged Marketing Toolsuite",
+            "text": "How to Get Your Way in Business and In Life - Grant Cardone https://t.co/Ik4nLrf6CK #TwitterTips",
+            "tags": "TwitterTips",
+            "location": null,
+            "favorite_count": 0,
+            "in_reply_to": null,
+            "user": null,
+            "place": null
+        }
+    },
+    {
+        "model": "twote.Tweet",
+        "pk": 6,
+        "fields": {
+            "id": 4676945,
+            "id_str": "821837100542816256",
+            "created_date": "2017-01-18T21:54:28.751146",
+            "modified_date": "2017-01-18T21:54:28.753231Z",
+            "created_at": null,
+            "in_reply_to_id_str": null,
+            "source": "Buffer",
+            "text": "Pain is temporary. Quitting lasts forever. #quote http://t.co/ybVjoFS7vL",
+            "tags": "quote",
+            "location": null,
+            "favorite_count": 0,
+            "in_reply_to": null,
+            "user": null,
+            "place": null
+        }
+    },
+    {
+        "model": "twote.Tweet",
+        "pk": 7,
+        "fields": {
+            "id": 4676947,
+            "id_str": "821837084621242368",
+            "created_date": "2017-01-18T21:54:28.774330",
+            "modified_date": "2017-01-18T21:54:28.776519Z",
+            "created_at": null,
+            "in_reply_to_id_str": null,
+            "source": "Instagram",
+            "text": "regrann from @thewayral  -  #marketing #entrepreneur #business #motivation #branding #money… https://t.co/h4jg2itbhj",
+            "tags": "branding business entrepreneur marketing money motivation",
+            "location": null,
+            "favorite_count": 0,
+            "in_reply_to": null,
+            "user": null,
+            "place": null
+        }
+    },
+    {
+        "model": "twote.Tweet",
+        "pk": 8,
+        "fields": {
+            "id": 4676950,
+            "id_str": "821837068481495040",
+            "created_date": "2017-01-18T21:54:28.810862",
+            "modified_date": "2017-01-18T21:54:28.813200Z",
+            "created_at": null,
+            "in_reply_to_id_str": null,
+            "source": "Buffer",
+            "text": "Become so financially secure that you forget it's payday. #motivation #inspiration @kg_lv",
+            "tags": "inspiration motivation",
+            "location": null,
+            "favorite_count": 1,
+            "in_reply_to": null,
+            "user": null,
+            "place": null
+        }
+    }
+]
+
