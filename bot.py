@@ -235,7 +235,7 @@ class Bot(object):
         print('Retrieved {} prompts out of {}'.format(sum([1 for i in processed_ids if i is not None]),
                                                       len(tweets)))
         leftovers = sorted(set([i for i in original_queue if i not in processed_ids]))
-        import ipydb; ipydb.set_trace();
+        import ipdb; ipdb.set_trace();
         print('Unable to retrieve these IDs: {}'.format(leftovers))
         self.tweet_id_queue = sorted(set([i for i in self.tweet_id_queue if i not in processed_ids]))
         print('New reply_to ID queue: {}'.format(self.tweet_id_queue))
@@ -287,9 +287,11 @@ if __name__ == '__main__':
         print('=' * 80)
         # TODO: hashtags attribute of Bot
         #       if more than 15 hashtags just search for them in pairs, tripplets, etc
-        shuffle(args['hashtags'])
-        for ht in args['hashtags']:
-            print('Looking for {}'.format(ht))
+        hashtags = args['hashtags']
+        shuffle(hashtags)
+        num_queries = len(hashtags)
+        for qid, ht in enumerate(hashtags):
+            print('{:03d}/{} Looking for {}'.format(qid, num_queries, ht))
             last_tweets = []
             try:
                 for tweet in bot.search(ht, args['num_tweets']):
@@ -320,6 +322,9 @@ if __name__ == '__main__':
                 print(json.dumps(bot.rate_limit_status['resources']['application'], default=models.Serializer(), indent=2))
                 print("Unable to retrieve any tweets! Will try again later.")
             print('--' * 80)
+            bot.rate_limit_status = bot.api.rate_limit_status()
+            print('{} queries allowed within the rest of this 15 minute rate limite reset cycle'.format(
+                bot.rate_limit_status['resources']['search']['remaining']))
             sleep_seconds = max(random.gauss(args['delay'], delay_std), min_delay)
             print('sleeping for {} s ...'.format(round(sleep_seconds, 2)))
             num_after = bot.count()
