@@ -1,7 +1,7 @@
 #!python
 """Script and Bot class for interracting with Twitter continuously logging activity to postgresql db
 
-python 2.7-3.5 compatible
+python 2.7 or 3.5
 
 python manage.py shell_plus
 >>> run twote/bot python machinelearning ai nlp happy sad depressed angry upset joy bliss unhappy
@@ -235,6 +235,7 @@ class Bot(object):
         print('Retrieved {} prompts out of {}'.format(sum([1 for i in processed_ids if i is not None]),
                                                       len(tweets)))
         leftovers = sorted(set([i for i in original_queue if i not in processed_ids]))
+        import ipydb; ipydb.set_trace();
         print('Unable to retrieve these IDs: {}'.format(leftovers))
         self.tweet_id_queue = sorted(set([i for i in self.tweet_id_queue if i not in processed_ids]))
         print('New reply_to ID queue: {}'.format(self.tweet_id_queue))
