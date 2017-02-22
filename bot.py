@@ -31,7 +31,7 @@ DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2
                    '#sarcastic,#sarcasm,#happy,#sad,#angry,#mad,#epic,#cool,#notcool,' +
                    '#jobs,#career,#techwomen,' +
                    '#angularjs,#reactjs,#framework,#pinax,#security,#pentest,#bug,#programming,#bot,#robot,' +
-                   '#calagator,#pdxevents,#events,#portlandevents,#techevents,' +
+                   '#pdxevents,#events,#portlandevents,#techevents,' +
                    '#r,#matlab,#octave,#javascript,#ruby,#rubyonrails,#django,#java,#clojure,#nodejs,#lisp,#golang,' +
                    '#science,#astronomy,#math,#physics,#chemistry,#biology,#medicine,#statistics,#computerscience,#complexity,' +
                    '#informationtheory,#knowledge,#philosophy,#space,#nasa,' +
@@ -61,6 +61,7 @@ DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2
                    'coursera,udacity,udemy,codecademy,codepen,kaggle,khanacademy,"khan academy",' +
                    ':),;),:-),:(,:-(,<3,xoxo,#lol,#rofl,' +
                    'happy,grateful,excited,' +
+                   'calagator,' +
                    '"convention center",repl,' +
                    # 6 important tags worth repeating
                    '"portland oregon","portland oregon",' +
@@ -84,7 +85,7 @@ from twote import models  # NOQA
 class Bot(object):
 
     def __init__(self):
-        self.tweet_id_queue = []
+        self.tweet_id_queue = set()
         self.auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
         self.auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
         self.api = tweepy.API(self.auth)
@@ -227,7 +228,7 @@ class Bot(object):
         return " ".join(filter_list)
 
     def process_queue(self, ids=None):
-        self.tweet_id_queue = self.tweet_id_queue.union(
+        self.tweet_id_queue = set(self.tweet_id_queue).union(
             set([str(i) for i in ids]) if isinstance(ids, (list, tuple, set)) else set())
         original_queue = set(self.tweet_id_queue)
         tweets = self.get_tweets(original_queue)
