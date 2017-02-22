@@ -30,10 +30,9 @@ from twote.secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TO
 DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,#pythonic' +
                    '#sarcastic,#sarcasm,#happy,#sad,#angry,#mad,#epic,#cool,#notcool,' +
                    '#jobs,#career,#techwomen,' +
-                   '#angularjs,#reactjs,#framework,#pinax,#security,#pentest,#bug,#programming,#bot,#robot,' +
+                   '#angularjs,#reactsjs,#framework,#pinax,#security,#pentest,#bug,#programming,#bot,#robot,' +
                    '#pdxevents,#events,#portlandevents,#techevents,' +
                    '#r,#matlab,#octave,#javascript,#ruby,#rubyonrails,#django,#java,#clojure,#nodejs,#lisp,#golang,' +
-                   '#science,#astronomy,#math,#physics,#chemistry,#biology,#medicine,#statistics,#computerscience,#complexity,' +
                    '#informationtheory,#knowledge,#philosophy,#space,#nasa,' +
                    '#social,#economics,#prosocial,#peaceandcookies,#hugs,#humility,#shoutout,' +
                    '#opendata,#openscience,#openai,#opensource,' +
@@ -49,15 +48,22 @@ DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2
                    '@hackoregon,' +
                    '@potus,@peotus,' +
                    '@pycon,@calagator,@portlandevents,@PDX_TechEvents,' +
-                   '"good people","good times","mean people","not good","not bad","pretty good",' +
+                   '"good people","good times","mean people","not good","not bad","pretty good",ok,"not ok",winning,' +
                    'portland,pdx,' +
                    'singularity,"machine intelligence","control problem",future,planet,ecology,"global warming",' +
+                   'linguistics,grammar,spelling,language,nlp,natural,' +
+                   'sociology,prosocial,antisocial,altruism,social science,"political science",polysci,' +
+                   'evolution,genetics,"natural selection",neuroscience,brain,' +
                    'classifier,regression,bayes,' +
                    'pdxpython,pdxruby,pdxdata,quantifiedself,' +
                    '"greater good","total good","common good",totalgood,utilitarianism,generous,commons,friends,family,' +
                    'scikit-learn,scipy,pandas,tensorflow,pythonic,' +
                    'tired,frustrated,upset,automation,robotics,database,' +
                    'flower,insect,fish,animal,forest,garden,' +
+                   'psychology,linguistic,science,astronomy,math,physics,chemistry,biology,medicine,statistics,"computer science",complexity,' +
+                   '"deep learning","machine learning","artificial intelligence",quantum,computing,' +
+                   'context,clearly,arguably,understanding,learn,abstract,curriculum,' +
+                   'artificial,intelligence,studies,study,'
                    'coursera,udacity,udemy,codecademy,codepen,kaggle,khanacademy,"khan academy",' +
                    ':),;),:-),:(,:-(,<3,xoxo,#lol,#rofl,' +
                    'happy,grateful,excited,' +
@@ -86,6 +92,8 @@ class Bot(object):
 
     def __init__(self):
         self.tweet_id_queue = set()
+        self.min_queue_len = 1000
+        self.max_queue_len = 2000
         self.auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
         self.auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
         self.api = tweepy.API(self.auth)
@@ -242,9 +250,10 @@ class Bot(object):
         # import ipdb
         # ipdb.set_trace()
         print('Unable to retrieve these {} IDs: {}'.format(len(self.tweet_id_queue), self.tweet_id_queue))
-        if len(self.tweet_id_queue) > 200:
-            self.tweet_id_queue = set(sorted(self.tweet_id_queue)[-40:])
-            print('Deleted all but the latest 25 IDs from the tweet prompt queue.')
+        if len(self.tweet_id_queue) > self.max_queue_len:
+            print('There were {} unretrievable tweets'.format(len(self.tweet_id_queue)))
+            self.tweet_id_queue = set(sorted(self.tweet_id_queue)[-self.min_queue_len:])
+            print('The newest {} unretrievable tweets were retrained in the queue, the rest deleted, leaving {}.'.format())
         return self.tweet_id_queue
 
 
@@ -319,8 +328,9 @@ if __name__ == '__main__':
                 #     "reset": 1483911729,
                 #     "limit": 180,
                 #     "remaining": 179 } }
+                print('!' * 120)
                 print(format_exc())
-                print('!' * 80)
+                print('!' * 120)
                 print(format_exc())
                 bot.rate_limit_status = bot.api.rate_limit_status()
                 print('Search Rate Limit Status')
@@ -328,11 +338,12 @@ if __name__ == '__main__':
                 print('Application Rate Limit Status')
                 print(json.dumps(bot.rate_limit_status['resources']['application'], default=models.Serializer(), indent=2))
                 print("Unable to retrieve any tweets! Will try again later.")
-            print('--' * 80)
-            bot.rate_limit_status = bot.api.rate_limit_status()
-            print('{} ({}) queries allowed within this 15 min window'.format(
-                bot.rate_limit_status['resources']['search']["/search/tweets"]['remaining'],
-                bot.rate_limit_status['resources']['application']['/application/rate_limit_status']['remaining']))
+            print('-' * 120)
+            if not (qid % 2):
+                bot.rate_limit_status = bot.api.rate_limit_status()
+                print('{} ({}) queries allowed within this 15 min window'.format(
+                    bot.rate_limit_status['resources']['search']["/search/tweets"]['remaining'],
+                    bot.rate_limit_status['resources']['application']['/application/rate_limit_status']['remaining']))
             sleep_seconds = max(random.gauss(args['delay'], delay_std), min_delay)
             print('sleeping for {} s ...'.format(round(sleep_seconds, 2)))
             num_after = bot.count()
@@ -351,5 +362,6 @@ if __name__ == '__main__':
             num_before = num_after
             time.sleep(sleep_seconds)
         bot.process_queue()
+        time.sleep(30.)
 
         # bot.tweet(m[:140])
