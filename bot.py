@@ -30,11 +30,12 @@ from twote.secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TO
 DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,#pythonic' +
                    '#sarcastic,#sarcasm,#happy,#sad,#angry,#mad,#epic,#cool,#notcool,' +
                    '#jobs,#career,#techwomen,' +
+                   '#iot,#vr,' +
                    '#angularjs,#reactsjs,#framework,#pinax,#security,#pentest,#bug,#programming,#bot,#robot,' +
                    '#pdxevents,#events,#portlandevents,#techevents,' +
                    '#r,#matlab,#octave,#javascript,#ruby,#rubyonrails,#django,#java,#clojure,#nodejs,#lisp,#golang,' +
                    '#informationtheory,#knowledge,#philosophy,#space,#nasa,' +
-                   '#social,#economics,#prosocial,#peaceandcookies,#hugs,#humility,#shoutout,' +
+                   '#social,#life,#economics,#prosocial,#peaceandcookies,#hugs,#humility,#shoutout,' +
                    '#opendata,#openscience,#openai,#opensource,' +
                    '#data,#dataviz,#d3js,#datascience,#machinelearning,#ai,#neuralnet,#deeplearning,#iot,' +
                    '#hack,#hacking,#hackathon,#compsci,#coding,#coder,#qs,' +
@@ -48,11 +49,13 @@ DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2
                    '@hackoregon,' +
                    '@potus,@peotus,' +
                    '@pycon,@calagator,@portlandevents,@PDX_TechEvents,' +
-                   '"good people","good times","mean people","not good","not bad","pretty good",ok,"not ok",winning,' +
+                   '"good people","good times","mean people","not good","not bad","pretty good",ok,"not ok",' +
                    'portland,pdx,' +
-                   'singularity,"machine intelligence","control problem",future,planet,ecology,"global warming",' +
-                   'linguistics,grammar,spelling,language,nlp,natural,' +
-                   'sociology,prosocial,antisocial,altruism,social science,"political science",polysci,' +
+                   'singularity,"machine intelligence","control problem",future,planet,ecology,"global warming","virtual reality"' +
+                   'linguistics,grammar,spelling,language,nlp,natural,tfidf,binomial,multinomial,multivariate,stochastic,' +
+                   '"infinite series",embedding,polynomial,"hidden layer","visible layer",graph,network,cosine,cos,sine,tangent,' +
+                   'einstein,hinton,euler,euclid,bernouli,jung,hobbes,locke,"mark twain",shakespeare,plato,socrates,socratic,' +
+                   'sociology,prosocial,antisocial,altruism,"social science","political science",polysci,' +
                    'evolution,genetics,"natural selection",neuroscience,brain,' +
                    'classifier,regression,bayes,' +
                    'pdxpython,pdxruby,pdxdata,quantifiedself,' +
