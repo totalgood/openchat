@@ -235,7 +235,8 @@ class Bot(object):
         print('Retrieved {} prompts out of {}'.format(sum([1 for i in processed_ids if i is not None]),
                                                       len(tweets)))
         leftovers = sorted(set([i for i in original_queue if i not in processed_ids]))
-        import ipdb; ipdb.set_trace();
+        import ipdb
+        ipdb.set_trace()
         print('Unable to retrieve these IDs: {}'.format(leftovers))
         self.tweet_id_queue = sorted(set([i for i in self.tweet_id_queue if i not in processed_ids]))
         print('New reply_to ID queue: {}'.format(self.tweet_id_queue))
@@ -324,12 +325,12 @@ if __name__ == '__main__':
             print('--' * 80)
             bot.rate_limit_status = bot.api.rate_limit_status()
             print('{} queries allowed within the rest of this 15 minute rate limite reset cycle'.format(
-                bot.rate_limit_status['resources']['search']['remaining']))
+                bot.rate_limit_status['resources']['search']["/search/tweets"]['remaining']))
             sleep_seconds = max(random.gauss(args['delay'], delay_std), min_delay)
             print('sleeping for {} s ...'.format(round(sleep_seconds, 2)))
             num_after = bot.count()
-            print("Retrieved {} new tweets with the hash tag {} for a total of {}".format(
-                num_after - num_before, repr(ht), num_after))
+            print("Retrieved {} new tweets with for query {:03d}/{} {} for a total of {} in DB".format(
+                num_after - num_before, qid, num_queries, repr(ht), num_after))
             num_before = num_after
             time.sleep(sleep_seconds)
         bot.process_queue()
