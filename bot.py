@@ -184,7 +184,7 @@ class Bot(object):
             print("This was reply to: {}".format(in_reply_to_id_str))
             print("Prompt: {}".format(getattr(in_reply_to, 'text', None)))
             print(" Reply: {}".format(getattr(tweet, 'text', None)))
-            self.tweet_id_queue += [in_reply_to_id_str]
+            self.tweet_id_queue = self.tweet_id_queue.union(set([in_reply_to_id_str]))
         else:
             in_reply_to = None
 
@@ -228,6 +228,8 @@ class Bot(object):
         return " ".join(filter_list)
 
     def process_queue(self, ids=None):
+        print('Q' * 100)
+        print('Q' * 100)
         self.tweet_id_queue = set(self.tweet_id_queue).union(
             set([str(i) for i in ids]) if isinstance(ids, (list, tuple, set)) else set())
         original_queue = set(self.tweet_id_queue)
@@ -240,8 +242,8 @@ class Bot(object):
         # import ipdb
         # ipdb.set_trace()
         print('Unable to retrieve these {} IDs: {}'.format(len(self.tweet_id_queue), self.tweet_id_queue))
-        if len(self.tweet_id_queue) > 100:
-            self.tweet_id_queue = set(sorted(self.tweet_id_queue)[-25:])
+        if len(self.tweet_id_queue) > 200:
+            self.tweet_id_queue = set(sorted(self.tweet_id_queue)[-40:])
             print('Deleted all but the latest 25 IDs from the tweet prompt queue.')
         return self.tweet_id_queue
 
@@ -334,6 +336,16 @@ if __name__ == '__main__':
             sleep_seconds = max(random.gauss(args['delay'], delay_std), min_delay)
             print('sleeping for {} s ...'.format(round(sleep_seconds, 2)))
             num_after = bot.count()
+            sorted_tweet_id_queue = sorted(bot.tweet_id_queue)
+            if len(sorted_tweet_id_queue) > 10:
+                print("Missed {} prompts: {}, ... {}".format(
+                    len(bot.tweet_id_queue),
+                    repr(sorted_tweet_id_queue[:3]).rstrip(']'),
+                    repr(sorted_tweet_id_queue[-3:]).lstrip('[')))
+            else:
+                print("Missed {} prompts: {}".format(
+                    len(bot.tweet_id_queue), sorted_tweet_id_queue))
+
             print("Retrieved {} new tweets with for query {:03d}/{} {} for a total of {} in DB".format(
                 num_after - num_before, qid, num_queries, repr(ht), num_after))
             num_before = num_after
