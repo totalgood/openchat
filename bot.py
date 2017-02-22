@@ -76,7 +76,7 @@ try:
     sys.path.append(BASE_DIR)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hackor.settings")
 except:
-    pass
+    print(format_exc())
 
 from twote import models  # NOQA
 
@@ -147,11 +147,12 @@ class Bot(object):
                 # sort-of exponential backoff
                 if not i % 2:
                     bot.rate_limit_status = bot.api.rate_limit_status()
-                    if bot.rate_limit_status['resources']['application']['remaining'] < 12:
+                    bot.remaining = bot.rate_limit_status['resources']['application']['remaining']
+                    if bot.remaining < 12:
                         time.sleep(8.)
-                    if bot.rate_limit_status['resources']['application']['remaining'] < 6:
+                    if bot.remaining < 6:
                         time.sleep(60.)
-                    if bot.rate_limit_status['resources']['application']['remaining'] < 2:
+                    if bot.remaining < 2:
                         time.sleep(240.)
             except:
                 print(format_exc())
@@ -226,21 +227,22 @@ class Bot(object):
         return " ".join(filter_list)
 
     def process_queue(self, ids=None):
-        self.tweet_id_queue += sorted(set([str(i) for i in ids])) if isinstance(ids, (list, tuple, set)) else []
-        original_queue = sorted(set(self.tweet_id_queue))
-        tweets = self.get_tweets(self.tweet_id_queue)
-        processed_ids = []
-        for tw in tweets:
-            processed_ids += [getattr(self.save_tweet(tw), 'id_str', None)]
-        print('Retrieved {} prompts out of {}'.format(sum([1 for i in processed_ids if i is not None]),
-                                                      len(tweets)))
-        leftovers = sorted(set([i for i in original_queue if i not in processed_ids]))
-        import ipdb
-        ipdb.set_trace()
-        print('Unable to retrieve these IDs: {}'.format(leftovers))
-        self.tweet_id_queue = sorted(set([i for i in self.tweet_id_queue if i not in processed_ids]))
-        print('New reply_to ID queue: {}'.format(self.tweet_id_queue))
-        return len(leftovers)
+        self.tweet_id_queue = self.tweet_id_queue.union(
+            set([str(i) for i in ids]) if isinstance(ids, (list, tuple, set)) else set())
+        original_queue = set(self.tweet_id_queue)
+        tweets = self.get_tweets(original_queue)
+        print('Trying to save {} prompting tweets.'.format(len(tweets)))
+        processed_ids = set([getattr(self.save_tweet(tw), 'id_str', None) for tw in tweets])
+        print('Retrieved {} prompts out of {} ({} unique)'.format(sum([1 for i in processed_ids if i is not None]),
+                                                      len(tweets), len(original_queue)))
+        self.tweet_id_queue = original_queue - original_queue.intersection(processed_ids)
+        # import ipdb
+        # ipdb.set_trace()
+        print('Unable to retrieve these {} IDs: {}'.format(len(self.tweet_id_queue), self.tweet_id_queue))
+        if len(self.tweet_id_queue) > 100:
+            self.tweet_id_queue = set(sorted(self.tweet_id_queue)[-25:])
+            print('Deleted all but the latest 25 IDs from the tweet prompt queue.')
+        return self.tweet_id_queue
 
 
 # FIXME: use builtin argparse module instead
@@ -314,6 +316,7 @@ if __name__ == '__main__':
                 #     "reset": 1483911729,
                 #     "limit": 180,
                 #     "remaining": 179 } }
+                print(format_exc())
                 print('!' * 80)
                 print(format_exc())
                 bot.rate_limit_status = bot.api.rate_limit_status()
@@ -324,8 +327,9 @@ if __name__ == '__main__':
                 print("Unable to retrieve any tweets! Will try again later.")
             print('--' * 80)
             bot.rate_limit_status = bot.api.rate_limit_status()
-            print('{} queries allowed within the rest of this 15 minute rate limite reset cycle'.format(
-                bot.rate_limit_status['resources']['search']["/search/tweets"]['remaining']))
+            print('{} ({}) queries allowed within this 15 min window'.format(
+                bot.rate_limit_status['resources']['search']["/search/tweets"]['remaining']),
+                bot.rate_limit_status['resources']['application']['remaining'])
             sleep_seconds = max(random.gauss(args['delay'], delay_std), min_delay)
             print('sleeping for {} s ...'.format(round(sleep_seconds, 2)))
             num_after = bot.count()
