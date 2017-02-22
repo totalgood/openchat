@@ -328,8 +328,8 @@ if __name__ == '__main__':
             print('--' * 80)
             bot.rate_limit_status = bot.api.rate_limit_status()
             print('{} ({}) queries allowed within this 15 min window'.format(
-                bot.rate_limit_status['resources']['search']["/search/tweets"]['remaining']),
-                bot.rate_limit_status['resources']['application']['remaining'])
+                bot.rate_limit_status['resources']['search']["/search/tweets"]['remaining'],
+                bot.rate_limit_status['resources']['application']['remaining']))
             sleep_seconds = max(random.gauss(args['delay'], delay_std), min_delay)
             print('sleeping for {} s ...'.format(round(sleep_seconds, 2)))
             num_after = bot.count()
