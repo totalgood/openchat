@@ -13,7 +13,8 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import object  # NOQA
 
-from traceback import format_exc
+from traceback import format_exc  # NOQA
+
 import os  # NOQA
 import time  # NOQA
 import random  # NOQA
@@ -27,51 +28,6 @@ import time  # NOQA
 import tweepy  # NOQA
 
 import requests  # NOQA
-
-# 220 unique tags (approximately 20 minutes worth) and 6 repeated tags for pycon2017
-DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,#pythonic' +
-                   '#sarcastic,#sarcasm,#happy,#sad,#angry,#mad,#epic,#cool,#notcool,' +
-                   '#jobs,#career,#techwomen,' +
-                   '#angularjs,#reactjs,#framework,#pinax,#security,#pentest,#bug,#programming,#bot,#robot,' +
-                   '#calagator,#pdxevents,#events,#portlandevents,#techevents,' +
-                   '#r,#matlab,#octave,#javascript,#ruby,#rubyonrails,#django,#java,#clojure,#nodejs,#lisp,#golang,' +
-                   '#science,#astronomy,#math,#physics,#chemistry,#biology,#medicine,#statistics,#computerscience,#complexity,' +
-                   '#informationtheory,#knowledge,#philosophy,#space,#nasa,' +
-                   '#social,#economics,#prosocial,#peaceandcookies,#hugs,#humility,#shoutout,' +
-                   '#opendata,#openscience,#openai,#opensource,' +
-                   '#data,#dataviz,#d3js,#datascience,#machinelearning,#ai,#neuralnet,#deeplearning,#iot,' +
-                   '#hack,#hacking,#hackathon,#compsci,#coding,#coder,#qs,' +
-                   '#depressed,#depressing,#gross,#crude,#mean,#tragedy,#lonely,#alone,' +
-                   '#mondaymotivation,#motivation,#life,#mind,' +
-                   '#play,#game,#logic,#gametheory,#winning,' +
-                   '#kind,#bekind,#hope,#nice,#polite,#peace,#inspired,#motivated,#inspiration,#inspiring,#quote,' +
-                   '#awesome,#beawesome,#payitforward,#give,#giving,#giveandtake,#love,#pause,#quiet,' +
-                   '#windows,#linux,#ubuntu,#osx,#android,#ios,' +
-                   '#thankful,#gratitude,#healthy,#yoga,#positivity,#community,#ecosystem,#planet,#meditation,#bliss,' +
-                   '@hackoregon,' +
-                   '@potus,@peotus,' +
-                   '@pycon,@calagator,@portlandevents,@PDX_TechEvents,' +
-                   '"good people","good times","mean people","not good","not bad","pretty good",' +
-                   'portland,pdx,' +
-                   'singularity,"machine intelligence","control problem",future,planet,ecology,"global warming",' +
-                   'classifier,regression,bayes,' +
-                   'pdxpython,pdxruby,pdxdata,quantifiedself,' +
-                   '"greater good","total good","common good",totalgood,utilitarianism,generous,commons,friends,family,' +
-                   'scikit-learn,scipy,pandas,tensorflow,pythonic,' +
-                   'tired,frustrated,upset,automation,robotics,database,' +
-                   'flower,insect,fish,animal,forest,garden,' +
-                   'coursera,udacity,udemy,codecademy,codepen,kaggle,khanacademy,"khan academy",' +
-                   ':),;),:-),:(,:-(,<3,xoxo,#lol,#rofl,' +
-                   'happy,grateful,excited,' +
-                   '"convention center",repl,' +
-                   # 6 important tags worth repeating
-                   '"portland oregon","portland oregon",' +
-                   '"portland or","portland or",' +
-                   'pycon,pycon,' +
-                   'pycon2017,pycon2017,' +
-                   '"pycon 2017","pycon 2017",' +
-                   'pyconopenspaces,pyconopenspaces'
-                   ).split(',')
 
 
 def get_tweets(url="https://totalgood.org/twote/strict/",
@@ -95,7 +51,7 @@ def get_tweets(url="https://totalgood.org/twote/strict/",
             else:
                 break
         except:
-            print_exc()
+            print(format_exc())
             return tweets
     if verbose:
         print('Retrieved {} {}tweets for hashtag {}'.format(len(tweets), 'strict ' if strict else '', hashtag))
