@@ -255,9 +255,11 @@ class Bot(object):
         # ipdb.set_trace()
         print('Unable to retrieve these {} IDs: {}'.format(len(self.tweet_id_queue), self.tweet_id_queue))
         if len(self.tweet_id_queue) > self.max_queue_len:
-            print('There were {} unretrievable tweets'.format(len(self.tweet_id_queue)))
+            print('There were {} unretrievable tweets (> max_queue_len=={})'.format(
+                  len(self.tweet_id_queue), self.max_queue_len))
             self.tweet_id_queue = set(sorted(self.tweet_id_queue)[-self.min_queue_len:])
-            print('The newest {} unretrievable tweets were retrained in the queue, the rest deleted, leaving {}.'.format())
+            print('The newest {} unretrievable tweets were retrained in the queue, the rest deleted, leaving {}.'.format(
+                  self.min_queue_len, len(self.tweet_id_queue)))
         return self.tweet_id_queue
 
 
