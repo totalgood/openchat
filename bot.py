@@ -20,11 +20,15 @@ import sys  # NOQA
 import json  # NOQA
 from traceback import format_exc  # NOQA
 from random import shuffle  # NOQA
+import logging  # NOQA
 
 # import peewee as pw  # NOQA
 import tweepy  # NOQA
 
 from twote.secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET  # NOQA
+
+loggly = logging.getLogger('loggly')
+
 
 # 220 unique tags (approximately 20 minutes worth) and 6 repeated tags for pycon2017
 DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,' +
@@ -246,10 +250,10 @@ class Bot(object):
             set([str(i) for i in ids]) if isinstance(ids, (list, tuple, set)) else set())
         original_queue = set(self.tweet_id_queue)
         tweets = self.get_tweets(original_queue)
-        print('Trying to save {} prompting tweets.'.format(len(tweets)))
+        loggly.info('Trying to save {} prompting tweets.'.format(len(tweets)))
         processed_ids = set([getattr(self.save_tweet(tw), 'id_str', None) for tw in tweets])
-        print('Retrieved {} prompts out of {} ({} unique)'.format(sum([1 for i in processed_ids if i is not None]),
-                                                      len(tweets), len(original_queue)))
+        loggly.info('Retrieved {} prompts out of {} ({} unique)'.format(sum([1 for i in processed_ids if i is not None]),
+                    len(tweets), len(original_queue)))
         self.tweet_id_queue = original_queue - original_queue.intersection(processed_ids)
         # import ipdb
         # ipdb.set_trace()
@@ -290,7 +294,7 @@ def parse_args(args):
         'num_tweets': num_tweets,
         'delay': delay,
         'picky': picky,
-        'hashtags': hashtags,
+        'hashtags': sorted(hashtags),
         }
     print('Parsed args into:')
     print(json.dumps(arg_dict, indent=4))
