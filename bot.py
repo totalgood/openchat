@@ -27,7 +27,7 @@ import tweepy  # NOQA
 from twote.secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET  # NOQA
 
 # 220 unique tags (approximately 20 minutes worth) and 6 repeated tags for pycon2017
-DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,#pythonic' +
+DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2016,' +
                    '#sarcastic,#sarcasm,#happy,#sad,#angry,#mad,#epic,#cool,#notcool,' +
                    '#jobs,#career,#techwomen,' +
                    '#iot,#vr,' +
@@ -53,6 +53,7 @@ DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2
                    'portland,pdx,' +
                    'singularity,"machine intelligence","control problem",future,planet,ecology,"global warming","virtual reality"' +
                    'linguistics,grammar,spelling,language,nlp,natural,tfidf,binomial,multinomial,multivariate,stochastic,' +
+                   'semantic,semantics,SVD,PCA,LSI,LDA,SVM,linear,quadratic,"support vector",' +
                    '"infinite series",embedding,polynomial,"hidden layer","visible layer",graph,network,cosine,cos,sine,tangent,' +
                    'einstein,hinton,euler,euclid,bernouli,jung,hobbes,locke,"mark twain",shakespeare,plato,socrates,socratic,' +
                    'sociology,prosocial,antisocial,altruism,"social science","political science",polysci,' +
@@ -60,13 +61,13 @@ DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2
                    'classifier,regression,bayes,' +
                    'pdxpython,pdxruby,pdxdata,quantifiedself,' +
                    '"greater good","total good","common good",totalgood,utilitarianism,generous,commons,friends,family,' +
-                   'scikit-learn,scipy,pandas,tensorflow,pythonic,' +
+                   'scikit-learn,scipy,pandas,tensorflow,theano,pythonic,scipy,gensim,sklearn,' +
                    'tired,frustrated,upset,automation,robotics,database,' +
                    'flower,insect,fish,animal,forest,garden,' +
                    'psychology,linguistic,science,astronomy,math,physics,chemistry,biology,medicine,statistics,"computer science",complexity,' +
-                   '"deep learning","machine learning","artificial intelligence",quantum,computing,' +
-                   'context,clearly,arguably,understanding,learn,abstract,curriculum,' +
-                   'artificial,intelligence,studies,study,'
+                   '"deep learning","machine learning","artificial intelligence",' +
+                   'quantum,computing,artificial,intelligence,' +
+                   'context,clearly,arguably,understanding,learn,abstract,curriculum,studies,study,'
                    'coursera,udacity,udemy,codecademy,codepen,kaggle,khanacademy,"khan academy",' +
                    ':),;),:-),:(,:-(,<3,xoxo,#lol,#rofl,' +
                    'happy,grateful,excited,' +
@@ -254,9 +255,11 @@ class Bot(object):
         # ipdb.set_trace()
         print('Unable to retrieve these {} IDs: {}'.format(len(self.tweet_id_queue), self.tweet_id_queue))
         if len(self.tweet_id_queue) > self.max_queue_len:
-            print('There were {} unretrievable tweets'.format(len(self.tweet_id_queue)))
+            print('There were {} unretrievable tweets (> max_queue_len=={})'.format(
+                  len(self.tweet_id_queue), self.max_queue_len))
             self.tweet_id_queue = set(sorted(self.tweet_id_queue)[-self.min_queue_len:])
-            print('The newest {} unretrievable tweets were retrained in the queue, the rest deleted, leaving {}.'.format())
+            print('The newest {} unretrievable tweets were retrained in the queue, the rest deleted, leaving {}.'.format(
+                  self.min_queue_len, len(self.tweet_id_queue)))
         return self.tweet_id_queue
 
 
