@@ -75,6 +75,49 @@ class User(models.Model):
         db_table = 'twote_user'
 
 
+class OutgoingTweet(models.Model):
+    # still need to add original tweet id from Tweet table foriegn key relation
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True) 
+    tweet = models.CharField(max_length=255)
+    approved = models.IntegerField(choices=APPROVAL_CHOICES, default=0)
+    time_interval = models.IntegerField(null=True, blank=True)
+    scheduled_time = models.DateTimeField(default=None, null=True, blank=True)
+    task_scheduled = models.BooleanField(default=False)
+    sent_time = models.DateTimeField(default=None, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        Will calc and write tweet scheduled time when a tweet is approved
+        """
+        if self.approved == 1 and self.scheduled_time is None:
+            if self.time_interval is None:
+                try:
+                    # if the OutgoingConfig table is empty this will throw DoesNotExist
+                    wait_time = OutgoingConfig.objects.latest("id").default_send_interval   
+                except:
+                    # if no wait_time in AppConfig default to 15 mins
+                    wait_time = 15
+            else: 
+                wait_time = self.time_interval
+            eta = datetime.utcnow() + timedelta(minutes=wait_time)
+            self.scheduled_time = eta
+        super(Tweets, self).save(*args, **kwargs)
+
+    class Meta: 
+        db_table = 'twote_outgoingtweet'
+
+
+class OutgoingConfig(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True) 
+    auto_send = models.BooleanField()
+    default_send_interval = models.IntegerField(default=15)
+
+    class Meta:
+        db_table = 'twote_outgoingconfig'
+
+
 class Serializer(object):
     """Callable serializer. An instance of this class can be passed to the `default` arg in json.dump
 
