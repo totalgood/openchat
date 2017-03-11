@@ -1,6 +1,6 @@
 [
 {
-    "model": "twote_outgoingtweet",
+    "model": "twote.OutgoingTweet",
     "pk": 11,
     "fields": {
         "created_date": "2017-02-28T20:43:29.861Z",
@@ -13,7 +13,7 @@
     }
 },
 {
-    "model": "twote_outgoingtweet",
+    "model": "twote.OutgoingTweet",
     "pk": 12,
     "fields": {
         "created_date": "2017-02-28T20:47:00.573Z",
@@ -26,7 +26,7 @@
     }
 },
 {
-    "model": "twote_outgoingtweet",
+    "model": "twote.OutgoingTweet",
     "pk": 13,
     "fields": {
         "created_date": "2017-02-28T20:58:10.707Z",
@@ -39,7 +39,7 @@
     }
 },
 {
-    "model": "twote_outgoingtweet",
+    "model": "twote.OutgoingTweet",
     "pk": 14,
     "fields": {
         "created_date": "2017-02-28T21:50:49.781Z",
@@ -52,7 +52,7 @@
     }
 },
 {
-    "model": "twote_outgoingtweet",
+    "model": "twote.OutgoingTweet",
     "pk": 15,
     "fields": {
         "created_date": "2017-02-28T21:52:47.965Z",
@@ -65,7 +65,7 @@
     }
 },
 {
-    "model": "twote_outgoingtweet",
+    "model": "twote.OutgoingTweet",
     "pk": 16,
     "fields": {
         "created_date": "2017-02-28T21:57:02.788Z",
@@ -78,7 +78,7 @@
     }
 },
 {
-    "model": "twote_outgoingtweet",
+    "model": "twote.OutgoingTweet",
     "pk": 17,
     "fields": {
         "created_date": "2017-03-01T19:46:31.196Z",
@@ -91,7 +91,7 @@
     }
 },
 {
-    "model": "twote_outgoingtweet",
+    "model": "twote.OutgoingTweet",
     "pk": 18,
     "fields": {
         "created_date": "2017-03-01T22:40:55.184Z",
@@ -104,7 +104,7 @@
     }
 },
 {
-    "model": "twote_outgoingtweet",
+    "model": "twote.OutgoingTweet",
     "pk": 19,
     "fields": {
         "created_date": "2017-03-01T22:43:13.570Z",
@@ -117,7 +117,7 @@
     }
 },
 {
-    "model": "twote_outgoingconfig",
+    "model": "twote.OutgoingConfig",
     "pk": 1,
     "fields": {
         "created_date": "2017-02-26T21:06:53.878Z",
@@ -127,7 +127,7 @@
     }
 },
 {
-    "model": "twote_outgoingconfig",
+    "model": "twote.OutgoingConfig",
     "pk": 2,
     "fields": {
         "created_date": "2017-02-26T21:07:03.354Z",
@@ -137,7 +137,7 @@
     }
 },
 {
-    "model": "twote_outgoingconfig",
+    "model": "twote.OutgoingConfig",
     "pk": 3,
     "fields": {
         "created_date": "2017-02-26T21:26:38.057Z",
@@ -147,7 +147,7 @@
     }
 },
 {
-    "model": "twote_outgoingconfig",
+    "model": "twote.OutgoingConfig",
     "pk": 4,
     "fields": {
         "created_date": "2017-02-28T19:10:32.743Z",
@@ -157,7 +157,7 @@
     }
 },
 {
-    "model": "twote_outgoingconfig",
+    "model": "twote.OutgoingConfig",
     "pk": 5,
     "fields": {
         "created_date": "2017-02-28T20:40:06.422Z",
@@ -167,7 +167,7 @@
     }
 },
 {
-    "model": "twote_outgoingconfig",
+    "model": "twote.OutgoingConfig",
     "pk": 6,
     "fields": {
         "created_date": "2017-02-28T20:41:12.923Z",
@@ -177,7 +177,7 @@
     }
 },
 {
-    "model": "twote_outgoingconfig",
+    "model": "twote.OutgoingConfig",
     "pk": 7,
     "fields": {
         "created_date": "2017-02-28T21:50:03.654Z",
@@ -187,7 +187,7 @@
     }
 },
 {
-    "model": "twote_outgoingconfig",
+    "model": "twote.OutgoingConfig",
     "pk": 8,
     "fields": {
         "created_date": "2017-02-28T21:54:36.770Z",
@@ -197,7 +197,7 @@
     }
 },
 {
-    "model": "twote_outgoingconfig",
+    "model": "twote.OutgoingConfig",
     "pk": 9,
     "fields": {
         "created_date": "2017-02-28T21:59:47.307Z",
