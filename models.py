@@ -75,10 +75,16 @@ class User(models.Model):
         db_table = 'twote_user'
 
 
+APPROVAL_CHOICES = (
+    (0, 'Needs_action'),
+    (1, 'Approved'),
+    (2, 'Denied'),
+)
+
 class OutgoingTweet(models.Model):
     # still need to add original tweet id from Tweet table foriegn key relation
     created_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True) 
+    modified_date = models.DateTimeField(auto_now=True)
     tweet = models.CharField(max_length=255)
     approved = models.IntegerField(choices=APPROVAL_CHOICES, default=0)
     time_interval = models.IntegerField(null=True, blank=True)
@@ -94,23 +100,23 @@ class OutgoingTweet(models.Model):
             if self.time_interval is None:
                 try:
                     # if the OutgoingConfig table is empty this will throw DoesNotExist
-                    wait_time = OutgoingConfig.objects.latest("id").default_send_interval   
+                    wait_time = OutgoingConfig.objects.latest("id").default_send_interval
                 except:
                     # if no wait_time in AppConfig default to 15 mins
                     wait_time = 15
-            else: 
+            else:
                 wait_time = self.time_interval
             eta = datetime.utcnow() + timedelta(minutes=wait_time)
             self.scheduled_time = eta
         super(Tweets, self).save(*args, **kwargs)
 
-    class Meta: 
+    class Meta:
         db_table = 'twote_outgoingtweet'
 
 
 class OutgoingConfig(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True) 
+    modified_date = models.DateTimeField(auto_now=True)
     auto_send = models.BooleanField()
     default_send_interval = models.IntegerField(default=15)
 
