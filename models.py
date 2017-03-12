@@ -106,9 +106,9 @@ class OutgoingTweet(models.Model):
                     wait_time = 15
             else:
                 wait_time = self.time_interval
-            eta = datetime.utcnow() + timedelta(minutes=wait_time)
+            eta = datetime.datetime.utcnow() + datetime.timedelta(minutes=wait_time)
             self.scheduled_time = eta
-        super(Tweets, self).save(*args, **kwargs)
+        super(OutgoingTweet, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'twote_outgoingtweet'

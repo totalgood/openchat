@@ -4,6 +4,7 @@ import re
 from freezegun import freeze_time
 
 from twote.models import OutgoingTweet, OutgoingConfig
+from twote.tasks import beat_tweet_scheduler, tweeter
 
 
 class StrictViewTest(TestCase):
@@ -58,12 +59,12 @@ class StrictViewTest(TestCase):
 
 class TestOutBoundTweetsEndpoint(TestCase):
     """
-    Tests of endpoint filtering for pending tweets and tests of OutgoingTweet 
+    Tests of endpoint filtering for pending tweets and tests of OutgoingTweet
     model's save method and coresponding celery tasks. For these tests to work
     properly you must have 'CELERY_ALWAYS_EAGER = True' in hackor/hackor/settings.py
     """
-    fixtures = ["outgoing_fixture"] 
-    
+    fixtures = ["outgoing_fixture"]
+
     def setUp(self):
         self.c = Client()
 
@@ -73,31 +74,31 @@ class TestOutBoundTweetsEndpoint(TestCase):
         return json_response
 
     def test_get_sends_200(self):
-        response = self.c.get("/twote/tweets/")
+        response = self.c.get("/twote/tweets/?format=json")
         self.assertEqual(response.status_code, 200)
 
     def test_filter_tweets_by_approved_field(self):
-        json_response = self.api_call("/twote/tweets/?approved=1")
-        # 6 tweets in fixture are approved 
-        self.assertEqual(len(json_response), 6)
+        json_response = self.api_call("/twote/tweets/?approved=1&format=json")
+        # 6 tweets in fixture are approved
+        self.assertEqual(json_response["count"], 6)
 
     def test_filter_tweets_waiting_to_be_sent(self):
-        json_response = self.api_call("/twote/tweets/?pending=True")
+        json_response = self.api_call("/twote/tweets/?pending=True&format=json")
         # 4 pending tweets in fixture
-        self.assertEqual(len(json_response), 4)
+        self.assertEqual(json_response["count"], 4)
 
     def test_filtering_tweets_with_both_query_params(self):
-        json_one = self.api_call("/twote/tweets/?pending=True&approved=0")
-        json_two = self.api_call("/twote/tweets/?approved=0&pending=True")
+        json_one = self.api_call("/twote/tweets/?pending=True&approved=0&format=json")
+        json_two = self.api_call("/twote/tweets/?approved=0&pending=True&format=json")
         self.assertEqual(json_one, json_two)
         # 2 tweets in fixture match query
-        self.assertEqual(len(json_one), 2)
+        self.assertEqual(json_one["count"], 2)
 
 
 class TestTweetModelSaveMethod(TestCase):
     """
-    Test to check that model calcs the scheduled_time field when a tweet 
-    object is approved to be sent. 
+    Test to check that model calcs the scheduled_time field when a tweet
+    object is approved to be sent.
     """
 
     def setUp(self):
@@ -118,9 +119,9 @@ class TestTweetModelSaveMethod(TestCase):
     def test_tweet_gets_schedulec_time_when_approved_set_to_true(self):
         """
         A tweet object is created and is pending approval, later it is changed
-        to approved and has it's scheduled time is calculated when approved. 
+        to approved and has it's scheduled time is calculated when approved.
         A tweets scheduled time will only be calculated when the model's save
-        method is called. 
+        method is called.
         """
         pending_tweet = OutgoingTweet.objects.create(tweet="pending tweet", approved=0)
         self.assertEqual(bool(pending_tweet.scheduled_time), False)
