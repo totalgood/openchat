@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 from datetime import datetime, timedelta
 from celery.decorators import periodic_task
 
+from twote.tweepy_connect import tweepy_send_tweet
 from twote.models import OutgoingTweet, OutgoingConfig
 from hackor.celeryconfig import app 
 
@@ -39,14 +40,12 @@ def beat_tweet_scheduler():
 )
 def tweeter(self, tweet, id):
     """
-    Needs to have the process for sending a tweet to Twitter 
+    Write sent_time to tweet instance in model and send tweet with tweepy
     """ 
-    print("tweet sent, indside tweeter : {}".format(tweet))
-
     time_sent = datetime.utcnow()
     OutgoingTweet.objects.filter(pk=id).update(sent_time=time_sent)
 
-    # still need to add the sending of tweet to twitter
+    tweepy_send_tweet(tweet)
 
 @app.task(
     bind=True,
