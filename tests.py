@@ -5,7 +5,7 @@ from freezegun import freeze_time
 
 from twote.models import OutgoingTweet, OutgoingConfig
 from twote.tasks import beat_tweet_scheduler, tweeter
-
+from twote.models_calendar import Event
 
 class StrictViewTest(TestCase):
     """simple tests for strict endpoint"""
@@ -172,3 +172,53 @@ class TestCeleryTasks(TestCase):
 
         sent = OutgoingTweet.objects.get(pk=outgoing.id)
         self.assertEqual(bool(sent.sent_time), True)
+
+class TestEventModel(TestCase):
+    """Testcase to test the Event Model"""
+
+    def setUp(self):
+        self.e_norm = Event(
+            title='event number 1',
+            description='event for python people',
+            start= timezone.now(),
+            end= timezone.now()+timezone.timedelta(hours=2),
+            location='Room 5'
+        )
+
+        self.e_no_end = Event(
+            title='event number 2',
+            description='another event for python people',
+            start= timezone.now()+timezone.timedelta(hours=2),
+            location='Room 6'
+        )
+
+        self.e_bad_end = self.e2 = Event(
+            title='event number 2',
+            description='another event for python people',
+            start=timezone.now()+timezone.timedelta(hours=2),
+            end=timezone.now()+timezone.timedelta(hours=1),
+            location='Room 6'
+        )
+
+    def test_can_create_event(self):
+        old_count = Event.objects.count()
+        self.e_norm.save()
+        new_count = Event.objects.count()
+        self.assertNotEqual(old_count, new_count)
+
+    def test_default_end_time(self):
+        self.e_no_end.save()
+        self.assertEqual(self.e_no_end.end, self.e_no_end.start+timezone.timedelta(hours=1))
+
+    def test_bad_end_time(self):
+        self.time_diff = self.e_bad_end.end - self.e_bad_end.start
+        with self.assertRaises(ValidationError) as ex:
+            self.e_bad_end.save()
+
+    def test_update_last_updated(self):
+        old_time = self.e_norm.last_updated
+        self.e_norm.title = 'blah'
+        self.e_norm.save()
+        new_time = self.e_norm.last_updated
+        self.assertNotEqual(old_time, new_time)
+
