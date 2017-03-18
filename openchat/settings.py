@@ -11,22 +11,35 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import random
+import string
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from .local_settings import SECRET_KEY, DATABASES, DEBUG
+assert(len(DATABASES))
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
+def random_str(n=50):
+    chars = ''.join([string.ascii_letters, string.digits, string.punctuation]
+                    ).replace('\'', '').replace('"', '').replace('\\', '')
+    return ''.join([random.SystemRandom().choice(chars) for i in range(n)])
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '5u3fe7r8425#*778l$n)sh^kj^-14*o4)ggpq!i&jj95om@#y1'
+SECRET_KEY = SECRET_KEY or os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    # need to store the new key somehwere that the other gunicorn instances can find it too!
+    os.environ["DJANGO_SECRET_KEY"] = random_str()
+    SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+TEMPLATE_DEBUG = True
 
+ALLOWED_HOSTS = ['totalgood.org', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -37,6 +50,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
+
+    'rest_framework',
+    'rest_framework_gis',
+    'django_extensions',
+    'url_filter',
+
+    'twote',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -74,11 +95,15 @@ WSGI_APPLICATION = 'openchat.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-DATABASES = {
+DATABASES = DATABASES if len(DATABASES) else {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.getenv('DATABASE_NAME'),
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD')
+    },
 }
 
 
@@ -116,6 +141,56 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
+# https://docs.djangoproject.com/en/1.10/howto/static-files/
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'PAGE_SIZE': 30,
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer', ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',)
+}
+APPS_TO_REST = []  # ('pacs',)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'django': {
+            'format': 'django: %(message)s',
+        },
+    },
+
+    'handlers': {
+        'logging.handlers.SysLogHandler': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.SysLogHandler',
+            'facility': 'local7',
+            'formatter': 'django',
+            'address': '/dev/log',
+        },
+    },
+
+    'loggers': {
+        'loggly': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'django: %(message)s',
+            'level': 'DEBUG',
+        },
+    }
+}
+
+# settings for celery tasks
+CELERY_BROKER_HOST = "127.0.0.1"
+CELERY_BROKER_PORT = 5672 # default RabbitMQ listening port
+CELERY_BROKER_USER = "hackor"
+CELERY_BROKER_PASSWORD = "hackor"
+CELERY_BROKER_VHOST = "hackor"
+CELERY_RESULT_BACKEND = 'amqp'

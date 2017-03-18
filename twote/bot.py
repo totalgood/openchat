@@ -89,7 +89,7 @@ DEFAULT_QUERIES = ('#python,#pycon,#portland,#pyconopenspaces,#pycon2017,#pycon2
 try:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.append(BASE_DIR)
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hackor.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "openchat.settings")
 except:
     print(format_exc())
 

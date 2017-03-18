@@ -2,7 +2,7 @@ from __future__ import division, print_function, unicode_literals
 
 import datetime
 from collections import Mapping
-from hackor.model_utils import representation
+from .model_utils import representation
 
 from django.contrib.gis.db import models
 from django.forms.models import model_to_dict  # this will miss out on ManyToMany fields since they aren't actually database fields
@@ -80,6 +80,7 @@ APPROVAL_CHOICES = (
     (1, 'Approved'),
     (2, 'Denied'),
 )
+
 
 class OutgoingTweet(models.Model):
     # still need to add original tweet id from Tweet table foriegn key relation
