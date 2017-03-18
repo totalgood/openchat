@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from twote.skeleton import fib
+from openchat.skeleton import fib
 
 __author__ = "Hobson Lane"
 __copyright__ = "Hobson Lane"

@@ -1,8 +1,8 @@
-=====
-twote
-=====
+========
+openchat
+========
 
-This is the documentation of **twote**.
+This is the documentation of **openchat**.
 
 .. note::
 
