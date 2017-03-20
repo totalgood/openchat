@@ -21,8 +21,8 @@ install:
   - source tests/travis_install.sh
   - pip install -r requirements.txt
 before_script:
-  - git config --global user.email "you@example.com"
-  - git config --global user.name "Your Name"
+  - git config --global user.email "github@totalgood.com"
+  - git config --global user.name "Total Good"
 script:
   - python setup.py test
 after_success:
