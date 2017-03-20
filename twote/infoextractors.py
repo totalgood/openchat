@@ -1,4 +1,31 @@
 from __future__ import print_function, unicode_literals, division
+"""
+>>> twt = "I'd like to set up an #openspace 'Yoga 101' at 6 pm tomorrow in Room B-10."
+...
+>>> txt = 'Hello world, what do you think of this\nsentence on two (2) lines?'
+>>> txt += " And here's\n1.0 more with a \"Quoted phrase.\" somone else said."
+>>> txt += " But\ncouldn't there b 2. more with a \"A Life of Their Own?\" somone else wrote."
+>>> tokens = nlp(txt, parse=True)
+>>> [str(s) for s in tokens.sents]
+>>> txt += " And someone\nin the U.S. of A. might not like all this fool'n\naround."
+>>> print(txt)
+Hello world, what do you think of this
+sentence on two (2) lines? And here's
+1.0 more with a "Quoted phrase." somone else said. But
+couldn't there b 2. more with a "A Life of Their Own?" somone else wrote. And someone
+in the U.S. of A. might not like all this fool'n
+around.
+
+>>> nlp = English()
+>>> tokens = nlp(txt, parse=True)
+>>> [str(s) for s in tokens.sents]
+['Hello world, what do you think of this\nsentence on two (2) lines?',
+ 'And here\'s\n1.0 more with a "Quoted phrase.',
+ '" somone else said.',
+ "But\ncouldn't there b 2.",
+ 'more with a "A Life of Their Own?" somone else wrote.',
+ "And someone\nin the U.S. of A. might not like all this fool'n\naround."]
+"""
 
 # from spacy.parts_of_speech import NOUN
 # from spacy.parts_of_speech import ADP as PREP
@@ -6,11 +33,14 @@ from __future__ import print_function, unicode_literals, division
 from ast import literal_eval
 import codecs
 
-from spacy.en import English as nlp
+import spacy
+from spacy.en import English
 from spacy.strings import hash_string
 from spacy.matcher import PhraseMatcher
 # from preshed.maps import PreshMap  # faster hash table (dict)--assumes keys are prehashed
 from preshed.counter import PreshCounter  # faster collections.Counter--assumes keys are prehashed
+
+spacy.load('en')
 
 
 def _span_to_tuple(span):
@@ -81,24 +111,33 @@ def read_gazetteer(tokenizer, loc, n=-1):
 
 
 class FullNameExtractor(object):
+    """WIP, untested"""
 
-    def __init__(self):
-        self.matcher = PhraseMatcher(tokenizer.vocab, phrases, max_length=max_length)
+    def __init__(self, tokenizer=None, phrases=None, max_len=6, max_phrases=1000000):
+        self.max_phrases = max_phrases or 1000000
+        self.max_len = max_len or 6
+        self.nlp = English()
+        if isinstance(phrases, basestring):
+            self.phrases = read_gazetteer(self.nlp.tokenizer, phrases, n=self.max_phrases)
+        else:
+            self.phrases = phrases
+        self.matcher = PhraseMatcher(self.nlp.tokenizer.vocab, self.phrases, max_length=self.max_len)
 
     def extract(self, text):
-        self.matcher(text)
+        tokens = self.nlp.tokenizer(text)
+        # this may operate on the tokens in-place
+        matches = self.matcher(tokens)
+        for mwe in tokens.ents:
+            yield mwe
 
 
-def extract_all_full_names(patterns_path, text_path, counts_loc, n=10000000):
+def make_matcher(patterns_path, text_path, counts_loc, n=10000000):
     nlp = English(parser=False, tagger=False, entity=False)
     print("Make matcher")
     phrases = read_gazetteer(nlp.tokenizer, patterns_path, n=n)
     counts = PreshCounter()
-    t1 = time.time()
-    for mwe in get_matches(nlp.tokenizer, phrases, read_text(text_path)):
+    for mwe in get_matches(nlp.tokenizer, phrases, open(text_path)):
         counts.inc(hash_string(mwe.text), 1)
-    t2 = time.time()
-    print("10m tokens in %d s" % (t2 - t1))
 
     with codecs.open(counts_loc, 'w', 'utf8') as file_:
         for phrase in read_gazetteer(nlp.tokenizer, patterns_path, n=n):
@@ -121,7 +160,3 @@ def test_extract_money():
         relations = extract_currency_relations(doc)
         for r1, r2 in relations:
             print(r1.text, r2.ent_type_, r2.text)
-
-
-def test_extract_datetime():
-    extract
