@@ -15,6 +15,7 @@ import random
 import string
 
 from .local_settings import SECRET_KEY, DATABASES, DEBUG
+assert(DEBUG or True)
 assert(len(DATABASES))
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,12 +33,6 @@ if not SECRET_KEY:
     # need to store the new key somehwere that the other gunicorn instances can find it too!
     os.environ["DJANGO_SECRET_KEY"] = random_str()
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = ['totalgood.org', 'localhost', '127.0.0.1']
 
@@ -78,6 +73,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'APP_DIRS': True,
+        'TEMPLATE_DEBUG': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -187,9 +183,10 @@ LOGGING = {
     }
 }
 
+
 # settings for celery tasks
 CELERY_BROKER_HOST = "127.0.0.1"
-CELERY_BROKER_PORT = 5672 # default RabbitMQ listening port
+CELERY_BROKER_PORT = 5672  # default RabbitMQ listening port
 CELERY_BROKER_USER = "hackor"
 CELERY_BROKER_PASSWORD = "hackor"
 CELERY_BROKER_VHOST = "hackor"
