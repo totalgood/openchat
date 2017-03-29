@@ -27,6 +27,13 @@ class Place(models.Model):
         db_table = 'twote_place'
 
 
+class Label(models.Model):
+    name = models.CharField(max_length=64, null=False)
+    description = models.TextField(default='', null=False)
+
+    score = models.FloatField(default=None, null=True, help_text='Score float value between 0 and 1 (like probability).')
+
+
 class Tweet(models.Model):
     id = models.AutoField(primary_key=True)
     id_str = models.CharField(max_length=256, db_index=True, default='')
@@ -44,12 +51,21 @@ class Tweet(models.Model):
     location = models.CharField(max_length=256, blank=True, null=True)
     place = models.ForeignKey(Place, blank=True, null=True)
     favorite_count = models.IntegerField(default=-1, null=True)
+    contains_url = models.IntegerField(default=None, null=True)
+    source_bot = models.IntegerField(default=None, null=True)
+    is_strict = models.IntegerField(default=None, null=True)
+    label = models.ManyToManyField(Label, through='TweetLabel')
 
     def __str__(self):
         return representation(self)
 
     class Meta:
         db_table = 'twote_tweet'
+
+
+class TweetLabel(models.Model):
+    tweet = models.ForeignKey(Tweet, on_delete=models.CASCADE)
+    label = models.ForeignKey(Label, on_delete=models.CASCADE)
 
 
 class User(models.Model):
