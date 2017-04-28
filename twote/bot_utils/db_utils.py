@@ -26,8 +26,8 @@ def get_or_create_user_and_tweet(status):
     user.favourites_count = status.user.favourites_count
     user.save()
 
-    # save tweet record to StreamedTestTweet model
-    tweet_record, created = models.StreamedTestTweet.objects.get_or_create(id_str=status.id_str)
+    # save tweet record to StreamedTweet model
+    tweet_record, created = models.StreamedTweet.objects.get_or_create(id_str=status.id_str)
     tweet_record.id_str = status.id_str
     tweet_record.user = user
     tweet_record.favorite_count = status.favorite_count
