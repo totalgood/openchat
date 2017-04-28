@@ -1,4 +1,4 @@
-mqp==2.1.4
+amqp==2.1.4
 appdirs==1.4.1
 Babel==2.3.4
 billiard==3.5.0.2
