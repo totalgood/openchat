@@ -150,7 +150,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoFilterBackend',)
 }
-APPS_TO_REST = []  # ('pacs',)
+APPS_TO_REST = []  
 
 # LOGGING = {
 #     'version': 1,

@@ -29,6 +29,7 @@ __pycache__/*
 .pydevproject
 .settings
 .idea
+python-sutime
 
 # Package files
 *.egg
