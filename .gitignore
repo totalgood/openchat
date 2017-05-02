@@ -69,3 +69,4 @@ bin/
 include/
 lib/
 .Python
+venv3
