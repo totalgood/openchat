@@ -31,11 +31,11 @@ class TweetAdmin(admin.ModelAdmin):
 class TweetUserAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Twitter User', {
-            'fields': ('screen_name', 'id_str')
+            'fields': ('screen_name', 'id_str', 'should_ignore')
         }),
     )
     date_hierarchy = 'created_date'
-    list_display = ['screen_name', 'id_str']
+    list_display = ['screen_name', 'id_str', 'should_ignore']
     search_fields = ['screen_name']
 
     def get_readonly_fields(self, request, obj=None):

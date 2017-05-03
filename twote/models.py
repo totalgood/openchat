@@ -1,8 +1,12 @@
 from __future__ import division, print_function, unicode_literals
 
+from django.dispatch import Signal, receiver
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from datetime import datetime, timedelta
+
+
+ignore_user_signal = Signal(providing_args=["id_str", "screen_name"])
 
 
 class StreamedTweet(models.Model):
@@ -32,12 +36,33 @@ class User(models.Model):
     statuses_count = models.IntegerField(blank=True, null=True)
     friends_count = models.IntegerField(blank=True, null=True)
     favourites_count = models.IntegerField(default=-1, null=True)
+    should_ignore = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        """
+        Send out a signal if a user is saved that should be ignored this
+        signal is used to update the ignore list in the conifg model 
+        """
+        if self.should_ignore == True:
+            ignore_user_signal.send(sender=self.__class__, 
+                                    id_str=self.id_str, 
+                                    screen_name=self.screen_name)
+            print("user saved with an ignored signal should trigger action")
+        else:
+            print("user saved who shouldn't be ignored do nothing")
+            pass
+        super(User, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.screen_name)
 
     class Meta:
         db_table = 'openchat_user'
+
+
+@receiver(ignore_user_signal, sender=User)
+def ignore_handler(sender, **kwargs):
+    print("signal recived in ignore_handler")
 
 
 # used in OutgoingTweet model
