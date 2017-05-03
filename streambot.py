@@ -3,6 +3,7 @@ import logging
 from nltk import word_tokenize
 import os
 import re
+from slacker import Slacker
 from sutime import SUTime
 import tweepy
 from tweepy.api import API 
@@ -69,6 +70,7 @@ class Streambot:
         self.stream_listener = StreamListener(self)
         jar_files = os.path.join(BASE_DIR, "python-sutime", "jars") 
         self.sutime = SUTime(jars=jar_files, mark_time_ranges=True)
+        self.slacker = Slacker(s.SLACK_TOKEN)
 
     def setup_auth(self):
         """Set up auth stuff for api and return tweepy api object"""
@@ -123,6 +125,10 @@ class Streambot:
             conflict = db_utils.check_time_room_conflict(converted_time, room)
 
             if not conflict:
+                # send message to slack when a tweet is scheduled to go out
+                slack_message = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
+                self.slacker.chat.post_message('#outgoing_tweets', slack_message)
+
                 self.send_mention_tweet(screen_name, room, converted_time)
 
                 # This record lets us check that retweets not for same event
