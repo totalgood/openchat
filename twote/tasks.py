@@ -4,7 +4,7 @@ from celery.decorators import periodic_task
 
 from twote.tweepy_connect import tweepy_send_tweet
 from twote.models import OutgoingTweet, OutgoingConfig
-from hackor.celeryconfig import app 
+from openchat.celery import app 
 
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):

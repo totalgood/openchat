@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'django_extensions',
+    'django_celery_results',
 
     'twote',
 ]
@@ -131,7 +132,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -183,9 +184,15 @@ APPS_TO_REST = []
 
 
 # settings for celery tasks
-CELERY_BROKER_HOST = "127.0.0.1"
-CELERY_BROKER_PORT = 5672  # default RabbitMQ listening port
-CELERY_BROKER_USER = "hackor"
-CELERY_BROKER_PASSWORD = "hackor"
-CELERY_BROKER_VHOST = "hackor"
-CELERY_RESULT_BACKEND = 'amqp'
+# CELERY_BROKER_HOST = "127.0.0.1"
+# CELERY_BROKER_PORT = 5672  # default RabbitMQ listening port
+# CELERY_BROKER_USER = "hackor"
+# CELERY_BROKER_PASSWORD = "hackor"
+# CELERY_BROKER_VHOST = "hackor"
+# CELERY_RESULT_BACKEND = 'amqp'
+
+
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_ALWAYS_EAGER = False
+CELERY_RESULT_BACKEND = 'django-db'
+
