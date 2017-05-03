@@ -46,20 +46,3 @@ def tweeter(self, tweet, id):
     OutgoingTweet.objects.filter(pk=id).update(sent_time=time_sent)
 
     tweepy_send_tweet(tweet)
-
-@app.task(
-    bind=True,
-    max_retries=3,
-    soft_time_limit=5, 
-    # ignore_result=True
-)
-def tweet_adder(self, tweet):
-    """
-    Send or stage tweet depending on value in OutgoingConfig table
-    """ 
-    config_obj = OutgoingConfig.objects.latest("id")
-    # Choices on approved field are 0-2 with 0 meaning pending
-    approved = 1 if config_obj.auto_send else 0        
-
-    tweet_obj = OutgoingTweet(tweet=tweet, approved=approved)
-    tweet_obj.save()
