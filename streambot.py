@@ -110,44 +110,44 @@ class Streambot:
         save tweet to OutgoingTweet to be retweeted
         """
         # use SUTime to parse a datetime out of tweet
-        # time_room = self.parse_time_room(tweet)
+        time_room = self.parse_time_room(tweet)
 
-        # # make sure both time and room extracted and only one val each
-        # val_check = [val for val in time_room.values() if len(val) == 1]
+        # make sure both time and room extracted and only one val each
+        val_check = [val for val in time_room.values() if len(val) == 1]
 
-        # if len(val_check) == 2:
-        #     room = time_room["room"][0]
-        #     converted_time = time_utils.convert_to_utc(time_room["date"][0])
+        if len(val_check) == 2:
+            room = time_room["room"][0]
+            converted_time = time_utils.convert_to_utc(time_room["date"][0])
 
-        #     # check for a time and room conflict, only 1 set of retweets per event
-        #     conflict = db_utils.check_time_room_conflict(converted_time, room)
+            # check for a time and room conflict, only 1 set of retweets per event
+            conflict = db_utils.check_time_room_conflict(converted_time, room)
 
-        #     if not conflict:
-        #         self.send_mention_tweet(screen_name, room, converted_time)
+            if not conflict:
+                self.send_mention_tweet(screen_name, room, converted_time)
 
-        #         # This record lets us check that retweets not for same event
-        #         db_utils.create_event(
-        #                               description=tweet,
-        #                               start=converted_time, 
-        #                               location=room,
-        #                               creator=screen_name
-        #                              )
+                # This record lets us check that retweets not for same event
+                db_utils.create_event(
+                                      description=tweet,
+                                      start=converted_time, 
+                                      location=room,
+                                      creator=screen_name
+                                     )
 
-        #         tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, converted_time)
-        #         loggly.info("scheduled this tweet for retweet: {}".format(tweet))
+                tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, converted_time)
+                loggly.info("scheduled this tweet for retweet: {}".format(tweet))
 
-        #     else:
-        #         message = """
-        #                     Tweet recived for an event bot is already scheduled
-        #                     to retweet about. Sender: {}, room: {}, time: {}, 
-        #                     tweet: {} 
-        #                   """
-        #         message = message.format(screen_name, room, converted_time, tweet)
-        #         loggly.info(message)
+            else:
+                message = """
+                            Tweet recived for an event bot is already scheduled
+                            to retweet about. Sender: {}, room: {}, time: {}, 
+                            tweet: {} 
+                          """
+                message = message.format(screen_name, room, converted_time, tweet)
+                loggly.info(message)
 
-        # else:
-        #     # tweet found but without valid time or room extracted, ignore
-        #     pass
+        else:
+            # tweet found but without valid time or room extracted, ignore
+            pass
 
 
 if __name__ == '__main__':

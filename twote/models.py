@@ -14,9 +14,6 @@ class StreamedTweet(models.Model):
     user = models.ForeignKey('User', blank=True, null=True)
     source = models.CharField(max_length=256, blank=True, null=True)
     text = models.CharField(max_length=256, blank=True, null=True)
-    location = models.CharField(max_length=256, blank=True, null=True)
-    favorite_count = models.IntegerField(default=-1, null=True)
-
 
     class Meta:
         db_table = 'openchat_streamedtweet'

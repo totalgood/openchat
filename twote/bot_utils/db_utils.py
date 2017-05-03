@@ -30,7 +30,6 @@ def get_or_create_user_and_tweet(status):
     tweet_record, created = models.StreamedTweet.objects.get_or_create(id_str=status.id_str)
     tweet_record.id_str = status.id_str
     tweet_record.user = user
-    tweet_record.favorite_count = status.favorite_count
     tweet_record.text = status.text
     tweet_record.source = status.source
     tweet_record.save() 
