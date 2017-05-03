@@ -47,9 +47,7 @@ class User(models.Model):
             ignore_user_signal.send(sender=self.__class__, 
                                     id_str=self.id_str, 
                                     screen_name=self.screen_name)
-            print("user saved with an ignored signal should trigger action")
         else:
-            print("user saved who shouldn't be ignored do nothing")
             pass
         super(User, self).save(*args, **kwargs)
 
@@ -62,8 +60,11 @@ class User(models.Model):
 
 @receiver(ignore_user_signal, sender=User)
 def ignore_handler(sender, **kwargs):
-    print("signal recived in ignore_handler")
-
+    """Add the user's id to the ignore list bot checks when receiving tweets"""
+    config_obj = OutgoingConfig.objects.latest("id")
+    config_obj.ignore_users.append(int(kwargs['id_str']))
+    config_obj.save(update_fields=['ignore_users'])
+    
 
 # used in OutgoingTweet model
 APPROVAL_CHOICES = (
