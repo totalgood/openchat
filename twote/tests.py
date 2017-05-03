@@ -7,61 +7,11 @@ from twote.models import OutgoingTweet, OutgoingConfig
 from twote.tasks import beat_tweet_scheduler, tweeter
 from twote.models_calendar import Event
 
-class StrictViewTest(TestCase):
-    """simple tests for strict endpoint"""
-
-    fixtures = ["twote/fixtures/twote_fixture.json"]
-
-    def setUp(self):
-        self.c = Client()
-
-    def get_request_helper(self, hashtag=None):
-        if hashtag is not None:
-            response = self.c.get("/twote/strict/?format=json&hashtag={}".format(hashtag))
-        else:
-            response = self.c.get("/twote/strict/?format=json")
-        return json.loads(response.content)
-
-    def test_bad_endpoint_returns_404(self):
-        response = self.c.get("/badendpoint/")
-        self.assertEqual(response.status_code, 404)
-
-    def test_bad_query_param_return_default_response(self):
-        response = self.c.get("/twote/strict/?format=json&badparam=bad")
-
-    def test_get_request_sends_200(self):
-        response = self.c.get("/twote/strict/")
-        self.assertEqual(response.status_code, 200)
-
-    def test_each_tweet_only_has_one_hashtag(self):
-        response = self.get_request_helper()
-        hashtags = [tweet["tags"] for tweet in response["results"]]
-
-        self.assertEqual(len(response["results"]), len(hashtags))
-
-    def test_specific_hashtag_query_returns_correct_hashtags(self):
-        response = self.get_request_helper("basicincome")
-        hashtag = [tweet["tags"] for tweet in response["results"]]
-
-        self.assertEqual(len(hashtag), 1)
-        self.assertEqual(hashtag[0], "basicincome")
-
-    def test_no_URLs_in_tweets(self):
-        response = self.get_request_helper()
-        tweet_text = [tweet["text"] for tweet in response["results"]]
-
-        url_regex = '((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?'
-        matched_tweets = [re.match(url_regex, tweet) for tweet in tweet_text]
-
-        for match in matched_tweets:
-            self.assertEqual(match, None)
-
 
 class TestOutBoundTweetsEndpoint(TestCase):
     """
     Tests of endpoint filtering for pending tweets and tests of OutgoingTweet
-    model's save method and coresponding celery tasks. For these tests to work
-    properly you must have 'CELERY_ALWAYS_EAGER = True' in hackor/hackor/settings.py
+    model's save method
     """
     fixtures = ["outgoing_fixture"]
 
@@ -102,7 +52,9 @@ class TestTweetModelSaveMethod(TestCase):
     """
 
     def setUp(self):
-        OutgoingConfig.objects.create(auto_send=True, default_send_interval=1)
+        OutgoingConfig.objects.create(auto_send=True, 
+                                      default_send_interval=1,
+                                      ignore_users=[])
 
     def test_approved_tweet_gets_scheduled_time_auto_calculated(self):
         OutgoingTweet.objects.create(tweet="test tweet", approved=1)
@@ -136,89 +88,42 @@ class TestTweetModelSaveMethod(TestCase):
 class TestCeleryTasks(TestCase):
     """
     Check that the celery tasks perform as expected in isolation
+
+    These test must be run manually by switching CELERY_ALWAYS_EAGER = True
+    in the settings file. 
     """
 
-    def setUp(self):
-        OutgoingConfig.objects.create(auto_send=True, default_send_interval=1)
+    # def setUp(self):
+    #     OutgoingConfig.objects.create(auto_send=True, default_send_interval=1)
 
-    @freeze_time("2017-03-03")
-    def test_beat_tweet_scheduler_schedules_correct_tweets(self):
-        """
-        Test that a tweet scheduled to be sent within the beat_tweet_scheduler
-        time range is scheduled and added its task_scheduled flag is set to True
-        """
-        OutgoingTweet.objects.create(tweet="test time tweet", approved=1)
+    # @freeze_time("2017-03-03")
+    # def test_beat_tweet_scheduler_schedules_correct_tweets(self):
+    #     """
+    #     Test that a tweet scheduled to be sent within the beat_tweet_scheduler
+    #     time range is scheduled and added its task_scheduled flag is set to True
+    #     """
+    #     OutgoingTweet.objects.create(tweet="test time tweet", approved=1)
 
-        # task is wating to be scheduled in DB so task_scheduled flag = False
-        pre_scheduled = OutgoingTweet.objects.get(tweet="test time tweet")
-        self.assertEqual(pre_scheduled.task_scheduled, False)
+    #     # task is wating to be scheduled in DB so task_scheduled flag = False
+    #     pre_scheduled = OutgoingTweet.objects.get(tweet="test time tweet")
+    #     self.assertEqual(pre_scheduled.task_scheduled, False)
 
-        beat_tweet_scheduler()
+    #     beat_tweet_scheduler()
 
-        post_scheduled = OutgoingTweet.objects.get(tweet="test time tweet")
-        self.assertEqual(post_scheduled.task_scheduled, True)
+    #     post_scheduled = OutgoingTweet.objects.get(tweet="test time tweet")
+    #     self.assertEqual(post_scheduled.task_scheduled, True)
 
-    @freeze_time("2017-03-03")
-    def test_tweeter_sends_tweet_and_sets_field(self):
-        """
-        Test that tweeter task sends tweet and writes sent time to Tweet obj
-        """
-        # create tweet to be sent
-        outgoing = OutgoingTweet.objects.create(tweet="tweet in tweeter", approved=1, 
-                                         task_scheduled=True)
-        self.assertEqual(bool(outgoing.sent_time), False)
+    # @freeze_time("2017-03-03")
+    # def test_tweeter_sends_tweet_and_sets_field(self):
+    #     """
+    #     Test that tweeter task sends tweet and writes sent time to Tweet obj
+    #     """
+    #     # create tweet to be sent
+    #     outgoing = OutgoingTweet.objects.create(tweet="tweet in tweeter", approved=1, 
+    #                                      task_scheduled=True)
+    #     self.assertEqual(bool(outgoing.sent_time), False)
 
-        tweeter(outgoing.tweet, outgoing.id)
+    #     tweeter(outgoing.tweet, outgoing.id)
 
-        sent = OutgoingTweet.objects.get(pk=outgoing.id)
-        self.assertEqual(bool(sent.sent_time), True)
-
-class TestEventModel(TestCase):
-    """Testcase to test the Event Model"""
-
-    def setUp(self):
-        self.e_norm = Event(
-            title='event number 1',
-            description='event for python people',
-            start= timezone.now(),
-            end= timezone.now()+timezone.timedelta(hours=2),
-            location='Room 5'
-        )
-
-        self.e_no_end = Event(
-            title='event number 2',
-            description='another event for python people',
-            start= timezone.now()+timezone.timedelta(hours=2),
-            location='Room 6'
-        )
-
-        self.e_bad_end = self.e2 = Event(
-            title='event number 2',
-            description='another event for python people',
-            start=timezone.now()+timezone.timedelta(hours=2),
-            end=timezone.now()+timezone.timedelta(hours=1),
-            location='Room 6'
-        )
-
-    def test_can_create_event(self):
-        old_count = Event.objects.count()
-        self.e_norm.save()
-        new_count = Event.objects.count()
-        self.assertNotEqual(old_count, new_count)
-
-    def test_default_end_time(self):
-        self.e_no_end.save()
-        self.assertEqual(self.e_no_end.end, self.e_no_end.start+timezone.timedelta(hours=1))
-
-    def test_bad_end_time(self):
-        self.time_diff = self.e_bad_end.end - self.e_bad_end.start
-        with self.assertRaises(ValidationError) as ex:
-            self.e_bad_end.save()
-
-    def test_update_last_updated(self):
-        old_time = self.e_norm.last_updated
-        self.e_norm.title = 'blah'
-        self.e_norm.save()
-        new_time = self.e_norm.last_updated
-        self.assertNotEqual(old_time, new_time)
-
+    #     sent = OutgoingTweet.objects.get(pk=outgoing.id)
+    #     self.assertEqual(bool(sent.sent_time), True)

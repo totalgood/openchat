@@ -4,8 +4,6 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from datetime import datetime, timedelta
 
-from .model_utils import representation
-
 
 class StreamedTweet(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
