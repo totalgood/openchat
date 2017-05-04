@@ -6,19 +6,7 @@ from django.contrib.postgres.fields import ArrayField
 from datetime import datetime, timedelta
 
 
-ignore_user_signal = Signal(providing_args=["id_str", "screen_name"])
-
-
-class StreamedTweet(models.Model):
-    created_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True)
-    id_str = models.CharField(max_length=256, db_index=True, default='')
-    user = models.ForeignKey('User', blank=True, null=True)
-    source = models.CharField(max_length=256, blank=True, null=True)
-    text = models.CharField(max_length=256, blank=True, null=True)
-
-    class Meta:
-        db_table = 'openchat_streamedtweet'
+ignore_user_signal = Signal(providing_args=['id_str', 'screen_name'])
 
 
 class User(models.Model):
@@ -61,10 +49,28 @@ class User(models.Model):
 @receiver(ignore_user_signal, sender=User)
 def ignore_handler(sender, **kwargs):
     """Add the user's id to the ignore list bot checks when receiving tweets"""
-    config_obj = OutgoingConfig.objects.latest("id")
-    config_obj.ignore_users.append(int(kwargs['id_str']))
-    config_obj.save(update_fields=['ignore_users'])
-    
+    config_obj = OutgoingConfig.objects.latest('id')
+    user_id = int(kwargs['id_str'])
+
+    if user_id not in config_obj.ignore_users:
+        config_obj.ignore_users.append(user_id)
+        config_obj.save(update_fields=['ignore_users'])
+    else:
+        # user alread in ignored list
+        pass
+
+
+class StreamedTweet(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
+    id_str = models.CharField(max_length=256, db_index=True, default='')
+    user = models.ForeignKey('User', blank=True, null=True)
+    source = models.CharField(max_length=256, blank=True, null=True)
+    text = models.CharField(max_length=256, blank=True, null=True)
+
+    class Meta:
+        db_table = 'openchat_streamedtweet'    
+
 
 # used in OutgoingTweet model
 APPROVAL_CHOICES = (
