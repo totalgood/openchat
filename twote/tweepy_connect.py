@@ -1,5 +1,5 @@
 import tweepy
-from secrets import sender
+from .secrets import sender
 
 
 def get_api():

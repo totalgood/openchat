@@ -92,5 +92,3 @@ class TestUserModelIgnoreInteractions(TestCase):
 
         ignore_after = OutgoingConfig.objects.latest("id").ignore_users
         self.assertEqual(ignore_after, [1234, 5678])
-
-

@@ -1,9 +1,10 @@
+# These test must be run manually by switching CELERY_ALWAYS_EAGER = True
+# in the settings file.
+
+
 # class TestCeleryTasks(TestCase):
 #     """
-#     Check that the celery tasks perform as expected in isolation
-
-#     These test must be run manually by switching CELERY_ALWAYS_EAGER = True
-#     in the settings file. 
+#     Check that the celery tasks perform as expected in isolation 
 #     """
 
     # def setUp(self):
@@ -40,3 +41,4 @@
 
     #     sent = OutgoingTweet.objects.get(pk=outgoing.id)
     #     self.assertEqual(bool(sent.sent_time), True)
+    

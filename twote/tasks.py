@@ -31,7 +31,6 @@ def beat_tweet_scheduler():
         tweeter.apply_async((tweet.tweet, tweet.id), eta=tweet.scheduled_time)
         OutgoingTweet.objects.filter(pk=tweet.id).update(task_scheduled=True)
 
-# need to link both tasks below to twitter bot 
 @app.task(
     bind=True,
     max_retries=3,
