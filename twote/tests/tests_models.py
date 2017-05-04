@@ -2,7 +2,7 @@ from datetime import datetime
 from django.test import TestCase, Client
 from freezegun import freeze_time
 
-from twote.models import OutgoingTweet, OutgoingConfig
+from twote.models import OutgoingTweet, OutgoingConfig, User
 
 class TestOutgoingTweetModelSaveMethod(TestCase):
     """
@@ -22,7 +22,6 @@ class TestOutgoingTweetModelSaveMethod(TestCase):
         start_time = datetime.utcnow()
         time_diff = my_tweet.scheduled_time - start_time
 
-        self.assertEqual(bool(my_tweet.scheduled_time), True)
         # scheduled time should be 60 seconds into the future
         self.assertEqual(time_diff.seconds, 60)
 
@@ -45,7 +44,6 @@ class TestOutgoingTweetModelSaveMethod(TestCase):
     def test_non_approved_tweet_gets_no_scheduled_time(self):
         OutgoingTweet.objects.create(tweet="non approved tweet", approved=0)
         pending_tweet = OutgoingTweet.objects.get(tweet="non approved tweet")
-
         self.assertEqual(bool(pending_tweet.scheduled_time), False)
 
     def test_tweet_gets_scheduled_time_when_approved_set_to_true(self):
@@ -70,4 +68,29 @@ class TestUserModelIgnoreInteractions(TestCase):
     Test the interaction bewteen the OutgoingConfig model's ignore_users field
     and the user model save method that uses signal to update ignore_users 
     """
+    def setUp(self):
+        OutgoingConfig.objects.create(auto_send=True, 
+                                      default_send_interval=1,
+                                      ignore_users=[])
+
+    def test_saving_a_user_with_should_ignore_false_does_nothing(self):
+        User.objects.create(id_str=1234, should_ignore=False)
+        config_ignore_list = OutgoingConfig.objects.latest("id").ignore_users
+        self.assertEqual(config_ignore_list, [])
+
+    def test_saving_a_user_with_ignore_flag_true_updates_config_obj(self):
+        ignore_before = OutgoingConfig.objects.latest("id").ignore_users
+        self.assertEqual(ignore_before, [])
+
+        User.objects.create(id_str=1234, should_ignore=True)
+        ignore_after = OutgoingConfig.objects.latest("id").ignore_users
+        self.assertEqual(ignore_after, [1234,])
+
+    def test_adding_multiple_users_to_ignore_list_works(self):
+        User.objects.create(id_str=1234, should_ignore=True)
+        User.objects.create(id_str=5678, should_ignore=True)
+
+        ignore_after = OutgoingConfig.objects.latest("id").ignore_users
+        self.assertEqual(ignore_after, [1234, 5678])
+
 
