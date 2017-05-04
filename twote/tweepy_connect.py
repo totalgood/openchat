@@ -1,10 +1,10 @@
 import tweepy
-from .secrets import sender
+from .secrets import listener
 
 
 def get_api():
-    auth = tweepy.OAuthHandler(sender.TEST_CONSUMER_KEY, sender.TEST_CONSUMER_SECRET)
-    auth.set_access_token(sender.TEST_ACCESS_TOKEN, sender.TEST_ACCESS_TOKEN_SECRET)
+    auth = tweepy.OAuthHandler(listener.CONSUMER_KEY, listener.CONSUMER_SECRET)
+    auth.set_access_token(listener.ACCESS_TOKEN, listener.ACCESS_TOKEN_SECRET)
     return tweepy.API(auth)
 
 def tweepy_send_tweet(tweet):

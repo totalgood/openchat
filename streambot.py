@@ -48,7 +48,7 @@ class StreamListener(tweepy.StreamListener):
 
         # trigger logic to handle tweet and decide on response in Streambot
         self.streambot.retweet_logic(status.text, status.id_str, 
-                                        status.user.screen_name)  
+                                     status.user.screen_name, status.user.id)  
         
     def on_error(self, status_code):
         if status_code == 420:
@@ -107,7 +107,7 @@ class Streambot:
         time_and_room = tweet_utils.get_time_and_room(tweet, extracted_time)
         return time_and_room
 
-    def retweet_logic(self, tweet, tweet_id, screen_name):
+    def retweet_logic(self, tweet, tweet_id, screen_name, user_id):
         """Use SUTime to try to parse a datetime out of a tweet, if successful
         save tweet to OutgoingTweet to be retweeted
         """
@@ -129,7 +129,7 @@ class Streambot:
                 slack_message = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
                 self.slacker.chat.post_message('#outgoing_tweets', slack_message)
 
-                self.send_mention_tweet(screen_name, room, converted_time)
+                # self.send_mention_tweet(screen_name, room, converted_time)
 
                 # This record lets us check that retweets not for same event
                 db_utils.create_event(
