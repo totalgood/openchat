@@ -1,4 +1,5 @@
 from django.contrib import admin
+import pytz
 
 from twote import models 
 
@@ -53,7 +54,17 @@ class OutgoingConfigAdmin(admin.ModelAdmin):
 
 class OutgoiningTweetAdmin(admin.ModelAdmin):
     date_hierarchy = 'scheduled_time'
-    list_display = ['original_tweet', 'screen_name', 'approved', 'scheduled_time', 'sent_time']
+    list_display = ['original_tweet', 'screen_name', 'approved', 
+                    'scheduled_time_in_timezone', 'sent_time']
+
+    # list_display = [..., 'event_datetime_in_timezone', ...]
+
+    def scheduled_time_in_timezone(self, event):
+        """Display each event time on the changelist in its own timezone"""
+        fmt = '%Y-%m-%d %H:%M:%S %Z'
+        dt = pytz.utc.localize(event.scheduled_time).astimezone(pytz.timezone('US/Pacific'))
+        return dt.strftime(fmt)
+    scheduled_time_in_timezone.short_description = ('Scheduled Time')
 
 
 class OpenspacesEventAdmin(admin.ModelAdmin):
