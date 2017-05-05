@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from twote.models import User, StreamedTweet, OutgoingConfig, OutgoingTweet
+from twote import models 
 
 
 class TweetAdmin(admin.ModelAdmin):
@@ -56,7 +56,12 @@ class OutgoiningTweetAdmin(admin.ModelAdmin):
     list_display = ['tweet', 'approved', 'scheduled_time', 'sent_time']
 
 
-admin.site.register(StreamedTweet, TweetAdmin)
-admin.site.register(User, TweetUserAdmin)
-admin.site.register(OutgoingConfig, OutgoingConfigAdmin)
-admin.site.register(OutgoingTweet, OutgoiningTweetAdmin)
+class RetweetEventAdmin(admin.ModelAdmin):
+    list_display = ['start', 'location', 'creator', 'description']
+
+
+admin.site.register(models.StreamedTweet, TweetAdmin)
+admin.site.register(models.User, TweetUserAdmin)
+admin.site.register(models.OutgoingConfig, OutgoingConfigAdmin)
+admin.site.register(models.OutgoingTweet, OutgoiningTweetAdmin)
+admin.site.register(models.RetweetEvent, RetweetEventAdmin)
