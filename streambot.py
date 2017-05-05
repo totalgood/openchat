@@ -140,8 +140,7 @@ class Streambot:
                                      )
 
                 tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, converted_time)
-                # loggly.info("scheduled this tweet for retweet: {}".format(tweet))
-                print("schedule_tweets")
+                loggly.info("scheduled this tweet for retweet: {}".format(tweet))
 
             else:
                 message = """
@@ -150,8 +149,7 @@ class Streambot:
                             tweet: {} 
                           """
                 message = message.format(screen_name, room, converted_time, tweet)
-                # loggly.info(message)
-                print(message)
+                loggly.info(message)
 
         else:
             # tweet found but without valid time or room extracted, ignore

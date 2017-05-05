@@ -23,6 +23,7 @@ def beat_tweet_scheduler():
     start_time = datetime.utcnow()
     end_time = start_time + timedelta(minutes=1)
     tweets = OutgoingTweet.objects.filter(sent_time__isnull=True) \
+                          .filter(approved__exact=1) \
                           .filter(task_scheduled__exact=False) \
                           .filter(scheduled_time__range=(start_time, end_time)) 
 
