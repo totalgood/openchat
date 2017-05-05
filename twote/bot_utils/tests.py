@@ -4,7 +4,7 @@ from freezegun import freeze_time
 import pytz
 
 from twote.bot_utils import db_utils, tweet_utils, time_utils
-from twote.models import OutgoingTweet, OutgoingConfig, RetweetEvent, User
+from twote.models import OutgoingTweet, OutgoingConfig, OpenspacesEvent, User
 
 
 class TestDBUtils(TestCase):
@@ -27,7 +27,9 @@ class TestDBUtils(TestCase):
         tweet_obj = {
             "message": "a test tweet",
             "approved": 1,
-            "remind_time": datetime.datetime.now()
+            "remind_time": datetime.datetime.now(),
+            "original_tweet": "fake original_tweet",
+            "screen_name": "fake screen_name"
         }
 
         tweets_before_save = OutgoingTweet.objects.all()
@@ -47,7 +49,7 @@ class TestDBUtils(TestCase):
         fake_user = User.objects.create(id_str=12345)
         fake_loc = "B123"
 
-        RetweetEvent.objects.create(
+        OpenspacesEvent.objects.create(
                             description="a fake description",
                             start=fake_now, 
                             location=fake_loc,
@@ -65,7 +67,7 @@ class TestDBUtils(TestCase):
 
     @freeze_time("2017-08-05")
     def test_update_time_and_room_utils_works(self):
-        no_records = RetweetEvent.objects.all()
+        no_records = OpenspacesEvent.objects.all()
         self.assertEqual(len(no_records), 0)
 
         # make call to utils func to create a db record
@@ -76,7 +78,7 @@ class TestDBUtils(TestCase):
                               description="a fake tweet used in description"
                              )
 
-        should_be_one = RetweetEvent.objects.all()
+        should_be_one = OpenspacesEvent.objects.all()
         self.assertEqual(len(should_be_one), 1)
 
 

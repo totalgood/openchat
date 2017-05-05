@@ -6,24 +6,20 @@ from django.contrib.postgres.fields import ArrayField
 from datetime import datetime, timedelta
 
 
+class BaseModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
 ignore_user_signal = Signal(providing_args=['id_str', 'screen_name'])
 
 
-class User(models.Model):
-    id = models.AutoField(primary_key=True)
+class User(BaseModel):
     id_str = models.CharField(max_length=256, db_index=True, default='')
     screen_name = models.CharField(max_length=256, blank=True, null=True)
-    verified = models.IntegerField(blank=True, null=True)
-    time_zone = models.CharField(max_length=256, blank=True, null=True)
-    utc_offset = models.IntegerField(blank=True, null=True)
-    protected = models.IntegerField(blank=True, null=True)
-    location = models.CharField(max_length=256, blank=True, null=True)
-    lang = models.CharField(max_length=256, blank=True, null=True)
-    followers_count = models.IntegerField(blank=True, null=True)
-    created_date = models.DateTimeField(null=True)
-    statuses_count = models.IntegerField(blank=True, null=True)
-    friends_count = models.IntegerField(blank=True, null=True)
-    favourites_count = models.IntegerField(default=-1, null=True)
     should_ignore = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -60,9 +56,7 @@ def ignore_handler(sender, **kwargs):
         pass
 
 
-class StreamedTweet(models.Model):
-    created_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True)
+class StreamedTweet(BaseModel):
     id_str = models.CharField(max_length=256, db_index=True, default='')
     user = models.ForeignKey('User', blank=True, null=True)
     source = models.CharField(max_length=256, blank=True, null=True)
@@ -80,11 +74,11 @@ APPROVAL_CHOICES = (
 )
 
 
-class OutgoingTweet(models.Model):
+class OutgoingTweet(BaseModel):
     # still need to add original tweet id from Tweet table foriegn key relation
-    created_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True)
     tweet = models.CharField(max_length=255)
+    original_tweet = models.CharField(max_length=255)
+    screen_name = models.CharField(max_length=100, null=True, blank=True)
     approved = models.IntegerField(choices=APPROVAL_CHOICES, default=0)
     time_interval = models.IntegerField(null=True, blank=True)
     scheduled_time = models.DateTimeField(default=None, null=True, blank=True)
@@ -113,22 +107,18 @@ class OutgoingTweet(models.Model):
         db_table = 'openchat_outgoingtweet'
 
 
-class RetweetEvent(models.Model):
+class OpenspacesEvent(BaseModel):
     """Used to keep a record of rooms and times that have already been retweeted"""
     description = models.TextField()
     start = models.DateTimeField()
     location = models.CharField(max_length=100)
     creator = models.CharField(max_length=100, blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'openchat_retweetevent'
+        db_table = 'openchat_openspacesevent'
 
 
-class OutgoingConfig(models.Model):
-    created_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True)
+class OutgoingConfig(BaseModel):
     auto_send = models.BooleanField()
     default_send_interval = models.IntegerField(default=15)
     ignore_users = ArrayField(models.BigIntegerField())

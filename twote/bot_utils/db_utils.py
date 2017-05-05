@@ -13,17 +13,7 @@ def get_or_create_user_and_tweet(status):
     Take a status from twitter and either create or update info for tweet & user
     """
     user, created = models.User.objects.get_or_create(id_str=str(status.user.id))
-    user.verified = status.user.verified  # v4
-    user.time_zone = status.user.time_zone  # v4
-    user.utc_offset = status.user.utc_offset  # -28800 (v4)
-    user.protected = status.user.protected  # v4
-    user.location = status.user.location  # Houston, TX  (v4)
-    user.lang = status.user.lang  # en  (v4)
     user.screen_name = status.user.screen_name
-    user.followers_count = status.user.followers_count
-    user.statuses_count = status.user.statuses_count
-    user.friends_count = status.user.friends_count
-    user.favourites_count = status.user.favourites_count
     user.save()
 
     # save tweet record to StreamedTweet model
@@ -48,7 +38,9 @@ def save_outgoing_tweet(tweet_obj):
     """
     tweet_obj = models.OutgoingTweet(tweet=tweet_obj["message"], 
                                      approved=tweet_obj["approved"], 
-                                     scheduled_time=tweet_obj["remind_time"])
+                                     scheduled_time=tweet_obj["remind_time"],
+                                     original_tweet=tweet_obj["original_tweet"],
+                                     screen_name=tweet_obj["screen_name"])
     tweet_obj.save()
 
 def check_time_room_conflict(a_time, a_room):
@@ -58,11 +50,11 @@ def check_time_room_conflict(a_time, a_room):
     about the same event sent by multiple users. Currently the retweets
     from bot are first come first serve for a unqiue room and time stamp. 
     """
-    event_conflict = models.RetweetEvent.objects.filter(location=a_room, start=a_time)
+    event_conflict = models.OpenspacesEvent.objects.filter(location=a_room, start=a_time)
     return True if event_conflict else False
 
 def create_event(**kwargs):
     """
     Create event record with a description, creator, time, and room
     """
-    models.RetweetEvent.objects.create(**kwargs)
+    models.OpenspacesEvent.objects.create(**kwargs)
