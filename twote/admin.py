@@ -53,7 +53,7 @@ class OutgoingConfigAdmin(admin.ModelAdmin):
 
 class OutgoiningTweetAdmin(admin.ModelAdmin):
     date_hierarchy = 'scheduled_time'
-    list_display = ['tweet', 'approved', 'scheduled_time', 'sent_time']
+    list_display = ['original_tweet', 'screen_name', 'approved', 'scheduled_time', 'sent_time']
 
 
 class OpenspacesEventAdmin(admin.ModelAdmin):
