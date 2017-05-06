@@ -3,6 +3,18 @@ import pytz
 
 from twote import models 
 
+def convert_tz(time_obj):
+    """Helper func to convert a models' field times to local TZ"""
+
+    if time_obj:
+        fmt = '%H:%M:%S %Z'
+        dt = pytz.utc.localize(time_obj)
+        out = dt.astimezone(pytz.timezone('US/Pacific'))
+        return out.strftime(fmt)
+    else:
+        # time object is null
+        return
+
 
 class TweetAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -13,7 +25,7 @@ class TweetAdmin(admin.ModelAdmin):
             'fields': ('user',)
         }),
         ('Date', {
-            'fields': ('created_at', 'modified_date',)
+            'fields': ('created_at', 'modified_at',)
         }),
     )
     date_hierarchy = 'created_at'
@@ -25,7 +37,7 @@ class TweetAdmin(admin.ModelAdmin):
         '''Override to make certain fields readonly if this is a change request'''
         if obj is not None:
             # auto_now and auto_now_add fields must are editable=False so must be listed as readonly_fields
-            return tuple(list(self.readonly_fields) + ['user', 'created_at', 'modified_date'])
+            return tuple(list(self.readonly_fields) + ['user', 'created_at', 'modified_at', 'text'])
         return self.readonly_fields
 
 
@@ -43,7 +55,7 @@ class TweetUserAdmin(admin.ModelAdmin):
         '''Override to make certain fields readonly if this is a change request'''
         if obj is not None:
             # auto_now and auto_now_add fields must are editable=False so must be listed as readonly_fields
-            return tuple(list(self.readonly_fields) + ['screen_name', 'created_date', 'id_str'])
+            return tuple(list(self.readonly_fields) + ['screen_name', 'created_at', 'id_str'])
         return self.readonly_fields
 
 
@@ -53,22 +65,27 @@ class OutgoingConfigAdmin(admin.ModelAdmin):
 
 
 class OutgoiningTweetAdmin(admin.ModelAdmin):
-    date_hierarchy = 'scheduled_time'
+    date_hierarchy = 'created_at'
     list_display = ['original_tweet', 'screen_name', 'approved', 
-                    'scheduled_time_in_timezone', 'sent_time']
+                    'scheduled_outgoing', 'time_sent']
 
-    # list_display = [..., 'event_datetime_in_timezone', ...]
+    # methods below needed so admin can call for each object and convert
+    def scheduled_outgoing(self, event):
+        """convert scheduled_time model field to local TZ"""
+        return convert_tz(event.scheduled_time)
 
-    def scheduled_time_in_timezone(self, event):
-        """Display each event time on the changelist in its own timezone"""
-        fmt = '%Y-%m-%d %H:%M:%S %Z'
-        dt = pytz.utc.localize(event.scheduled_time).astimezone(pytz.timezone('US/Pacific'))
-        return dt.strftime(fmt)
-    scheduled_time_in_timezone.short_description = ('Scheduled Time')
+    def time_sent(self, event):
+        """convert sent_time model field to local TZ"""
+        return convert_tz(event.sent_time)
 
 
 class OpenspacesEventAdmin(admin.ModelAdmin):
-    list_display = ['start', 'location', 'creator', 'description']
+    date_hierarchy = 'created_at'
+    list_display = ['start_time', 'location', 'creator', 'description']
+
+    def start_time(self, event):
+        """convert start model field to local TZ"""
+        return convert_tz(event.start)
 
 
 admin.site.register(models.StreamedTweet, TweetAdmin)
