@@ -21,6 +21,7 @@
 __pycache__/*
 .cache/*
 .*.swp
+.DS_Store
 
 # Project files
 .ropeproject
@@ -28,6 +29,7 @@ __pycache__/*
 .pydevproject
 .settings
 .idea
+python-sutime
 
 # Package files
 *.egg
@@ -68,3 +70,4 @@ bin/
 include/
 lib/
 .Python
+venv3

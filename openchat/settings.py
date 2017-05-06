@@ -48,9 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.gis',
 
     'rest_framework',
-    'rest_framework_gis',
     'django_extensions',
-    'url_filter',
+    'django_celery_results',
 
     'twote',
 ]
@@ -73,7 +72,6 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'APP_DIRS': True,
-        'TEMPLATE_DEBUG': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -81,6 +79,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'debug': DEBUG,
         },
     },
 ]
@@ -133,7 +132,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -152,42 +151,48 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoFilterBackend',)
 }
-APPS_TO_REST = []  # ('pacs',)
+APPS_TO_REST = []  
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'django': {
-            'format': 'django: %(message)s',
-        },
-    },
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'django': {
+#             'format': 'django: %(message)s',
+#         },
+#     },
 
-    'handlers': {
-        'logging.handlers.SysLogHandler': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.SysLogHandler',
-            'facility': 'local7',
-            'formatter': 'django',
-            'address': '/dev/log',
-        },
-    },
+#     'handlers': {
+#         'logging.handlers.SysLogHandler': {
+#             'level': 'DEBUG',
+#             'class': 'logging.handlers.SysLogHandler',
+#             'facility': 'local7',
+#             'formatter': 'django',
+#             'address': '/dev/log',
+#         },
+#     },
 
-    'loggers': {
-        'loggly': {
-            'handlers': ['logging.handlers.SysLogHandler'],
-            'propagate': True,
-            'format': 'django: %(message)s',
-            'level': 'DEBUG',
-        },
-    }
-}
+#     'loggers': {
+#         'loggly': {
+#             'handlers': ['logging.handlers.SysLogHandler'],
+#             'propagate': True,
+#             'format': 'django: %(message)s',
+#             'level': 'DEBUG',
+#         },
+#     }
+# }
 
 
 # settings for celery tasks
-CELERY_BROKER_HOST = "127.0.0.1"
-CELERY_BROKER_PORT = 5672  # default RabbitMQ listening port
-CELERY_BROKER_USER = "hackor"
-CELERY_BROKER_PASSWORD = "hackor"
-CELERY_BROKER_VHOST = "hackor"
-CELERY_RESULT_BACKEND = 'amqp'
+# CELERY_BROKER_HOST = "127.0.0.1"
+# CELERY_BROKER_PORT = 5672  # default RabbitMQ listening port
+# CELERY_BROKER_USER = "hackor"
+# CELERY_BROKER_PASSWORD = "hackor"
+# CELERY_BROKER_VHOST = "hackor"
+# CELERY_RESULT_BACKEND = 'amqp'
+
+
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_ALWAYS_EAGER = False
+CELERY_RESULT_BACKEND = 'django-db'
+
