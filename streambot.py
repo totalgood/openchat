@@ -16,7 +16,7 @@ from twote.bot_utils import db_utils, tweet_utils, time_utils
 import twote.secrets as s
 from openchat.settings import BASE_DIR
 
-# loggly = logging.getLogger('loggly')
+loggly = logging.getLogger('loggly')
 
 
 class StreamListener(tweepy.StreamListener):
@@ -140,7 +140,7 @@ class Streambot:
                                      )
 
                 tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, converted_time)
-                # loggly.info("scheduled this tweet for retweet: {}".format(tweet))
+                loggly.info("scheduled this tweet for retweet: {}".format(tweet))
 
             else:
                 message = """
@@ -149,7 +149,7 @@ class Streambot:
                             tweet: {} 
                           """
                 message = message.format(screen_name, room, converted_time, tweet)
-                # loggly.info(message)
+                loggly.info(message)
 
         else:
             # tweet found but without valid time or room extracted, ignore
@@ -158,6 +158,6 @@ class Streambot:
 
 if __name__ == '__main__':
     bot = Streambot()
-    keyword = "adfhadslfhasdlf"
+    keyword = "openspacestest"
     print(keyword)
     bot.run_stream([keyword])
