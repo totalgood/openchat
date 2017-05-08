@@ -3,5 +3,9 @@ Django==1.10.7
 django-extensions==1.7.9
 djangorestframework==3.6.2
 djangorestframework-csv==2.0.0
+flower
 gunicorn==19.7.1
 psycopg2==2.7.1
+sutime
+tweepy
+
