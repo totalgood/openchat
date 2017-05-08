@@ -34,7 +34,7 @@ if not SECRET_KEY:
     os.environ["DJANGO_SECRET_KEY"] = random_str()
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ['totalgood.org', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['openchat.totalgood.org', 'localhost', '127.0.0.1', 'openchat.totalgood.test', 'totalgood.org']
 
 # Application definition
 
