@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from twote.models import OutgoingTweet, OutgoingConfig 
+from openspaces.models import OutgoingTweet, OutgoingConfig 
 
 
 class OutgoingTweetSerializer(serializers.ModelSerializer):

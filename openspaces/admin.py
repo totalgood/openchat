@@ -1,7 +1,7 @@
 from django.contrib import admin
 import pytz
 
-from twote import models 
+from openspaces import models 
 
 def convert_tz(time_obj):
     """Helper func to convert a models' field times to local TZ"""

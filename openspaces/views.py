@@ -3,9 +3,9 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from twote.models import OutgoingTweet, OutgoingConfig
-from twote.serializers import OutgoingTweetSerializer, OutgoingConfigSerializer
-from twote.tweet_filters import OutgoingTweetFilter
+from openspaces.models import OutgoingTweet, OutgoingConfig
+from openspaces.serializers import OutgoingTweetSerializer, OutgoingConfigSerializer
+from openspaces.tweet_filters import OutgoingTweetFilter
 
 
 class ListOutgoingTweets(generics.ListCreateAPIView):

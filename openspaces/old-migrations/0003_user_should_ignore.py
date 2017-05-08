@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('twote', '0002_auto_20170503_0142'),
+        ('openspaces', '0002_auto_20170503_0142'),
     ]
 
     operations = [

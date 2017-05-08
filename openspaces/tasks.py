@@ -2,8 +2,8 @@ from __future__ import absolute_import, unicode_literals
 from datetime import datetime, timedelta
 from celery.decorators import periodic_task
 
-from twote.tweepy_connect import tweepy_send_tweet
-from twote.models import OutgoingTweet, OutgoingConfig
+from openspaces.tweepy_connect import tweepy_send_tweet
+from openspaces.models import OutgoingTweet, OutgoingConfig
 from openchat.celery import app 
 
 @app.on_after_finalize.connect

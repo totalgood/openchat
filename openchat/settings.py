@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_celery_results',
 
-    'twote',
+    'openspaces',
 ]
 
 MIDDLEWARE_CLASSES = [

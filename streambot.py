@@ -12,8 +12,8 @@ from tweepy.api import API
 os.environ["DJANGO_SETTINGS_MODULE"] = "openchat.settings"
 django.setup()
 
-from twote.bot_utils import db_utils, tweet_utils, time_utils
-import twote.secrets as s
+from openspaces.bot_utils import db_utils, tweet_utils, time_utils
+import openspaces.secrets as s
 from openchat.settings import BASE_DIR
 
 loggly = logging.getLogger('loggly')

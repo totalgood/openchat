@@ -1,4 +1,4 @@
-from twote import models
+from openspaces import models
 
 def get_ignored_users():
     """

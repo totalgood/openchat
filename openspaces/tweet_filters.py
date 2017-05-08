@@ -1,5 +1,5 @@
 import django_filters
-from twote.models import OutgoingTweet
+from openspaces.models import OutgoingTweet
 
 APPROVAL_CHOICES = (
     (0, 'needs_action'),

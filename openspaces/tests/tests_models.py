@@ -2,7 +2,7 @@ from datetime import datetime
 from django.test import TestCase, Client
 from freezegun import freeze_time
 
-from twote.models import OutgoingTweet, OutgoingConfig, User
+from openspaces.models import OutgoingTweet, OutgoingConfig, User
 
 class TestOutgoingTweetModelSaveMethod(TestCase):
     """

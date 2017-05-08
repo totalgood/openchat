@@ -1,5 +1,5 @@
 import tweepy
-from twote.secrets import listener
+from openspaces.secrets import listener
 
 
 def get_api():

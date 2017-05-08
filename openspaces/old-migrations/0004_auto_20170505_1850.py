@@ -9,7 +9,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('twote', '0003_user_should_ignore'),
+        ('openspaces', '0003_user_should_ignore'),
     ]
 
     operations = [

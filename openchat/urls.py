@@ -18,5 +18,5 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^twote/', include('twote.urls', namespace='twote')),
+    url(r'^openspaces/', include('openspaces.urls', namespace='openspaces')),
 ]

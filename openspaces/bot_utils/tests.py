@@ -3,8 +3,8 @@ from django.test import TestCase
 from freezegun import freeze_time
 import pytz
 
-from twote.bot_utils import db_utils, tweet_utils, time_utils
-from twote.models import OutgoingTweet, OutgoingConfig, OpenspacesEvent, User
+from openspaces.bot_utils import db_utils, tweet_utils, time_utils
+from openspaces.models import OutgoingTweet, OutgoingConfig, OpenspacesEvent, User
 
 
 class TestDBUtils(TestCase):
