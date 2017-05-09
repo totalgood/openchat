@@ -149,6 +149,6 @@ class Streambot:
 
 if __name__ == '__main__':
     bot = Streambot()
-    keyword = "Dashbot"
+    keyword = "Python"
     print(keyword)
     bot.run_stream([keyword])
