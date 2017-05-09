@@ -74,7 +74,7 @@ def loadtest_schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, inter
 
     for mins in range(interval,(num_tweets*interval+1), interval):
         remind_time = talk_time - timedelta(minutes=mins)
-        message = "fake tweet about a event! {}".format(datetime.datetime.utcnow())
+        message = "fake tweet about a event! {}".format(datetime.utcnow())
 
         tweet_obj = {
             "message": message,
