@@ -4,6 +4,7 @@ import logging
 import os
 import re
 
+import pytz
 from nltk import word_tokenize
 from slacker import Slacker
 from sutime import SUTime
@@ -119,8 +120,9 @@ class Streambot:
         time_room = self.parse_time_room(tweet)
 
         # fake time in the future that imitates a event's start time
-        sample_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
-        sample_time = sample_time.strftime("%Y %m %d %H %M")
+        local_tz = pytz.timezone('US/Pacific')
+        sample_time = datetime.datetime.now(local_tz) + datetime.timedelta(minutes=10)
+        sample_time = sample_time.strftime("%Y-%m-%d %H:%M:%S")
 
         converted_time = time_utils.convert_to_utc(sample_time)
         room = "r123"

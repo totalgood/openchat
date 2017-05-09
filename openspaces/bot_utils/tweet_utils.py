@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
@@ -62,7 +62,7 @@ def schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=2, interval=1):
 
         db_utils.save_outgoing_tweet(tweet_obj)
 
-def loadtest_schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=2, interval=1):
+def loadtest_schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, interval=1):
     """Func used during loadtesting to simulate a retweet without using any 
     of the original senders content
     """
@@ -74,7 +74,7 @@ def loadtest_schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=2, inter
 
     for mins in range(interval,(num_tweets*interval+1), interval):
         remind_time = talk_time - timedelta(minutes=mins)
-        message = "fake tweet about a event! {}".format(remind_time)
+        message = "fake tweet about a event! {}".format(datetime.datetime.utcnow())
 
         tweet_obj = {
             "message": message,
