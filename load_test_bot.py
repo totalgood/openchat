@@ -120,6 +120,7 @@ class Streambot:
 
         # fake time in the future that imitates a event's start time
         sample_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
+        sample_time = sample_time.strftime("%Y %m %d %H %M")
 
         converted_time = time_utils.convert_to_utc(sample_time)
         room = "r123"
@@ -146,6 +147,6 @@ class Streambot:
 
 if __name__ == '__main__':
     bot = Streambot()
-    keyword = "loadtestkeyword"
+    keyword = "Dashbot"
     print(keyword)
     bot.run_stream([keyword])
