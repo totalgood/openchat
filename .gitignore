@@ -71,3 +71,4 @@ include/
 lib/
 .Python
 venv3
+celerybeat-schedule
