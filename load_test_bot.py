@@ -79,10 +79,10 @@ class Streambot:
 
     def setup_auth(self):
         """Set up auth stuff for api and return tweepy api object"""
-        auth = tweepy.OAuthHandler(s.listener["CONSUMER_KEY"], 
-                                   s.listener["CONSUMER_SECRET"])
-        auth.set_access_token(s.listener["ACCESS_TOKEN"], 
-                              s.listener["ACCESS_TOKEN_SECRET"])
+        auth = tweepy.OAuthHandler(s.sender["CONSUMER_KEY"], 
+                                   s.sender["CONSUMER_SECRET"])
+        auth.set_access_token(s.sender["ACCESS_TOKEN"], 
+                              s.sender["ACCESS_TOKEN_SECRET"])
 
         api = tweepy.API(auth)
         return api
