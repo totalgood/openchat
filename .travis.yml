@@ -9,4 +9,6 @@ script:
 - python manage.py test openspaces/tests/
 before_install:
 - openssl aes-256-cbc -K $encrypted_9a2b31df230e_key -iv $encrypted_9a2b31df230e_iv
+  -in secrets.py.enc -out openspaces/secrets.py -d
+- openssl aes-256-cbc -K $encrypted_9a2b31df230e_key -iv $encrypted_9a2b31df230e_iv
   -in local_settings.py.enc -out openchat/local_settings.py -d
