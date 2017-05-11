@@ -24,18 +24,16 @@ class TestDBUtils(TestCase):
     
     @freeze_time("2017-08-05")
     def test_save_outgoing_tweet_func_saves_correctly(self):
-        tweet_obj = {
-            "message": "a test tweet",
-            "approved": 1,
-            "remind_time": datetime.datetime.now(),
-            "original_tweet": "fake original_tweet",
-            "screen_name": "fake screen_name"
-        }
-
         tweets_before_save = OutgoingTweet.objects.all()
         self.assertEqual(len(tweets_before_save), 0)
 
-        db_utils.save_outgoing_tweet(tweet_obj)
+        db_utils.save_outgoing_tweet(
+                                    tweet="a test tweet",
+                                    approved=1,
+                                    scheduled_time=datetime.datetime.now(),
+                                    original_tweet="fake original tweet",
+                                    screen_name="fake_screen_name"
+                                    )
 
         tweets_after_save = OutgoingTweet.objects.all()
         self.assertEqual(len(tweets_after_save), 1)
