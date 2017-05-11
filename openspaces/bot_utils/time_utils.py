@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.parser import parse
 import pytz
 
@@ -24,3 +24,13 @@ def convert_to_utc(talk_time):
     local_as_utc = tz_aware_local.astimezone(pytz.utc)
     
     return local_as_utc
+
+def check_start_time(talk_time):
+    """If time of openspaces talk within next 30 mins return True"""
+    time_diff = talk_time - datetime.utcnow()
+    threshold = timedelta(minutes=30)
+
+    if time_diff < threshold:
+        return True
+    else:
+        return False
