@@ -112,7 +112,7 @@ class TestTweetUtils(TestCase):
         """Test to check tweets within 30 mins not auto approved"""
         talk_time = datetime.datetime.now() + datetime.timedelta(minutes=15)
         self.schedule_tweet_helper(talk_time)
-        scheduled_tweet = OutgoingTweet.objects.all()[0]
+        scheduled_tweet = OutgoingTweet.objects.first()
 
         # tweet should need to be approved if event time is within 30 mins
         self.assertEqual(scheduled_tweet.approved, 0)
@@ -120,14 +120,14 @@ class TestTweetUtils(TestCase):
     def test_schedule_tweets_sets_approved_to_1_if_tweet_outside_30_mins(self):
         talk_time = datetime.datetime.now() + datetime.timedelta(minutes=31)
         self.schedule_tweet_helper(talk_time)
-        scheduled_tweet = OutgoingTweet.objects.all()[0]
+        scheduled_tweet = OutgoingTweet.objects.first()
 
         self.assertEqual(scheduled_tweet.approved, 1)
 
     def test_schedule_tweets_sets_approved_to_0_with_time_in_past(self):
         talk_time = datetime.datetime.now() - datetime.timedelta(minutes=30)
         self.schedule_tweet_helper(talk_time)
-        scheduled_tweet = OutgoingTweet.objects.all()[0]
+        scheduled_tweet = OutgoingTweet.objects.first()
 
         self.assertEqual(scheduled_tweet.approved, 0)
 

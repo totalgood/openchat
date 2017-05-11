@@ -32,9 +32,11 @@ class TestCeleryTasks(TestCase):
         beat_tweet_scheduler()
         self.assertEqual(fake_tweeter.call_count, 1)
 
+        scheduled_flag_check = OutgoingTweet.objects.first()
+        self.assertEqual(scheduled_flag_check.task_scheduled, 1)
+
     @mock.patch("openspaces.tasks.tweepy_send_tweet")
     def test_tweeter_calls_tweepy_send_tweet(self, fake_sender):
         tweeter("fake tweet", 1234)
         self.assertEqual(fake_sender.call_count, 1)
         
-
