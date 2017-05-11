@@ -122,8 +122,14 @@ class TestTweetUtils(TestCase):
         self.schedule_tweet_helper(talk_time)
         scheduled_tweet = OutgoingTweet.objects.all()[0]
 
-        # tweet should need to be approved if event time is within 30 mins
         self.assertEqual(scheduled_tweet.approved, 1)
+
+    def test_schedule_tweets_sets_approved_to_0_with_time_in_past(self):
+        talk_time = datetime.datetime.now() - datetime.timedelta(minutes=30)
+        self.schedule_tweet_helper(talk_time)
+        scheduled_tweet = OutgoingTweet.objects.all()[0]
+
+        self.assertEqual(scheduled_tweet.approved, 0)
 
     def test_get_time_and_room_correctly_returns_time_room_obj(self):
         tweet = "a test tweet R123 2:05pm"
@@ -166,18 +172,3 @@ class TestTimeUtils(TestCase):
         talk_time = datetime.datetime.now() + datetime.timedelta(minutes=31)
         outside_30_mins = time_utils.check_start_time(talk_time)
         self.assertFalse(outside_30_mins)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
