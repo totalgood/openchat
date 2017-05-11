@@ -8,7 +8,9 @@
 #     """
 
     # def setUp(self):
-    #     OutgoingConfig.objects.create(auto_send=True, default_send_interval=1)
+    #     OutgoingConfig.objects.create(auto_send=True, 
+    #                                 default_send_interval=1, 
+    #                                 ignore_users=[12345,])
 
     # @freeze_time("2017-03-03")
     # def test_beat_tweet_scheduler_schedules_correct_tweets(self):
