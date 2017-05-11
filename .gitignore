@@ -64,6 +64,7 @@ collected-static/
 # hackor/settings.py
 local_settings.py*
 secrets.py*
+secrets.tar
 
 # bin
 bin/

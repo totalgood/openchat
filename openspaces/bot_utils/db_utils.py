@@ -32,16 +32,11 @@ def check_for_auto_send():
     approved = 1 if config_obj.auto_send else 0
     return approved
 
-def save_outgoing_tweet(tweet_obj):
+def save_outgoing_tweet(**kwargs):
     """
     Save a tweet object to the outgoing tweet table triggering celery stuff
     """
-    tweet_obj = models.OutgoingTweet(tweet=tweet_obj["message"], 
-                                     approved=tweet_obj["approved"], 
-                                     scheduled_time=tweet_obj["remind_time"],
-                                     original_tweet=tweet_obj["original_tweet"],
-                                     screen_name=tweet_obj["screen_name"])
-    tweet_obj.save()
+    models.OutgoingTweet.objects.create(**kwargs)
 
 def check_time_room_conflict(a_time, a_room):
     """

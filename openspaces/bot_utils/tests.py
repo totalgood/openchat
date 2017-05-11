@@ -12,7 +12,8 @@ class TestDBUtils(TestCase):
 
     def setUp(self):
         OutgoingConfig.objects.create(auto_send=True, 
-                                default_send_interval=1, ignore_users=[12345,])
+                                    default_send_interval=1, 
+                                    ignore_users=[12345,])
 
     def test_get_ignored_users_returns_correct_list(self):
         ignore_list = db_utils.get_ignored_users()
@@ -24,18 +25,16 @@ class TestDBUtils(TestCase):
     
     @freeze_time("2017-08-05")
     def test_save_outgoing_tweet_func_saves_correctly(self):
-        tweet_obj = {
-            "message": "a test tweet",
-            "approved": 1,
-            "remind_time": datetime.datetime.now(),
-            "original_tweet": "fake original_tweet",
-            "screen_name": "fake screen_name"
-        }
-
         tweets_before_save = OutgoingTweet.objects.all()
         self.assertEqual(len(tweets_before_save), 0)
 
-        db_utils.save_outgoing_tweet(tweet_obj)
+        db_utils.save_outgoing_tweet(
+                                    tweet="a test tweet",
+                                    approved=1,
+                                    scheduled_time=datetime.datetime.now(),
+                                    original_tweet="fake original tweet",
+                                    screen_name="fake_screen_name"
+                                    )
 
         tweets_after_save = OutgoingTweet.objects.all()
         self.assertEqual(len(tweets_after_save), 1)
@@ -85,6 +84,53 @@ class TestDBUtils(TestCase):
 class TestTweetUtils(TestCase):
     """Test that the Tweet utils funcs behave as expected in isolation"""
 
+    def setUp(self):
+        OutgoingConfig.objects.create(auto_send=True, 
+                                    default_send_interval=1, 
+                                    ignore_users=[12345,])
+
+    def schedule_tweet_helper(self, talk_time):
+        screen_name = "tw_testy"
+        tweet = "a test tweet"
+        tweet_id = 123456
+
+        tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, talk_time)
+
+    @freeze_time("2017-08-05")
+    def test_schedule_tweets_saves_legit_tweets_to_db(self):
+        tweets_in_db_before = OutgoingTweet.objects.all()
+        self.assertEqual(len(tweets_in_db_before), 0)
+
+        talk_time = datetime.datetime.now()
+        self.schedule_tweet_helper(talk_time)
+
+        tweets_in_db_after = OutgoingTweet.objects.all()
+        self.assertEqual(len(tweets_in_db_after), 2)
+
+    @freeze_time("2017-08-05")
+    def test_schedule_tweets_sets_approved_to_0_if_tweet_within_30_mins(self):
+        """Test to check tweets within 30 mins not auto approved"""
+        talk_time = datetime.datetime.now() + datetime.timedelta(minutes=15)
+        self.schedule_tweet_helper(talk_time)
+        scheduled_tweet = OutgoingTweet.objects.first()
+
+        # tweet should need to be approved if event time is within 30 mins
+        self.assertEqual(scheduled_tweet.approved, 0)
+
+    def test_schedule_tweets_sets_approved_to_1_if_tweet_outside_30_mins(self):
+        talk_time = datetime.datetime.now() + datetime.timedelta(minutes=31)
+        self.schedule_tweet_helper(talk_time)
+        scheduled_tweet = OutgoingTweet.objects.first()
+
+        self.assertEqual(scheduled_tweet.approved, 1)
+
+    def test_schedule_tweets_sets_approved_to_0_with_time_in_past(self):
+        talk_time = datetime.datetime.now() - datetime.timedelta(minutes=30)
+        self.schedule_tweet_helper(talk_time)
+        scheduled_tweet = OutgoingTweet.objects.first()
+
+        self.assertEqual(scheduled_tweet.approved, 0)
+
     def test_get_time_and_room_correctly_returns_time_room_obj(self):
         tweet = "a test tweet R123 2:05pm"
 
@@ -103,27 +149,6 @@ class TestTweetUtils(TestCase):
         result = tweet_utils.get_time_and_room(tweet, extracted_time)
         self.assertEqual(result, expected_output)
 
-    @freeze_time("2017-08-05")
-    def test_schedule_tweets_saves_legit_tweets_to_db(self):
-        # need to setup a fake app config object
-        OutgoingConfig.objects.create(auto_send=True, 
-                                default_send_interval=1, 
-                                ignore_users=[12345,])
-
-        # building args for schedule tweets
-        screen_name = "tw_testy"
-        tweet = "a test tweet"
-        tweet_id = 123456
-        talk_time = datetime.datetime.now()
-
-        tweets_in_db_before = OutgoingTweet.objects.all()
-        self.assertEqual(len(tweets_in_db_before), 0)
-
-        tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, talk_time)
-
-        tweets_in_db_after = OutgoingTweet.objects.all()
-        self.assertEqual(len(tweets_in_db_after), 2)
-
 
 class TestTimeUtils(TestCase):
     """Tests of the time utils used in bot"""
@@ -137,3 +162,13 @@ class TestTimeUtils(TestCase):
         expected_output = datetime.datetime(2017, 8, 4, 15, tzinfo=utc) 
 
         self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-08-05")
+    def test_check_start_time_helper_func(self):
+        talk_time = datetime.datetime.now() + datetime.timedelta(minutes=15)
+        within_30_mins = time_utils.check_start_time(talk_time)
+        self.assertTrue(within_30_mins)
+
+        talk_time = datetime.datetime.now() + datetime.timedelta(minutes=31)
+        outside_30_mins = time_utils.check_start_time(talk_time)
+        self.assertFalse(outside_30_mins)

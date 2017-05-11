@@ -12,9 +12,11 @@ flower==0.9.1
 freezegun==0.3.8
 JPype1==0.6.2
 kombu==4.0.2
+mock==2.0.0
 nltk==3.2.2
 oauthlib==2.0.1
 packaging==16.8
+pbr==3.0.0
 psycopg2==2.7.1
 pyparsing==2.1.10
 python-dateutil==2.6.0

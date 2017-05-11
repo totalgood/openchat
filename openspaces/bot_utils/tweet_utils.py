@@ -4,7 +4,7 @@ from nltk import word_tokenize
 from nltk.corpus import stopwords
 import re
 
-from . import db_utils
+from . import db_utils, time_utils
 
 
 def get_time_and_room(tweet, extracted_time):
@@ -45,6 +45,11 @@ def schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=2, interval=1):
     # check config table to see if autosend on
     approved = db_utils.check_for_auto_send()
 
+    within_30_mins = time_utils.check_start_time(talk_time)
+    
+    if within_30_mins:
+        approved = 0
+
     tweet_url = "https://twitter.com/{name}/status/{tweet_id}"
     embeded_tweet = tweet_url.format(name=u_name, tweet_id=t_id)
 
@@ -52,15 +57,13 @@ def schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=2, interval=1):
         remind_time = talk_time - timedelta(minutes=mins)
         message = "Coming up in {} minutes! {}".format(mins, embeded_tweet)
 
-        tweet_obj = {
-            "message": message,
-            "approved": approved,
-            "remind_time": remind_time,
-            "original_tweet": tweet,
-            "screen_name": u_name
-        }
-
-        db_utils.save_outgoing_tweet(tweet_obj)
+        db_utils.save_outgoing_tweet(
+                                    tweet=message,
+                                    approved=approved,
+                                    scheduled_time=remind_time,
+                                    original_tweet=tweet,
+                                    screen_name=u_name
+                                    )
 
 def loadtest_schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, interval=1):
     """Func used during loadtesting to simulate a retweet without using any 
@@ -76,12 +79,10 @@ def loadtest_schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, inter
         remind_time = talk_time - timedelta(minutes=mins)
         message = "fake tweet about a event! {}".format(datetime.utcnow())
 
-        tweet_obj = {
-            "message": message,
-            "approved": approved,
-            "remind_time": remind_time,
-            "original_tweet": tweet,
-            "screen_name": u_name
-        }
-
-        db_utils.save_outgoing_tweet(tweet_obj)
+        db_utils.save_outgoing_tweet(
+                                    tweet=message,
+                                    approved=approved,
+                                    scheduled_time=remind_time,
+                                    original_tweet=tweet,
+                                    screen_name=u_name
+                                    )
