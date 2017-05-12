@@ -43,6 +43,25 @@ class TestStreambotMethods(unittest.TestCase):
         output = self.S_bot.value_check(time_room_obj)
         self.assertEqual(output, (2, 2))
 
+    @mock.patch("openspaces.bot_utils.tweet_utils.schedule_tweets")
+    @mock.patch("openspaces.bot_utils.db_utils.create_event")
+    @mock.patch("streambot.Streambot.send_slack_message")
+    @mock.patch("openspaces.bot_utils.db_utils.check_time_room_conflict")
+    @mock.patch("openspaces.bot_utils.time_utils.convert_to_utc")
+    @mock.patch("streambot.Streambot.parse_time_room")
+    def test_retweet_logic_with_valid_time_and_room(self, t_r_parse, 
+                                                    time_convert, conflict,
+                                                    slack_message, create_event,
+                                                    schedule_tweets, ):
+        t_r_parse.return_value = {
+            "date": [datetime.datetime.utcnow()],
+            "room": ["A123"]
+        }
+        conflict.return_value = False
+
+        self.S_bot.retweet_logic("fake tweet", 12345, "screen_name", 12345)
+
+
 
 
 if __name__ == '__main__':

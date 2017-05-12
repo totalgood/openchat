@@ -101,6 +101,15 @@ class Streambot:
         mention = mention.format(screen_name, room, time)
         self.api.update_status(status=mention)
 
+    def send_slack_message(self, channel, message):
+        """Send a slack message a channel
+
+        channel options:
+        #outgoing_tweets
+        #need_review
+        """
+        self.slacker.chat.post_message(channel, message)
+
     def parse_time_room(self, tweet):
         """Get time and room number from a tweet using SUTime and tweet_utils"""
         extracted_time = self.sutime.parse(tweet)
@@ -123,10 +132,11 @@ class Streambot:
         """
         # use SUTime to parse a datetime out of tweet
         time_room = self.parse_time_room(tweet)
-
+        print("inside retweeted")
+        print(time_room)
         # make sure both time and room extracted and only one val each
         val_check = [val for val in time_room.values() if len(val) == 1]
-
+        print(val_check)
         if len(val_check) == 2:
             room = time_room["room"][0]
             converted_time = time_utils.convert_to_utc(time_room["date"][0])
@@ -137,7 +147,7 @@ class Streambot:
             if not conflict:
                 # send message to slack when a tweet is scheduled to go out
                 slack_message = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
-                self.slacker.chat.post_message('#outgoing_tweets', slack_message)
+                self.send_slack_message('#outgoing_tweets', slack_message)
 
                 # self.send_mention_tweet(screen_name, room, converted_time)
 
