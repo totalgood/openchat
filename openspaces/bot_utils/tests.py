@@ -94,7 +94,8 @@ class TestTweetUtils(TestCase):
         tweet = "a test tweet"
         tweet_id = 123456
 
-        tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, talk_time)
+        tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, 
+                                    talk_time, num_tweets=2)
 
     @freeze_time("2017-08-05")
     def test_schedule_tweets_saves_legit_tweets_to_db(self):
