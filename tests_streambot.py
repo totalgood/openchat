@@ -72,6 +72,29 @@ class TestStreambotMethods(unittest.TestCase):
         self.assertEqual(schedule_tweets.call_count, 1)
 
     @mock.patch("streambot.Streambot.send_slack_message")
+    @mock.patch("openspaces.bot_utils.db_utils.check_time_room_conflict")
+    @mock.patch("openspaces.bot_utils.time_utils.convert_to_utc")
+    @mock.patch("streambot.Streambot.parse_time_room")
+    def test_retweet_logic_valid_time_room_with_conflict(self, t_r_parse, 
+                                                        time_convert, conflict,
+                                                        slack_message):
+
+        # fake values for info extracted from tweet with event conflict
+        t_r_parse.return_value = {
+            "date": [datetime.datetime.utcnow()],
+            "room": ["A123"]
+        }
+        conflict.return_value = True
+
+        self.S_bot.retweet_logic("fake tweet", 12345, "screen_name", 12345)
+
+        # with a conflict only a slack message should be sent
+        self.assertEqual(t_r_parse.call_count, 1)
+        self.assertEqual(time_convert.call_count, 1)
+        self.assertEqual(conflict.call_count, 1)
+        self.assertEqual(slack_message.call_count, 1)
+
+    @mock.patch("streambot.Streambot.send_slack_message")
     @mock.patch("streambot.Streambot.parse_time_room")
     def test_retweet_logic_with_only_valid_room(self, t_r_parse, slack_message):
 

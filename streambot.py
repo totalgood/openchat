@@ -107,6 +107,7 @@ class Streambot:
         channel options:
         #outgoing_tweets
         #need_review
+        #event_conflict
         """
         self.slacker.chat.post_message(channel, message)
 
@@ -163,9 +164,11 @@ class Streambot:
 
             else:
                 message = """Tweet recived for an event bot is already scheduled
-                    to retweet about. Sender: {}, room: {}, time: {}, tweet: {} 
+                    to retweet about. Sender: {}, room: {}, time: {}, 
+                    tweet: {} tweet_id: {}
                     """
-                message = message.format(screen_name, room, converted_time, tweet)
+                message = message.format(screen_name, room, converted_time, tweet, tweet_id)
+                self.send_slack_message("#event_conflict", message)
                 loggly.info(message)
 
         elif val_check == (0, 0):
