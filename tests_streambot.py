@@ -1,3 +1,4 @@
+import datetime
 import mock
 import unittest
 
@@ -16,8 +17,31 @@ class TestStreambotMethods(unittest.TestCase):
             "room": []
         }
         output = self.S_bot.value_check(time_room_obj)
-        self.assertEqual(output, (0,0))
+        self.assertEqual(output, (0, 0))
 
+    def test_value_check_one_time_value(self):
+        time_room_obj = {
+            "date": [datetime.datetime.utcnow()],
+            "room": []
+        }
+        output = self.S_bot.value_check(time_room_obj)
+        self.assertEqual(output, (0, 1))
+
+    def test_value_check_one_room_value(self):
+        time_room_obj = {
+            "date": [],
+            "room": ["A123",]
+        }
+        output = self.S_bot.value_check(time_room_obj)
+        self.assertEqual(output, (1, 0))
+
+    def test_multiple_values_for_each(self):
+        time_room_obj = {
+            "date": [datetime.datetime.utcnow(), datetime.datetime.utcnow()],
+            "room": ["A123", "B123"]
+        }
+        output = self.S_bot.value_check(time_room_obj)
+        self.assertEqual(output, (2, 2))
 
 
 
