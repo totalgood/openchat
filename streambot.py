@@ -107,6 +107,16 @@ class Streambot:
         time_and_room = tweet_utils.get_time_and_room(tweet, extracted_time)
         return time_and_room
 
+    def value_check(self, time_room_obj):
+        """Returns a tuple with the counts of values extracted from a tweet
+        in the parse_time_room method. This tuple is used to decide how bot
+        will respond to tweet. 
+        """
+        num_room_values = len(time_room_obj["room"])
+        num_time_values = len(time_room_obj["date"])
+
+        return (num_room_values, num_time_values)
+
     def retweet_logic(self, tweet, tweet_id, screen_name, user_id):
         """Use SUTime to try to parse a datetime out of a tweet, if successful
         save tweet to OutgoingTweet to be retweeted
