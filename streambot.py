@@ -101,11 +101,31 @@ class Streambot:
         mention = mention.format(screen_name, room, time)
         self.api.update_status(status=mention)
 
+    def send_slack_message(self, channel, message):
+        """Send a slack message a channel
+
+        channel options:
+        #outgoing_tweets
+        #need_review
+        #event_conflict
+        """
+        self.slacker.chat.post_message(channel, message)
+
     def parse_time_room(self, tweet):
         """Get time and room number from a tweet using SUTime and tweet_utils"""
         extracted_time = self.sutime.parse(tweet)
         time_and_room = tweet_utils.get_time_and_room(tweet, extracted_time)
         return time_and_room
+
+    def value_check(self, time_room_obj):
+        """Returns a tuple with the counts of values extracted from a tweet
+        in the parse_time_room method. This tuple is used to decide how bot
+        will respond to tweet. 
+        """
+        num_room_values = len(time_room_obj["room"])
+        num_time_values = len(time_room_obj["date"])
+
+        return (num_room_values, num_time_values)
 
     def retweet_logic(self, tweet, tweet_id, screen_name, user_id):
         """Use SUTime to try to parse a datetime out of a tweet, if successful
@@ -115,9 +135,9 @@ class Streambot:
         time_room = self.parse_time_room(tweet)
 
         # make sure both time and room extracted and only one val each
-        val_check = [val for val in time_room.values() if len(val) == 1]
+        val_check = self.value_check(time_room)
 
-        if len(val_check) == 2:
+        if val_check == (1, 1):
             room = time_room["room"][0]
             converted_time = time_utils.convert_to_utc(time_room["date"][0])
 
@@ -127,7 +147,7 @@ class Streambot:
             if not conflict:
                 # send message to slack when a tweet is scheduled to go out
                 slack_message = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
-                self.slacker.chat.post_message('#outgoing_tweets', slack_message)
+                self.send_slack_message('#outgoing_tweets', slack_message)
 
                 # self.send_mention_tweet(screen_name, room, converted_time)
 
@@ -143,17 +163,25 @@ class Streambot:
                 loggly.info("scheduled this tweet for retweet: {}".format(tweet))
 
             else:
-                message = """
-                            Tweet recived for an event bot is already scheduled
-                            to retweet about. Sender: {}, room: {}, time: {}, 
-                            tweet: {} 
-                          """
-                message = message.format(screen_name, room, converted_time, tweet)
+                message = """Tweet recived for an event bot is already scheduled
+                    to retweet about. Sender: {}, room: {}, time: {}, 
+                    tweet: {} tweet_id: {}
+                    """
+                message = message.format(screen_name, room, converted_time, tweet, tweet_id)
+                self.send_slack_message("#event_conflict", message)
                 loggly.info(message)
 
-        else:
+        elif val_check == (0, 0):
             # tweet found but without valid time or room extracted, ignore
             pass
+
+        else:
+            # tweet with relevant information but not exactly 1 time & 1 room
+            message = """Tweet found that needs review: {}  tweet_id: {}
+                screen_name: {}, user_id: {}
+                """
+            message = message.format(tweet, tweet_id, screen_name, user_id)
+            self.send_slack_message("#need_review", message)
 
 
 if __name__ == '__main__':
