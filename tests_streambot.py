@@ -70,6 +70,26 @@ class TestStreambotMethods(unittest.TestCase):
         self.assertEqual(create_event.call_count, 1)
         self.assertEqual(schedule_tweets.call_count, 1)
 
+    @mock.patch("openspaces.bot_utils.tweet_utils.schedule_tweets")
+    @mock.patch("openspaces.bot_utils.db_utils.create_event")
+    @mock.patch("streambot.Streambot.send_slack_message")
+    @mock.patch("openspaces.bot_utils.db_utils.check_time_room_conflict")
+    @mock.patch("openspaces.bot_utils.time_utils.convert_to_utc")
+    @mock.patch("streambot.Streambot.parse_time_room")
+    def test_retweet_logic_with_only_valid_room(self, t_r_parse, 
+                                                time_convert, conflict,
+                                                slack_message, create_event,
+                                                schedule_tweets):
+
+        # with only 1 room only a slack message should be sent
+        t_r_parse.return_value = {
+            "date": [],
+            "room": ["A123"]
+        }
+        
+        self.S_bot.retweet_logic("fake tweet", 12345, "screen_name", 12345)
+
+        self.assertEqual(time_convert.call_count, 0)
 
 
 
