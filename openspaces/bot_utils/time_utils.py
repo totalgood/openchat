@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dateutil.parser import parse
 import pytz
 
@@ -27,7 +27,7 @@ def convert_to_utc(talk_time):
 
 def check_start_time(talk_time):
     """If time of openspaces talk within next 30 mins return True"""
-    time_diff = talk_time - datetime.utcnow()
+    time_diff = talk_time - datetime.now(timezone.utc)
     threshold = timedelta(minutes=30)
 
     if time_diff < threshold:

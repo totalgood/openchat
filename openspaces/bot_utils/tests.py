@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta, timezone
 from django.test import TestCase
 from freezegun import freeze_time
 import pytz
@@ -31,7 +31,7 @@ class TestDBUtils(TestCase):
         db_utils.save_outgoing_tweet(
                                     tweet="a test tweet",
                                     approved=1,
-                                    scheduled_time=datetime.datetime.now(),
+                                    scheduled_time=datetime.now(timezone.utc),
                                     original_tweet="fake original tweet",
                                     screen_name="fake_screen_name"
                                     )
@@ -43,8 +43,8 @@ class TestDBUtils(TestCase):
     def test_event_conflict_check_works_correctly(self):
         """Check that conflict check returns correct T/F based on matches"""
 
-        time_delt = datetime.timedelta(1)
-        fake_now = datetime.datetime.now()
+        time_delt = timedelta(1)
+        fake_now = datetime.now(timezone.utc)
         fake_user = User.objects.create(id_str=12345)
         fake_loc = "B123"
 
@@ -71,7 +71,7 @@ class TestDBUtils(TestCase):
 
         # make call to utils func to create a db record
         db_utils.create_event(
-                              start=datetime.datetime.now(),
+                              start=datetime.now(timezone.utc),
                               creator="fakeusername",
                               location="B123",
                               description="a fake tweet used in description"
@@ -101,7 +101,7 @@ class TestTweetUtils(TestCase):
         tweets_in_db_before = OutgoingTweet.objects.all()
         self.assertEqual(len(tweets_in_db_before), 0)
 
-        talk_time = datetime.datetime.now()
+        talk_time = datetime.now(timezone.utc)
         self.schedule_tweet_helper(talk_time)
 
         tweets_in_db_after = OutgoingTweet.objects.all()
@@ -110,7 +110,7 @@ class TestTweetUtils(TestCase):
     @freeze_time("2017-08-05")
     def test_schedule_tweets_sets_approved_to_0_if_tweet_within_30_mins(self):
         """Test to check tweets within 30 mins not auto approved"""
-        talk_time = datetime.datetime.now() + datetime.timedelta(minutes=15)
+        talk_time = datetime.now(timezone.utc) + timedelta(minutes=15)
         self.schedule_tweet_helper(talk_time)
         scheduled_tweet = OutgoingTweet.objects.first()
 
@@ -118,14 +118,14 @@ class TestTweetUtils(TestCase):
         self.assertEqual(scheduled_tweet.approved, 0)
 
     def test_schedule_tweets_sets_approved_to_1_if_tweet_outside_30_mins(self):
-        talk_time = datetime.datetime.now() + datetime.timedelta(minutes=31)
+        talk_time = datetime.now(timezone.utc) + timedelta(minutes=31)
         self.schedule_tweet_helper(talk_time)
         scheduled_tweet = OutgoingTweet.objects.first()
 
         self.assertEqual(scheduled_tweet.approved, 1)
 
     def test_schedule_tweets_sets_approved_to_0_with_time_in_past(self):
-        talk_time = datetime.datetime.now() - datetime.timedelta(minutes=30)
+        talk_time = datetime.now(timezone.utc) - timedelta(minutes=30)
         self.schedule_tweet_helper(talk_time)
         scheduled_tweet = OutgoingTweet.objects.first()
 
@@ -159,16 +159,16 @@ class TestTimeUtils(TestCase):
         converted_time = time_utils.convert_to_utc(time_str_from_sutime)
 
         utc = pytz.utc
-        expected_output = datetime.datetime(2017, 8, 4, 15, tzinfo=utc) 
+        expected_output = datetime(2017, 8, 4, 15, tzinfo=utc) 
 
         self.assertEqual(converted_time, expected_output)
 
     @freeze_time("2017-08-05")
     def test_check_start_time_helper_func(self):
-        talk_time = datetime.datetime.now() + datetime.timedelta(minutes=15)
+        talk_time = datetime.now(timezone.utc) + timedelta(minutes=15)
         within_30_mins = time_utils.check_start_time(talk_time)
         self.assertTrue(within_30_mins)
 
-        talk_time = datetime.datetime.now() + datetime.timedelta(minutes=31)
+        talk_time = datetime.now(timezone.utc) + timedelta(minutes=31)
         outside_30_mins = time_utils.check_start_time(talk_time)
         self.assertFalse(outside_30_mins)
