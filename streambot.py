@@ -132,12 +132,11 @@ class Streambot:
         """
         # use SUTime to parse a datetime out of tweet
         time_room = self.parse_time_room(tweet)
-        print("inside retweeted")
-        print(time_room)
+
         # make sure both time and room extracted and only one val each
-        val_check = [val for val in time_room.values() if len(val) == 1]
-        print(val_check)
-        if len(val_check) == 2:
+        val_check = self.value_check(time_room)
+
+        if val_check == (1, 1):
             room = time_room["room"][0]
             converted_time = time_utils.convert_to_utc(time_room["date"][0])
 
@@ -163,17 +162,23 @@ class Streambot:
                 loggly.info("scheduled this tweet for retweet: {}".format(tweet))
 
             else:
-                message = """
-                            Tweet recived for an event bot is already scheduled
-                            to retweet about. Sender: {}, room: {}, time: {}, 
-                            tweet: {} 
-                          """
+                message = """Tweet recived for an event bot is already scheduled
+                    to retweet about. Sender: {}, room: {}, time: {}, tweet: {} 
+                    """
                 message = message.format(screen_name, room, converted_time, tweet)
                 loggly.info(message)
 
-        else:
+        elif val_check == (0, 0):
             # tweet found but without valid time or room extracted, ignore
             pass
+
+        else:
+            # tweet with relevant information but not exactly 1 time & 1 room
+            message = """Tweet found that needs review: {}  tweet_id: {}
+                screen_name: {}, user_id: {}
+                """
+            message = message.format(tweet, tweet_id, screen_name, user_id)
+            self.send_slack_message("#need_review", message)
 
 
 if __name__ == '__main__':

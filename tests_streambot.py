@@ -52,7 +52,9 @@ class TestStreambotMethods(unittest.TestCase):
     def test_retweet_logic_with_valid_time_and_room(self, t_r_parse, 
                                                     time_convert, conflict,
                                                     slack_message, create_event,
-                                                    schedule_tweets, ):
+                                                    schedule_tweets):
+
+        # fake values for info extracted from tweet and no event conflict
         t_r_parse.return_value = {
             "date": [datetime.datetime.utcnow()],
             "room": ["A123"]
@@ -60,6 +62,13 @@ class TestStreambotMethods(unittest.TestCase):
         conflict.return_value = False
 
         self.S_bot.retweet_logic("fake tweet", 12345, "screen_name", 12345)
+
+        # these methods should be called once if tweet has exactly 1 room & 1 time
+        self.assertEqual(time_convert.call_count, 1)
+        self.assertEqual(conflict.call_count, 1)
+        self.assertEqual(slack_message.call_count, 1)
+        self.assertEqual(create_event.call_count, 1)
+        self.assertEqual(schedule_tweets.call_count, 1)
 
 
 
