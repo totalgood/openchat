@@ -64,6 +64,7 @@ class TestStreambotMethods(unittest.TestCase):
         self.S_bot.retweet_logic("fake tweet", 12345, "screen_name", 12345)
 
         # these methods should be called once if tweet has exactly 1 room & 1 time
+        self.assertEqual(t_r_parse.call_count, 1)
         self.assertEqual(time_convert.call_count, 1)
         self.assertEqual(conflict.call_count, 1)
         self.assertEqual(slack_message.call_count, 1)
@@ -81,6 +82,7 @@ class TestStreambotMethods(unittest.TestCase):
         }
         
         self.S_bot.retweet_logic("fake tweet", 12345, "screen_name", 12345)
+        self.assertEqual(t_r_parse.call_count, 1)
         self.assertEqual(slack_message.call_count, 1)
 
     @mock.patch("streambot.Streambot.send_slack_message")
@@ -94,6 +96,7 @@ class TestStreambotMethods(unittest.TestCase):
         }
         
         self.S_bot.retweet_logic("fake tweet", 12345, "screen_name", 12345)
+        self.assertEqual(t_r_parse.call_count, 1)
         self.assertEqual(slack_message.call_count, 1)
 
     @mock.patch("streambot.Streambot.send_slack_message")
@@ -107,8 +110,21 @@ class TestStreambotMethods(unittest.TestCase):
         }
         
         self.S_bot.retweet_logic("fake tweet", 12345, "screen_name", 12345)
+        self.assertEqual(t_r_parse.call_count, 1)
         self.assertEqual(slack_message.call_count, 1)
 
+    @mock.patch("streambot.Streambot.parse_time_room")
+    def test_retweet_logic_with_no_time_or_room(self, t_r_parse):
+
+        # with no valid times or rooms nothing should be called
+        t_r_parse.return_value = {
+            "date": [],
+            "room": []
+        }
+
+        self.S_bot.retweet_logic("fake tweet", 12345, "screen_name", 12345)
+        self.assertEqual(t_r_parse.call_count, 1)
+    
 
 if __name__ == '__main__':
     unittest.main()
