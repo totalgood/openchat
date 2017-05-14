@@ -132,22 +132,52 @@ class TestTweetUtils(TestCase):
 
         self.assertEqual(scheduled_tweet.approved, 0)
 
+
+class TestTweetUtilsRegex(TestCase):
+    """Make sure the regex to extract room from a tweet behaves as expected"""
+
+    def setUp(self):
+        OutgoingConfig.objects.create(auto_send=True, 
+                                    default_send_interval=1, 
+                                    ignore_users=[12345,])
+        # what SUTime returns when it parses time in tweet
+        self.extracted_time = [
+                                {
+                                'type': 'TIME', 
+                                'end': 24, 
+                                'text': '2:05pm', 
+                                'value': '2017-04-11T14:05', 
+                                'start': 18
+                                }
+                              ]
+        self.no_extracted_time = []
+
     def test_get_time_and_room_correctly_returns_time_room_obj(self):
         tweet = "a test tweet R123 2:05pm"
+        result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
 
-        # what SUTime returns when it parses time in tweet
-        extracted_time = [
-                            {
-                            'type': 'TIME', 
-                            'end': 24, 
-                            'text': '2:05pm', 
-                            'value': '2017-04-11T14:05', 
-                            'start': 18
-                            }
-                          ]
         expected_output = {'room': ['r123'], 'date': ['2017-04-11T14:05']}
+        self.assertEqual(result, expected_output)
 
-        result = tweet_utils.get_time_and_room(tweet, extracted_time)
+    def test_get_time_and_room_with_period_after_room_number(self):
+        tweet = "a test tweet with a period after room num r123. 2:05pm"
+        result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
+
+        expected_output = {'room': ['r123'], 'date': ['2017-04-11T14:05']}
+        self.assertEqual(result, expected_output)
+
+    def test_get_time_and_room_with_only_room_present(self):
+        tweet = "a test tweet with only a room number present R123"
+        result = tweet_utils.get_time_and_room(tweet, self.no_extracted_time)
+
+        expected_output = {'room': ['r123'], 'date': []}
+        self.assertEqual(result, expected_output)
+
+    def test_get_time_and_room_with_only_time_present(self):
+        tweet = "a test tweet with only a time present 2:05pm"
+        result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
+
+        expected_output = {'room': [], 'date': ['2017-04-11T14:05']}
         self.assertEqual(result, expected_output)
 
 
