@@ -25,7 +25,7 @@ class StreamListener(tweepy.StreamListener):
         self.api = api or API()
         # needed ref to streambot so method can be called
         self.streambot = streambot
-        self.tw_bot_id = 841013993602863104
+        self.tw_bot_id = 856937832706842624
         self.ignored_users = []
         
     def update_ignore_users(self):
@@ -74,10 +74,10 @@ class Streambot:
 
     def setup_auth(self):
         """Set up auth stuff for api and return tweepy api object"""
-        auth = tweepy.OAuthHandler(s.listener["CONSUMER_KEY"], 
-                                   s.listener["CONSUMER_SECRET"])
-        auth.set_access_token(s.listener["ACCESS_TOKEN"], 
-                              s.listener["ACCESS_TOKEN_SECRET"])
+        auth = tweepy.OAuthHandler(s.openspaces["CONSUMER_KEY"], 
+                                   s.openspaces["CONSUMER_SECRET"])
+        auth.set_access_token(s.openspaces["ACCESS_TOKEN"], 
+                              s.openspaces["ACCESS_TOKEN_SECRET"])
 
         api = tweepy.API(auth)
         return api
