@@ -43,6 +43,18 @@ class TestStreambotMethods(unittest.TestCase):
         output = self.S_bot.value_check(time_room_obj)
         self.assertEqual(output, (2, 2))
 
+    @mock.patch("openspaces.bot_utils.time_utils.get_local_clock_time")
+    def test_send_mention_tweet_message_calls_correct_util(self, clock_time):
+        # need to mock the streambot api method called in send_mention_tweet
+        self.S_bot.api = mock.MagicMock()
+        self.S_bot.api.update_status = lambda **x: x
+        clock_time.return_value = "17:05"
+
+        self.S_bot.send_mention_tweet("user_name")
+        
+        self.assertEqual(clock_time.call_count, 1)
+
+    @mock.patch("streambot.Streambot.send_mention_tweet")
     @mock.patch("openspaces.bot_utils.tweet_utils.schedule_tweets")
     @mock.patch("openspaces.bot_utils.db_utils.create_event")
     @mock.patch("streambot.Streambot.send_slack_message")
@@ -52,7 +64,7 @@ class TestStreambotMethods(unittest.TestCase):
     def test_retweet_logic_with_valid_time_and_room(self, t_r_parse, 
                                                     time_convert, conflict,
                                                     slack_message, create_event,
-                                                    schedule_tweets):
+                                                    schedule_tweets, mention):
 
         # fake values for info extracted from tweet and no event conflict
         t_r_parse.return_value = {
@@ -70,6 +82,7 @@ class TestStreambotMethods(unittest.TestCase):
         self.assertEqual(slack_message.call_count, 1)
         self.assertEqual(create_event.call_count, 1)
         self.assertEqual(schedule_tweets.call_count, 1)
+        self.assertEqual(mention.call_count, 1)
 
     @mock.patch("streambot.Streambot.send_slack_message")
     @mock.patch("openspaces.bot_utils.db_utils.check_time_room_conflict")
@@ -93,6 +106,7 @@ class TestStreambotMethods(unittest.TestCase):
         self.assertEqual(time_convert.call_count, 1)
         self.assertEqual(conflict.call_count, 1)
         self.assertEqual(slack_message.call_count, 1)
+
 
     @mock.patch("streambot.Streambot.send_slack_message")
     @mock.patch("streambot.Streambot.parse_time_room")

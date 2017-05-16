@@ -92,16 +92,23 @@ class Streambot:
         stream = tweepy.Stream(auth=self.api.auth, listener=self.stream_listener)
         stream.filter(track=search_list)
 
-    def send_mention_tweet(self, screen_name, room, time):
+    def send_mention_tweet(self, screen_name):
         """Mention a user in a tweet from bot letting them know that
         their tweet has been recieved and that we will send out reminders
         about their event.
         """
-        mention = """@{} saw your Open Spaces tweet for: room {} at {}. 
-                  Pending approval we'll retweet a reminder before your event!
-                  """
-        mention = mention.format(screen_name, room, time)
-        self.api.update_status(status=mention)
+        hours_mins = time_utils.get_local_clock_time()
+
+        mention = "@{} just saw your Open Spaces tweet at {}." 
+        mention += " Pending approval we'll retweet a reminder before your event!"
+        mention = mention.format(screen_name, hours_mins)
+        
+        try:
+            self.api.update_status(status=mention)
+        except:
+            # if same user tweets valid openspaces tweet at exact same clock time
+            # it causes a duplicate tweet which bot can't send
+            loggly.info("duplicate tweet by openspaces bot in send_mention_tweet")
 
     def send_slack_message(self, channel, message):
         """Send a slack message a channel
@@ -151,7 +158,7 @@ class Streambot:
                 slack_message = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
                 self.send_slack_message('#outgoing_tweets', slack_message)
 
-                # self.send_mention_tweet(screen_name, room, converted_time)
+                self.send_mention_tweet(screen_name)
 
                 # This record lets us check that retweets not for same event
                 db_utils.create_event(

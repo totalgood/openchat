@@ -203,3 +203,8 @@ class TestTimeUtils(TestCase):
         talk_time = datetime.now(timezone.utc) + timedelta(minutes=31)
         outside_30_mins = time_utils.check_start_time(talk_time)
         self.assertFalse(outside_30_mins)
+
+    @freeze_time("2017-08-05")
+    def test_get_local_clock_time(self):
+        clock_t = time_utils.get_local_clock_time()
+        self.assertEqual(clock_t, "17:00")

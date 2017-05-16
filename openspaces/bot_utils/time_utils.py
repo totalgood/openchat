@@ -25,6 +25,12 @@ def convert_to_utc(talk_time):
     
     return local_as_utc
 
+def get_local_clock_time():
+    local_dt = datetime.now(pytz.timezone('US/Pacific'))
+    local_clock_time = datetime.strftime(local_dt, "%H:%M")
+    return local_clock_time
+
+
 def check_start_time(talk_time):
     """If time of openspaces talk within next 30 mins return True"""
     time_diff = talk_time - datetime.now(timezone.utc)
