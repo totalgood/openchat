@@ -97,7 +97,9 @@ class Streambot:
         their tweet has been recieved and that we will send out reminders
         about their event.
         """
-        mention = "@{} saw your openspaces tweet for: room {} at {}. Times should be relative to US/Pacific"
+        mention = """@{} saw your Open Spaces tweet for: room {} at {}. 
+                  Pending approval we'll retweet a reminder before your event!
+                  """
         mention = mention.format(screen_name, room, time)
         self.api.update_status(status=mention)
 
@@ -186,6 +188,6 @@ class Streambot:
 
 if __name__ == '__main__':
     bot = Streambot()
-    keyword = "openspacestest"
+    keyword = "pyconopenspaces"
     print(keyword)
     bot.run_stream([keyword])
