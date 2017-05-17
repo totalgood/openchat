@@ -195,6 +195,4 @@ class Streambot:
 
 if __name__ == '__main__':
     bot = Streambot()
-    keyword = "pyconopenspaces"
-    print(keyword)
-    bot.run_stream([keyword])
+    bot.run_stream(["pyconopenspaces", "pyconopenspace"])
