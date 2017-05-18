@@ -274,7 +274,7 @@ class TestTimeUtils(TestCase):
 
     @freeze_time("2017-08-05")
     def test_convert_to_utc_returns_correct_time(self):
-        time_str_from_sutime = "2017-04-11T08:00"
+        time_str_from_sutime = "2017-08-5T08:00"
         converted_time = time_utils.convert_to_utc(time_str_from_sutime)
         expected_output = datetime(2017, 8, 4, 15, tzinfo=self.utc) 
 
@@ -300,6 +300,58 @@ class TestTimeUtils(TestCase):
         expected_output = datetime(2017, 5, 20, 1, tzinfo=self.utc)
         self.assertEqual(converted_time, expected_output)
 
+    # @freeze_time("2017-05-17")
+    # def test_convert_to_utc_when_sutime_off_defualt(self):
+    #     sutime_str = "2017-05-17T19:00"
+    #     converted_time = time_utils.convert_to_utc(sutime_str)
+    #     print(converted_time)
+
+
+    @freeze_time("2017-08-05")
+    def test_sutime_check_mention_works_with_no_mention(self):
+        """Test that SUTime didn't see any time mentions that change the date 
+        in is on default return True
+        """
+        sut_time_dt = datetime(2017, 8, 5,tzinfo=self.utc)
+        result = time_utils.sutime_on_default_utc(sut_time_dt)
+        self.assertTrue(result)
+
+    @freeze_time("2017-08-05")
+    def test_sutime_check_mention_works_with_a_time_mention(self):
+        """Test that SUTime did see a time mention and is off default
+        return False
+        """
+        sut_time_dt = datetime(2017, 8, 6,tzinfo=self.utc)
+        result = time_utils.sutime_on_default_utc(sut_time_dt)
+        self.assertFalse(result)
+
+    @freeze_time("2017-08-05T10:00")
+    def test_utc_between_day_gap_check_works(self):
+        """Test that check to make see if UTC is within the day gap before
+        Portland catches up and is on the same date
+        """
+        result = time_utils.utc_bewteen_day_gap()
+        # 10 am is outside of the day gap
+        self.assertFalse(result)
+
+    @freeze_time("2017-08-05T00:01")
+    def test_utc_between_day_gap_check_works(self):
+        """Test that check to make see if UTC is within the day gap before
+        Portland catches up and is on the same date
+        """
+        result = time_utils.utc_bewteen_day_gap()
+        # 12:01 am is inside the day gap
+        self.assertTrue(result)
+
+    @freeze_time("2017-08-05T07:01")
+    def test_utc_between_day_gap_check_works(self):
+        """Test that check to make see if UTC is within the day gap before
+        Portland catches up and is on the same date
+        """
+        result = time_utils.utc_bewteen_day_gap()
+        # 7:01 am is outside of the day gap
+        self.assertFalse(result)
+
     @freeze_time("2017-08-05")
     def test_check_start_time_helper_func(self):
         talk_time = datetime.now(timezone.utc) + timedelta(minutes=15)
@@ -314,6 +366,7 @@ class TestTimeUtils(TestCase):
     def test_get_local_clock_time(self):
         clock_t = time_utils.get_local_clock_time()
         self.assertEqual(clock_t, "17:00")
+
 
 
 
