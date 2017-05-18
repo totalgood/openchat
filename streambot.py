@@ -149,7 +149,7 @@ class Streambot:
 
         if val_check == (1, 1):
             room = time_room["room"][0]
-            date_mention = tweet_utils.check_for_date_mention(tweet)
+            date_mention = tweet_utils.check_date_mention(tweet)
             converted_time = time_utils.convert_to_utc(time_room["date"][0],
                                                         date_mention
                                                     )

@@ -15,7 +15,7 @@ def clean_times(extracted_time):
     cleaned_times = [time for time in extracted_time if not year_pattern.match(time)]
     return cleaned_times
 
-def check_date_metnion(tweet):
+def check_date_mention(tweet):
     """Check the tweet to see if there is a valid date mention for the 
     three dates of pyconopenspaces: 5/19, 5/20, 5/21. Quick fix to override 
     SUTime defaulting to today's date and missing numeric info about event's date

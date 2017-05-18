@@ -252,17 +252,17 @@ class TestTweetUtilsRegex(TestCase):
 
     def test_check_date_mention_works_with_example_tweet(self):
         tweet_with_date = "@fakeuser \t \n http://www.example.com #pyconopenspaces 5/19"
-        result = tweet_utils.check_date_metnion(tweet_with_date)
+        result = tweet_utils.check_date_mention(tweet_with_date)
         self.assertEqual(result, ["5/19"])
 
     def test_check_date_mention_mulitple_return_false(self):
         tweet_multi = "5/19 5/20 5/21 a bunch of dates should return false"
-        result = tweet_utils.check_date_metnion(tweet_multi)
+        result = tweet_utils.check_date_mention(tweet_multi)
         self.assertFalse(result)
 
     def test_check_date_mention_wrong_dates_return_false(self):
         tweet_wrong = "4/21 a talk for last month"
-        result = tweet_utils.check_date_metnion(tweet_wrong)
+        result = tweet_utils.check_date_mention(tweet_wrong)
         self.assertFalse(result)
 
 
