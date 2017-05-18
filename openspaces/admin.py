@@ -29,7 +29,7 @@ class TweetAdmin(admin.ModelAdmin):
         }),
     )
     date_hierarchy = 'created_at'
-    list_display = ('text', 'user', 'created_at')
+    list_display = ('text', 'user', 'created_at', 'id_str')
     select_related = True
     search_fields = ['text', 'user__screen_name',]
 

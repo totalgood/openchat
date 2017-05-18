@@ -8,10 +8,15 @@ def convert_to_utc(talk_time, date_mention=False):
 
     local_tz = pytz.timezone('US/Pacific')
 
-    # get correct local year, month, dat
+    # get correct local year, month, day
     local_date = datetime.now(local_tz)
     local_date_str = datetime.strftime(local_date, "%Y %m %d")
     year, month, day = local_date_str.split(" ")
+
+    if date_mention:
+        # quick fix to change date to valid pycon date if date not picked up by SUTime
+        month, day = date_mention[0].split("/")
+        month = "0" + month
 
     # get SUTime parsed talk time and extract hours, mins
     dt_obj = parse(talk_time)

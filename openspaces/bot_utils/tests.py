@@ -269,14 +269,35 @@ class TestTweetUtilsRegex(TestCase):
 class TestTimeUtils(TestCase):
     """Tests of the time utils used in bot"""
 
+    def setUp(self):
+        self.utc = pytz.utc
+
     @freeze_time("2017-08-05")
     def test_convert_to_utc_returns_correct_time(self):
         time_str_from_sutime = "2017-04-11T08:00"
         converted_time = time_utils.convert_to_utc(time_str_from_sutime)
+        expected_output = datetime(2017, 8, 4, 15, tzinfo=self.utc) 
 
-        utc = pytz.utc
-        expected_output = datetime(2017, 8, 4, 15, tzinfo=utc) 
+        self.assertEqual(converted_time, expected_output)
 
+    @freeze_time("2017-05-17")
+    def test_convert_to_utc_with_date_mention_changes_date(self):
+        sutime_str = "2017-05-17T12:00"
+        date_mention = ["5/19"]
+        converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
+
+        # 12pm is 19:00 in utc date should be same as in date_mention
+        expected_output = datetime(2017, 5, 19, 19, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17")
+    def test_convert_to_utc_with_date_mention_accounts_for_midnight_utc(self):
+        sutime_str = "2017-05-17T18:00"
+        date_mention = ["5/19"]
+        converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
+
+        # 18:00 is 01:00 in utc date next day
+        expected_output = datetime(2017, 5, 20, 1, tzinfo=self.utc)
         self.assertEqual(converted_time, expected_output)
 
     @freeze_time("2017-08-05")
@@ -293,3 +314,22 @@ class TestTimeUtils(TestCase):
     def test_get_local_clock_time(self):
         clock_t = time_utils.get_local_clock_time()
         self.assertEqual(clock_t, "17:00")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
