@@ -40,31 +40,6 @@ class TestDBUtils(TestCase):
         self.assertEqual(len(tweets_after_save), 1)
 
     @freeze_time("2017-08-05")
-    def test_event_conflict_check_works_correctly(self):
-        """Check that conflict check returns correct T/F based on matches"""
-
-        time_delt = timedelta(1)
-        fake_now = datetime.now(timezone.utc)
-        fake_user = User.objects.create(id_str=12345)
-        fake_loc = "B123"
-
-        OpenspacesEvent.objects.create(
-                            description="a fake description",
-                            start=fake_now, 
-                            location=fake_loc,
-                            creator=fake_user
-                            )
-
-        diff_time = db_utils.check_time_room_conflict(fake_now - time_delt, fake_loc)
-        self.assertFalse(diff_time)
-
-        diff_room = db_utils.check_time_room_conflict(fake_now, "Z123")
-        self.assertFalse(diff_room)
-
-        match = db_utils.check_time_room_conflict(fake_now, fake_loc)
-        self.assertTrue(match)
-
-    @freeze_time("2017-08-05")
     def test_update_time_and_room_utils_works(self):
         no_records = OpenspacesEvent.objects.all()
         self.assertEqual(len(no_records), 0)
@@ -79,6 +54,91 @@ class TestDBUtils(TestCase):
 
         should_be_one = OpenspacesEvent.objects.all()
         self.assertEqual(len(should_be_one), 1)
+
+
+class TestDBRoomConflictUtile(TestCase):
+    """Test that conflict check returns correct T/F based on matches 
+    in time range. Default time range is -15 to +30 minutes of an 
+    existing event. These values can be adjusted in bot when conflict
+    check is called.
+    """
+
+    @freeze_time("2017-08-05T11:00")
+    def setUp(self):
+        self.now = datetime.now(timezone.utc)
+        self.loc = "B123"
+        fake_user = User.objects.create(id_str=12345)
+        OpenspacesEvent.objects.create(
+                            description="a fake description",
+                            start=self.now, 
+                            location=self.loc,
+                            creator=fake_user
+                            )
+
+    def test_conflict_check_works_correctly_with_different_rooms(self):
+        # same time but different room is fine
+        diff_room = db_utils.check_time_room_conflict(self.now, "Z123")
+        self.assertFalse(diff_room)
+
+    def test_conflict_check_returns_exact_match_as_expected(self):
+        exact_match = db_utils.check_time_room_conflict(self.now, self.loc)
+        self.assertTrue(exact_match)
+
+    def test_conflict_check_outside_lower_bound_default_time(self):
+        time_11_16 = self.now + timedelta(minutes=16)
+        # existing 11:00 event is more than 15 mins before new 11:16 event
+        lower_check = db_utils.check_time_room_conflict(time_11_16, self.loc)
+        self.assertFalse(lower_check)
+
+    def test_conflict_check_inside_lower_bound_of_default(self):
+        time_11_15 = self.now + timedelta(minutes=15)
+        #existing 11:00 event is within 15 minutes before new 11:15 event
+        edge_lower = db_utils.check_time_room_conflict(time_11_15, self.loc)
+        self.assertTrue(edge_lower)
+
+        time_11_10 = self.now + timedelta(minutes=10)
+        inside_lower = db_utils.check_time_room_conflict(time_11_10, self.loc)
+        self.assertTrue(inside_lower)
+
+    def test_conflict_check_outside_upper_bound_default_time(self):
+        time_10_29 = self.now - timedelta(minutes=31)
+        # exisiting 11:00 event is more than 30 minutes after new 10:29 event
+        upper_check = db_utils.check_time_room_conflict(time_10_29, self.loc)
+        self.assertFalse(upper_check)
+
+    def test_conflict_inside_upper_bound_default_time(self):
+        time_10_30 = self.now - timedelta(minutes=30)
+        # existing 11:00 event is within 30 minutes of new 10:30 event
+        edge_upper = db_utils.check_time_room_conflict(time_10_30, self.loc)
+        self.assertTrue(edge_upper)
+
+        time_10_45 = self.now - timedelta(minutes=15)
+        inside_upper = db_utils.check_time_room_conflict(time_10_45, self.loc)
+        self.assertTrue(inside_upper)
+
+    def test_conflict_inside_and_outside_non_default_upper_time(self):
+        time_10_01 = self.now - timedelta(minutes=59)
+        # existing 11:00 time is within 60 mins after new 10:01 event
+        inside_upper = db_utils.check_time_room_conflict(time_10_01, 
+                                                        self.loc, mins_after=60)
+        self.assertTrue(inside_upper)
+
+        time_9_50 = self.now - timedelta(minutes=70)
+        outside_upper = db_utils.check_time_room_conflict(time_9_50, 
+                                                        self.loc, mins_after=60)
+        self.assertFalse(outside_upper)
+
+    def test_conflict_inside_and_outside_non_default_lower_time(self):
+        time_11_59 = self.now + timedelta(minutes=59)
+        # existing 11:00 time is within 60 mins beforw new 11:59 event
+        inside_lower = db_utils.check_time_room_conflict(time_11_59, 
+                                                        self.loc, mins_before=60)
+        self.assertTrue(inside_lower)
+
+        time_12_01 = self.now - timedelta(minutes=61)
+        outside_lower = db_utils.check_time_room_conflict(time_12_01, 
+                                                        self.loc, mins_before=60)
+        self.assertFalse(outside_lower)
 
 
 class TestTweetUtils(TestCase):
