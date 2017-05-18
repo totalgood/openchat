@@ -3,7 +3,7 @@ from dateutil.parser import parse
 import pytz
 
 
-def convert_to_utc(talk_time):
+def convert_to_utc(talk_time, date_mention=False):
     """Convert the datetime string we get from SUTime to utcnow"""
 
     local_tz = pytz.timezone('US/Pacific')

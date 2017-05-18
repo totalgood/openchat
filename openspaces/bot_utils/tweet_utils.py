@@ -15,6 +15,16 @@ def clean_times(extracted_time):
     cleaned_times = [time for time in extracted_time if not year_pattern.match(time)]
     return cleaned_times
 
+def check_date_metnion(tweet):
+    """Check the tweet to see if there is a valid date mention for the 
+    three dates of pyconopenspaces: 5/19, 5/20, 5/21. Quick fix to override 
+    SUTime defaulting to today's date and missing numeric info about event's date
+    """
+    date_pat = re.compile("([5]{1}\/\d{2})")
+    valid_dates = ["5/19", "5/20", "5/21"]
+    dates = [d for d in tweet.split() if date_pat.match(d) and d in valid_dates]
+    return dates if len(dates) == 1 else False
+
 def get_time_and_room(tweet, extracted_time):
     """Get room number from a tweet while ignoring the time that was extracted
     using SUTime. extracted_time should be equal to the object SUTime parsed 
