@@ -7,6 +7,14 @@ import re
 from . import db_utils, time_utils
 
 
+def clean_times(extracted_time):
+    """Clean any time values that are just years.
+    Quick fix to stop bot grabbing 2017 off of #PyCon2017
+    """
+    year_pattern = re.compile("\d{4}$")
+    cleaned_times = [time for time in extracted_time if not year_pattern.match(time)]
+    return cleaned_times
+
 def get_time_and_room(tweet, extracted_time):
     """Get room number from a tweet while ignoring the time that was extracted
     using SUTime. extracted_time should be equal to the object SUTime parsed 

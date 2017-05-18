@@ -240,6 +240,16 @@ class TestTweetUtilsRegex(TestCase):
         expected_output = {'room': [], 'date': ['2017-04-11T14:05']}
         self.assertEqual(result, expected_output)
 
+    def test_clean_times_pulls_years_out_correctly(self):
+        time_input = ['2017', '2017-05-18T17:00']
+        result = tweet_utils.clean_times(time_input)
+        self.assertEqual(result, ['2017-05-18T17:00'])
+
+    def test_clean_times_pulls_multiple_years_out_correctly(self):
+        time_input = ['2017', '2015', '1203', '2017-05-18T17:00']
+        result = tweet_utils.clean_times(time_input)
+        self.assertEqual(result, ['2017-05-18T17:00'])
+
 
 class TestTimeUtils(TestCase):
     """Tests of the time utils used in bot"""
