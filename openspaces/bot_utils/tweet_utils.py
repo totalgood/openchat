@@ -96,7 +96,7 @@ def schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, interval=15):
 
     for mins in range(interval,(num_tweets*interval+1), interval):
         remind_time = talk_time - timedelta(minutes=mins)
-        message = "Coming up in {} minutes! {}".format(mins, embeded_tweet)
+        message = "Coming up in {} minutes! #PyConOpenSpace {}".format(mins, embeded_tweet)
 
         db_utils.save_outgoing_tweet(
                                     tweet=message,
