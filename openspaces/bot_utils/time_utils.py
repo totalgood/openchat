@@ -5,33 +5,31 @@ import pytz
 
 def convert_to_utc(talk_time, date_mention=False):
     """Convert the datetime string we get from SUTime to utcnow"""
+    local_tz = pytz.timezone('US/Pacific')
+    parsed_tt = parse(talk_time)
 
-    sutime_on_default = sutime_on_default_utc(parse(talk_time))
+    sutime_on_default = sutime_on_default_utc(parsed_tt)
 
     if sutime_on_default:
         # get correct local year, month, day if sutime is still on default UTC
-        local_tz = pytz.timezone('US/Pacific')
         local_date = datetime.now(local_tz)
         local_date_str = datetime.strftime(local_date, "%Y %m %d")
         year, month, day = local_date_str.split(" ")
     else:
         # check if utc between midnight and 7am if so use SUTime date -1 day to account
         # for portland day diff else use SUTime date as is. 
-        pass
+        date_sut_str = datetime.strftime(parsed_tt, "%Y %m %d")
+        year, month, day = date_sut_str.split(" ")
 
-
-    # ---------------------------------------------
     if date_mention:
         # quick fix to change date to valid pycon date if date not picked up by SUTime
         month, day = date_mention[0].split("/")
         month = "0" + month
 
     # get SUTime parsed talk time and extract hours, mins
-    sut_dt_obj = parse(talk_time)
-    local_time_str = datetime.strftime(sut_dt_obj, "%H %M")
+    local_time_str = datetime.strftime(parsed_tt, "%H %M")
     hours, mins = local_time_str.split(" ")
 
-    # ---------------------------------------------
     # build up correct datetime obj, normalize & localize, switch to utc 
     correct_dt = datetime(int(year), int(month), int(day), int(hours), int(mins))
     tz_aware_local = local_tz.normalize(local_tz.localize(correct_dt))
@@ -47,16 +45,6 @@ def sutime_on_default_utc(time):
     sut_date_str = datetime.strftime(time, "%Y %m %d")
 
     return True if utc_date_str == sut_date_str else False
-
-def utc_bewteen_day_gap():
-    """Check to see if current UTC time is one day ahead of Portland"""
-    current_utc = datetime.utcnow()
-    midnight = time(0,0)
-    seven_am = time(7,0)
-    if midnight <= current_utc.time() <= seven_am:
-        return True
-    else:
-        return False
 
 def get_local_clock_time():
     local_dt = datetime.now(pytz.timezone('US/Pacific'))
