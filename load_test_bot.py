@@ -149,6 +149,16 @@ class Streambot:
 
 if __name__ == '__main__':
     bot = Streambot()
-    keyword = "Python"
-    print(keyword)
-    bot.run_stream([keyword])
+    # keyword = "Python"
+    # print(keyword)
+    looking = True
+
+    while looking:
+        sentence = input("enter a fake tweet: ")
+
+        if sentence == "quit":
+            looking = False
+        else: 
+            output = bot.parse_time_room(sentence)
+            print(output)
+

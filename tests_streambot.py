@@ -84,13 +84,14 @@ class TestStreambotMethods(unittest.TestCase):
         self.assertEqual(schedule_tweets.call_count, 1)
         self.assertEqual(mention.call_count, 1)
 
+    @mock.patch("openspaces.bot_utils.tweet_utils.check_date_mention")
     @mock.patch("streambot.Streambot.send_slack_message")
     @mock.patch("openspaces.bot_utils.db_utils.check_time_room_conflict")
     @mock.patch("openspaces.bot_utils.time_utils.convert_to_utc")
     @mock.patch("streambot.Streambot.parse_time_room")
     def test_retweet_logic_valid_time_room_with_conflict(self, t_r_parse, 
                                                         time_convert, conflict,
-                                                        slack_message):
+                                                        slack_message, date_mention):
 
         # fake values for info extracted from tweet with event conflict
         t_r_parse.return_value = {
@@ -106,6 +107,7 @@ class TestStreambotMethods(unittest.TestCase):
         self.assertEqual(time_convert.call_count, 1)
         self.assertEqual(conflict.call_count, 1)
         self.assertEqual(slack_message.call_count, 1)
+        self.assertEqual(date_mention.call_count, 1)
 
 
     @mock.patch("streambot.Streambot.send_slack_message")

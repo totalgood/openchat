@@ -192,6 +192,19 @@ class TestTweetUtils(TestCase):
 
         self.assertEqual(scheduled_tweet.approved, 0)
 
+    def test_find_valid_rooms_grabs_correct_rooms(self):
+        tweet = "a fake tweet with a valid room b112".split()
+        result = tweet_utils.find_valid_rooms(tweet)
+        self.assertEqual(result, ["b112"])
+
+        multi_room = "a fake a105+a106 \t \n tweet @ # http::// ^ & * with mulitple rooms c123, b112.".split()
+        multi_result = tweet_utils.find_valid_rooms(multi_room)
+        self.assertEqual(multi_result, ["a105+a106", "b112"])
+
+        no_tweet = ""
+        no_result = tweet_utils.find_valid_rooms(no_tweet)
+        self.assertEqual(no_result, [])
+
 
 class TestTweetUtilsRegex(TestCase):
     """Make sure the regex to extract room from a tweet behaves as expected"""
@@ -213,24 +226,24 @@ class TestTweetUtilsRegex(TestCase):
         self.no_extracted_time = []
 
     def test_get_time_and_room_correctly_returns_time_room_obj(self):
-        tweet = "a test tweet R123 2:05pm"
+        tweet = "a test tweet B114 2:05pm"
         result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
 
-        expected_output = {'room': ['r123'], 'date': ['2017-04-11T14:05']}
+        expected_output = {'room': ['b114'], 'date': ['2017-04-11T14:05']}
         self.assertEqual(result, expected_output)
 
     def test_get_time_and_room_with_period_after_room_number(self):
-        tweet = "a test tweet with a period after room num r123. 2:05pm"
+        tweet = "a test tweet with a period after room num B112. 2:05pm"
         result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
 
-        expected_output = {'room': ['r123'], 'date': ['2017-04-11T14:05']}
+        expected_output = {'room': ['b112'], 'date': ['2017-04-11T14:05']}
         self.assertEqual(result, expected_output)
 
     def test_get_time_and_room_with_only_room_present(self):
-        tweet = "a test tweet with only a room number present R123"
+        tweet = "a test tweet with only a room number present A105+A106"
         result = tweet_utils.get_time_and_room(tweet, self.no_extracted_time)
 
-        expected_output = {'room': ['r123'], 'date': []}
+        expected_output = {'room': ['a105+a106'], 'date': []}
         self.assertEqual(result, expected_output)
 
     def test_get_time_and_room_with_only_time_present(self):
@@ -240,19 +253,102 @@ class TestTweetUtilsRegex(TestCase):
         expected_output = {'room': [], 'date': ['2017-04-11T14:05']}
         self.assertEqual(result, expected_output)
 
+    def test_clean_times_pulls_years_out_correctly(self):
+        time_input = ['2017', '2017-05-18T17:00']
+        result = tweet_utils.clean_times(time_input)
+        self.assertEqual(result, ['2017-05-18T17:00'])
+
+    def test_clean_times_pulls_multiple_years_out_correctly(self):
+        time_input = ['2017', '2015', '1203', '2017-05-18T17:00']
+        result = tweet_utils.clean_times(time_input)
+        self.assertEqual(result, ['2017-05-18T17:00'])
+
+    def test_check_date_mention_works_with_example_tweet(self):
+        tweet_with_date = "@fakeuser \t \n http://www.example.com #pyconopenspaces 5/19"
+        result = tweet_utils.check_date_mention(tweet_with_date)
+        self.assertEqual(result, ["5/19"])
+
+    def test_check_date_mention_mulitple_return_false(self):
+        tweet_multi = "5/19 5/20 5/21 a bunch of dates should return false"
+        result = tweet_utils.check_date_mention(tweet_multi)
+        self.assertFalse(result)
+
+    def test_check_date_mention_wrong_dates_return_false(self):
+        tweet_wrong = "4/21 a talk for last month"
+        result = tweet_utils.check_date_mention(tweet_wrong)
+        self.assertFalse(result)
+
 
 class TestTimeUtils(TestCase):
     """Tests of the time utils used in bot"""
 
+    def setUp(self):
+        self.utc = pytz.utc
+
     @freeze_time("2017-08-05")
     def test_convert_to_utc_returns_correct_time(self):
-        time_str_from_sutime = "2017-04-11T08:00"
+        time_str_from_sutime = "2017-08-5T08:00"
         converted_time = time_utils.convert_to_utc(time_str_from_sutime)
-
-        utc = pytz.utc
-        expected_output = datetime(2017, 8, 4, 15, tzinfo=utc) 
+        expected_output = datetime(2017, 8, 4, 15, tzinfo=self.utc) 
 
         self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17")
+    def test_convert_to_utc_with_date_mention_changes_date(self):
+        sutime_str = "2017-05-17T12:00"
+        date_mention = ["5/19"]
+        converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
+
+        # 12pm is 19:00 in utc date should be same as in date_mention
+        expected_output = datetime(2017, 5, 19, 19, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17")
+    def test_convert_to_utc_with_date_mention_accounts_for_midnight_utc(self):
+        sutime_str = "2017-05-17T18:00"
+        date_mention = ["5/19"]
+        converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
+
+        # 18:00 is 01:00 in utc date next day
+        expected_output = datetime(2017, 5, 20, 1, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+# ----------------------------------------------------------
+# testing logic in convert utc time with SUTime mention around day gap
+
+    @freeze_time("2017-05-17T02:00")
+    def test_convert_to_utc_when_sutime_off_default_inside_gap(self):
+        # time below is like a user saying tomorrow at 7pm when UTC is 
+        # already a day ahead of Portland
+        sutime_str_after_17_00 = "2017-05-18T19:00"
+        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
+        expected_output = datetime(2017, 5, 18, 2, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17T02:00")
+    def test_convert_to_utc_when_sutime_off_default_outside_gap(self):
+        sutime_str_after_17_00 = "2017-05-18T14:00"
+        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
+        expected_output = datetime(2017, 5, 17, 21, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17T12:00")
+    def test_convert_to_utc_when_sutime_off_default_outside_gap(self):
+        # time for talk before midnight UTC
+        sutime_str_after_17_00 = "2017-05-17T16:00"
+        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
+        expected_output = datetime(2017, 5, 17, 23, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17T12:00")
+    def test_convert_to_utc_when_sutime_off_default_outside_gap(self):
+        # time for talk after midnight UTC
+        sutime_str_after_17_00 = "2017-05-17T19:00"
+        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
+        expected_output = datetime(2017, 5, 18, 2, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+# ----------------------------------------------------------
 
     @freeze_time("2017-08-05")
     def test_check_start_time_helper_func(self):
@@ -268,3 +364,4 @@ class TestTimeUtils(TestCase):
     def test_get_local_clock_time(self):
         clock_t = time_utils.get_local_clock_time()
         self.assertEqual(clock_t, "17:00")
+

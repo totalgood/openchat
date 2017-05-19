@@ -148,7 +148,10 @@ class Streambot:
 
         if val_check == (1, 1):
             room = time_room["room"][0]
-            converted_time = time_utils.convert_to_utc(time_room["date"][0])
+            date_mention = tweet_utils.check_date_mention(tweet)
+            converted_time = time_utils.convert_to_utc(time_room["date"][0],
+                                                        date_mention
+                                                    )
 
             # check for a time and room conflict, only 1 set of retweets per event
             # default time range that a room is resrved for is -15 +30 mins
