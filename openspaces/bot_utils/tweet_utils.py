@@ -3,6 +3,7 @@ import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 import re
+import string
 
 from . import db_utils, time_utils
 
@@ -25,6 +26,23 @@ def check_date_mention(tweet):
     dates = [d for d in tweet.split() if date_pat.match(d) and d in valid_dates]
     return dates if len(dates) == 1 else False
 
+def find_valid_rooms(words):
+    """Check to make sure a room mention is only one of the rooms available
+    for pycon openspaces, totally just a quick work around for pycon
+    """
+    # drop punctuation
+    words = " ".join(words)
+    exclude = set(string.punctuation)
+    exclude.discard("+")
+    words = "".join(ch for ch in words if ch not in exclude).split()
+    
+    #lower case because all words lowered in time and room func
+    valid_rooms = [
+        "a105+a106", "a107+a108", "b110+111", "b112",
+        "b113", "b114", "b115", "b116", "b117"
+    ]
+    return [room for room in words if room in valid_rooms]
+
 def get_time_and_room(tweet, extracted_time):
     """Get room number from a tweet while ignoring the time that was extracted
     using SUTime. extracted_time should be equal to the object SUTime parsed 
@@ -45,9 +63,11 @@ def get_time_and_room(tweet, extracted_time):
     # regular expression for room
     room_re = re.compile("([a-zA-Z](\d{3})[-+]?(\d{3})?)")
 
-    for word in filter_known_words:
-        if room_re.match(word):
-            result["room"].append(room_re.match(word).group())
+    # for word in filter_known_words:
+    #     if room_re.match(word):
+    #         result["room"].append(room_re.match(word).group())
+
+    result["room"] = find_valid_rooms(filter_known_words)
 
     return result
 

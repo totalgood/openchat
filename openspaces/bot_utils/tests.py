@@ -192,6 +192,19 @@ class TestTweetUtils(TestCase):
 
         self.assertEqual(scheduled_tweet.approved, 0)
 
+    def test_find_valid_rooms_grabs_correct_rooms(self):
+        tweet = "a fake tweet with a valid room b112".split()
+        result = tweet_utils.find_valid_rooms(tweet)
+        self.assertEqual(result, ["b112"])
+
+        multi_room = "a fake a105+a106 \t \n tweet @ # http::// ^ & * with mulitple rooms c123, b112.".split()
+        multi_result = tweet_utils.find_valid_rooms(multi_room)
+        self.assertEqual(multi_result, ["a105+a106", "b112"])
+
+        no_tweet = ""
+        no_result = tweet_utils.find_valid_rooms(no_tweet)
+        self.assertEqual(no_result, [])
+
 
 class TestTweetUtilsRegex(TestCase):
     """Make sure the regex to extract room from a tweet behaves as expected"""
@@ -213,24 +226,24 @@ class TestTweetUtilsRegex(TestCase):
         self.no_extracted_time = []
 
     def test_get_time_and_room_correctly_returns_time_room_obj(self):
-        tweet = "a test tweet R123 2:05pm"
+        tweet = "a test tweet B114 2:05pm"
         result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
 
-        expected_output = {'room': ['r123'], 'date': ['2017-04-11T14:05']}
+        expected_output = {'room': ['b114'], 'date': ['2017-04-11T14:05']}
         self.assertEqual(result, expected_output)
 
     def test_get_time_and_room_with_period_after_room_number(self):
-        tweet = "a test tweet with a period after room num r123. 2:05pm"
+        tweet = "a test tweet with a period after room num B112. 2:05pm"
         result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
 
-        expected_output = {'room': ['r123'], 'date': ['2017-04-11T14:05']}
+        expected_output = {'room': ['b112'], 'date': ['2017-04-11T14:05']}
         self.assertEqual(result, expected_output)
 
     def test_get_time_and_room_with_only_room_present(self):
-        tweet = "a test tweet with only a room number present R123"
+        tweet = "a test tweet with only a room number present A105+A106"
         result = tweet_utils.get_time_and_room(tweet, self.no_extracted_time)
 
-        expected_output = {'room': ['r123'], 'date': []}
+        expected_output = {'room': ['a105+a106'], 'date': []}
         self.assertEqual(result, expected_output)
 
     def test_get_time_and_room_with_only_time_present(self):
