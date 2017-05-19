@@ -123,8 +123,7 @@ class Streambot:
     def parse_time_room(self, tweet):
         """Get time and room number from a tweet using SUTime and tweet_utils"""
         extracted_time = self.sutime.parse(tweet)
-        cleaned_times = tweet_utils.clean_times(extracted_time)
-        time_and_room = tweet_utils.get_time_and_room(tweet, cleaned_times)
+        time_and_room = tweet_utils.get_time_and_room(tweet, extracted_time)
         return time_and_room
 
     def value_check(self, time_room_obj):
