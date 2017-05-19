@@ -352,22 +352,3 @@ class TestTimeUtils(TestCase):
         clock_t = time_utils.get_local_clock_time()
         self.assertEqual(clock_t, "17:00")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

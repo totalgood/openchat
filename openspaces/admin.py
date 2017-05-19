@@ -7,7 +7,7 @@ def convert_tz(time_obj):
     """Helper func to convert a models' field times to local TZ"""
 
     if time_obj:
-        fmt = '%H:%M:%S %Z'
+        fmt = '%m/%d %H:%M:%S %Z'
         dt = pytz.utc.localize(time_obj)
         out = dt.astimezone(pytz.timezone('US/Pacific'))
         return out.strftime(fmt)
