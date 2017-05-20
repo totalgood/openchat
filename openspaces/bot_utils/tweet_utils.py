@@ -61,7 +61,7 @@ def get_time_and_room(tweet, extracted_time):
     filter_known_words = [word.lower() for word in word_tokenize(tweet_without_time)]
 
     # regular expression for room, allows any 3 num combo following "a" or "b"
-    room_re = re.compile("([a-b](\d{3})[-+]?[a]?(\d{3})?)")
+    room_re = re.compile("([a-bA-B](\d{3})[-+]?[aA]?(\d{3})?)")
 
     for word in filter_known_words:
         if room_re.match(word):
