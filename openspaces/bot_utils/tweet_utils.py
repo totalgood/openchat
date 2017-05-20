@@ -60,14 +60,15 @@ def get_time_and_room(tweet, extracted_time):
     #filter_known_words = [word.lower() for word in word_tokenize(tweet_without_time) if word.lower() not in (stopwords.words('english') + nltk.corpus.words.words())]
     filter_known_words = [word.lower() for word in word_tokenize(tweet_without_time)]
 
-    # # regular expression for room
-    # room_re = re.compile("([a-zA-Z](\d{3})[-+]?(\d{3})?)")
+    # regular expression for room, allows any 3 num combo following "a" or "b"
+    room_re = re.compile("([a-b](\d{3})[-+]?[a]?(\d{3})?)")
 
-    # for word in filter_known_words:
-    #     if room_re.match(word):
-    #         result["room"].append(room_re.match(word).group())
+    for word in filter_known_words:
+        if room_re.match(word):
+            result["room"].append(room_re.match(word).group())
 
-    result["room"] = find_valid_rooms(filter_known_words)
+    # super strict, only allows rooms exactly as seen on board 
+    # result["room"] = find_valid_rooms(filter_known_words)
 
     # using clean_times to drop any year mentions in tweet
     result["date"] = clean_times(result["date"])
