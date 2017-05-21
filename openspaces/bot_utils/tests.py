@@ -285,55 +285,40 @@ class TestTimeUtils(TestCase):
     def setUp(self):
         self.utc = pytz.utc
 
-    @freeze_time("2017-08-05")
-    def test_convert_to_utc_returns_correct_time(self):
-        time_str_from_sutime = "2017-08-5T08:00"
-        converted_time = time_utils.convert_to_utc(time_str_from_sutime)
-        expected_output = datetime(2017, 8, 4, 15, tzinfo=self.utc) 
+    # @freeze_time("2017-05-17")
+    # def test_convert_to_utc_with_date_mention_changes_date(self):
+    #     sutime_str = "2017-05-17T12:00"
+    #     date_mention = ["5/19"]
+    #     converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
 
-        self.assertEqual(converted_time, expected_output)
+    #     # 12pm is 19:00 in utc date should be same as in date_mention
+    #     expected_output = datetime(2017, 5, 19, 19, tzinfo=self.utc)
+    #     self.assertEqual(converted_time, expected_output)
 
-    @freeze_time("2017-05-17")
-    def test_convert_to_utc_with_date_mention_changes_date(self):
-        sutime_str = "2017-05-17T12:00"
-        date_mention = ["5/19"]
-        converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
+    # @freeze_time("2017-05-17")
+    # def test_convert_to_utc_with_date_mention_accounts_for_midnight_utc(self):
+    #     sutime_str = "2017-05-17T18:00"
+    #     date_mention = ["5/19"]
+    #     converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
 
-        # 12pm is 19:00 in utc date should be same as in date_mention
-        expected_output = datetime(2017, 5, 19, 19, tzinfo=self.utc)
-        self.assertEqual(converted_time, expected_output)
-
-    @freeze_time("2017-05-17")
-    def test_convert_to_utc_with_date_mention_accounts_for_midnight_utc(self):
-        sutime_str = "2017-05-17T18:00"
-        date_mention = ["5/19"]
-        converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
-
-        # 18:00 is 01:00 in utc date next day
-        expected_output = datetime(2017, 5, 20, 1, tzinfo=self.utc)
-        self.assertEqual(converted_time, expected_output)
+    #     # 18:00 is 01:00 in utc date next day
+    #     expected_output = datetime(2017, 5, 20, 1, tzinfo=self.utc)
+    #     self.assertEqual(converted_time, expected_output)
 
 # ----------------------------------------------------------
 # testing logic in convert utc time with SUTime mention around day gap
 
-    @freeze_time("2017-05-17T02:00")
-    def test_convert_to_utc_when_sutime_off_default_inside_gap(self):
+    @freeze_time("2017-05-17T00:00")
+    def test_convert_to_utc_when_sutime_off_default_inside_gap_0000(self):
         # time below is like a user saying tomorrow at 7pm when UTC is 
         # already a day ahead of Portland
-        sutime_str_after_17_00 = "2017-05-18T19:00"
-        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
-        expected_output = datetime(2017, 5, 18, 2, tzinfo=self.utc)
-        self.assertEqual(converted_time, expected_output)
-
-    @freeze_time("2017-05-17T02:00")
-    def test_convert_to_utc_when_sutime_off_default_outside_gap(self):
-        sutime_str_after_17_00 = "2017-05-18T14:00"
-        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
-        expected_output = datetime(2017, 5, 17, 21, tzinfo=self.utc)
+        sutime_str_after_18_00 = "2017-05-17T18:00"
+        converted_time = time_utils.convert_to_utc(sutime_str_after_18_00)
+        expected_output = datetime(2017, 5, 17, 1, tzinfo=self.utc)
         self.assertEqual(converted_time, expected_output)
 
     @freeze_time("2017-05-17T12:00")
-    def test_convert_to_utc_when_sutime_off_default_outside_gap(self):
+    def test_convert_to_utc_when_sutime_off_default_outside_gap_1600(self):
         # time for talk before midnight UTC
         sutime_str_after_17_00 = "2017-05-17T16:00"
         converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
@@ -341,7 +326,7 @@ class TestTimeUtils(TestCase):
         self.assertEqual(converted_time, expected_output)
 
     @freeze_time("2017-05-17T12:00")
-    def test_convert_to_utc_when_sutime_off_default_outside_gap(self):
+    def test_convert_to_utc_when_sutime_off_default_outside_gap_1900(self):
         # time for talk after midnight UTC
         sutime_str_after_17_00 = "2017-05-17T19:00"
         converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
