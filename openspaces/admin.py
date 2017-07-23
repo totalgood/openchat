@@ -7,7 +7,7 @@ def convert_tz(time_obj):
     """Helper func to convert a models' field times to local TZ"""
 
     if time_obj:
-        fmt = '%H:%M:%S %Z'
+        fmt = '%m/%d %H:%M:%S %Z'
         dt = pytz.utc.localize(time_obj)
         out = dt.astimezone(pytz.timezone('US/Pacific'))
         return out.strftime(fmt)
@@ -29,7 +29,7 @@ class TweetAdmin(admin.ModelAdmin):
         }),
     )
     date_hierarchy = 'created_at'
-    list_display = ('text', 'user', 'created_at')
+    list_display = ('text', 'user', 'created_at', 'id_str')
     select_related = True
     search_fields = ['text', 'user__screen_name',]
 

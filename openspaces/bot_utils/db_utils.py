@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from openspaces import models
 
 def get_ignored_users():
@@ -32,25 +34,23 @@ def check_for_auto_send():
     approved = 1 if config_obj.auto_send else 0
     return approved
 
-def save_outgoing_tweet(tweet_obj):
+def save_outgoing_tweet(**kwargs):
     """
     Save a tweet object to the outgoing tweet table triggering celery stuff
     """
-    tweet_obj = models.OutgoingTweet(tweet=tweet_obj["message"], 
-                                     approved=tweet_obj["approved"], 
-                                     scheduled_time=tweet_obj["remind_time"],
-                                     original_tweet=tweet_obj["original_tweet"],
-                                     screen_name=tweet_obj["screen_name"])
-    tweet_obj.save()
+    models.OutgoingTweet.objects.create(**kwargs)
 
-def check_time_room_conflict(a_time, a_room):
+def check_time_room_conflict(a_time, a_room, mins_before=15, mins_after=30):
     """
     Check to see if there is already a tweet scheduled to go out about 
     an event in the same time and room. Helps avoid duplicate retweets
     about the same event sent by multiple users. Currently the retweets
     from bot are first come first serve for a unqiue room and time stamp. 
     """
-    event_conflict = models.OpenspacesEvent.objects.filter(location=a_room, start=a_time)
+    start_time = a_time - timedelta(minutes=mins_before)
+    end_time = a_time + timedelta(minutes=mins_after)
+    event_conflict = models.OpenspacesEvent.objects.filter(location=a_room) \
+                           .filter(start__range=(start_time, end_time))
     return True if event_conflict else False
 
 def create_event(**kwargs):

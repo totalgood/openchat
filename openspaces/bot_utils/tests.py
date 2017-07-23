@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta, timezone
 from django.test import TestCase
 from freezegun import freeze_time
 import pytz
@@ -12,7 +12,8 @@ class TestDBUtils(TestCase):
 
     def setUp(self):
         OutgoingConfig.objects.create(auto_send=True, 
-                                default_send_interval=1, ignore_users=[12345,])
+                                    default_send_interval=1, 
+                                    ignore_users=[12345,])
 
     def test_get_ignored_users_returns_correct_list(self):
         ignore_list = db_utils.get_ignored_users()
@@ -24,46 +25,19 @@ class TestDBUtils(TestCase):
     
     @freeze_time("2017-08-05")
     def test_save_outgoing_tweet_func_saves_correctly(self):
-        tweet_obj = {
-            "message": "a test tweet",
-            "approved": 1,
-            "remind_time": datetime.datetime.now(),
-            "original_tweet": "fake original_tweet",
-            "screen_name": "fake screen_name"
-        }
-
         tweets_before_save = OutgoingTweet.objects.all()
         self.assertEqual(len(tweets_before_save), 0)
 
-        db_utils.save_outgoing_tweet(tweet_obj)
+        db_utils.save_outgoing_tweet(
+                                    tweet="a test tweet",
+                                    approved=1,
+                                    scheduled_time=datetime.now(timezone.utc),
+                                    original_tweet="fake original tweet",
+                                    screen_name="fake_screen_name"
+                                    )
 
         tweets_after_save = OutgoingTweet.objects.all()
         self.assertEqual(len(tweets_after_save), 1)
-
-    @freeze_time("2017-08-05")
-    def test_event_conflict_check_works_correctly(self):
-        """Check that conflict check returns correct T/F based on matches"""
-
-        time_delt = datetime.timedelta(1)
-        fake_now = datetime.datetime.now()
-        fake_user = User.objects.create(id_str=12345)
-        fake_loc = "B123"
-
-        OpenspacesEvent.objects.create(
-                            description="a fake description",
-                            start=fake_now, 
-                            location=fake_loc,
-                            creator=fake_user
-                            )
-
-        diff_time = db_utils.check_time_room_conflict(fake_now - time_delt, fake_loc)
-        self.assertFalse(diff_time)
-
-        diff_room = db_utils.check_time_room_conflict(fake_now, "Z123")
-        self.assertFalse(diff_room)
-
-        match = db_utils.check_time_room_conflict(fake_now, fake_loc)
-        self.assertTrue(match)
 
     @freeze_time("2017-08-05")
     def test_update_time_and_room_utils_works(self):
@@ -72,7 +46,7 @@ class TestDBUtils(TestCase):
 
         # make call to utils func to create a db record
         db_utils.create_event(
-                              start=datetime.datetime.now(),
+                              start=datetime.now(timezone.utc),
                               creator="fakeusername",
                               location="B123",
                               description="a fake tweet used in description"
@@ -82,58 +56,312 @@ class TestDBUtils(TestCase):
         self.assertEqual(len(should_be_one), 1)
 
 
+class TestDBRoomConflictUtile(TestCase):
+    """Test that conflict check returns correct T/F based on matches 
+    in time range. Default time range is -15 to +30 minutes of an 
+    existing event. These values can be adjusted in bot when conflict
+    check is called.
+    """
+
+    @freeze_time("2017-08-05T11:00")
+    def setUp(self):
+        self.now = datetime.now(timezone.utc)
+        self.loc = "B123"
+        fake_user = User.objects.create(id_str=12345)
+        OpenspacesEvent.objects.create(
+                            description="a fake description",
+                            start=self.now, 
+                            location=self.loc,
+                            creator=fake_user
+                            )
+
+    def test_conflict_check_works_correctly_with_different_rooms(self):
+        # same time but different room is fine
+        diff_room = db_utils.check_time_room_conflict(self.now, "Z123")
+        self.assertFalse(diff_room)
+
+    def test_conflict_check_returns_exact_match_as_expected(self):
+        exact_match = db_utils.check_time_room_conflict(self.now, self.loc)
+        self.assertTrue(exact_match)
+
+    def test_conflict_check_outside_lower_bound_default_time(self):
+        time_11_16 = self.now + timedelta(minutes=16)
+        # existing 11:00 event is more than 15 mins before new 11:16 event
+        lower_check = db_utils.check_time_room_conflict(time_11_16, self.loc)
+        self.assertFalse(lower_check)
+
+    def test_conflict_check_inside_lower_bound_of_default(self):
+        time_11_15 = self.now + timedelta(minutes=15)
+        #existing 11:00 event is within 15 minutes before new 11:15 event
+        edge_lower = db_utils.check_time_room_conflict(time_11_15, self.loc)
+        self.assertTrue(edge_lower)
+
+        time_11_10 = self.now + timedelta(minutes=10)
+        inside_lower = db_utils.check_time_room_conflict(time_11_10, self.loc)
+        self.assertTrue(inside_lower)
+
+    def test_conflict_check_outside_upper_bound_default_time(self):
+        time_10_29 = self.now - timedelta(minutes=31)
+        # exisiting 11:00 event is more than 30 minutes after new 10:29 event
+        upper_check = db_utils.check_time_room_conflict(time_10_29, self.loc)
+        self.assertFalse(upper_check)
+
+    def test_conflict_inside_upper_bound_default_time(self):
+        time_10_30 = self.now - timedelta(minutes=30)
+        # existing 11:00 event is within 30 minutes of new 10:30 event
+        edge_upper = db_utils.check_time_room_conflict(time_10_30, self.loc)
+        self.assertTrue(edge_upper)
+
+        time_10_45 = self.now - timedelta(minutes=15)
+        inside_upper = db_utils.check_time_room_conflict(time_10_45, self.loc)
+        self.assertTrue(inside_upper)
+
+    def test_conflict_inside_and_outside_non_default_upper_time(self):
+        time_10_01 = self.now - timedelta(minutes=59)
+        # existing 11:00 time is within 60 mins after new 10:01 event
+        inside_upper = db_utils.check_time_room_conflict(time_10_01, 
+                                                        self.loc, mins_after=60)
+        self.assertTrue(inside_upper)
+
+        time_9_50 = self.now - timedelta(minutes=70)
+        outside_upper = db_utils.check_time_room_conflict(time_9_50, 
+                                                        self.loc, mins_after=60)
+        self.assertFalse(outside_upper)
+
+    def test_conflict_inside_and_outside_non_default_lower_time(self):
+        time_11_59 = self.now + timedelta(minutes=59)
+        # existing 11:00 time is within 60 mins beforw new 11:59 event
+        inside_lower = db_utils.check_time_room_conflict(time_11_59, 
+                                                        self.loc, mins_before=60)
+        self.assertTrue(inside_lower)
+
+        time_12_01 = self.now - timedelta(minutes=61)
+        outside_lower = db_utils.check_time_room_conflict(time_12_01, 
+                                                        self.loc, mins_before=60)
+        self.assertFalse(outside_lower)
+
+
 class TestTweetUtils(TestCase):
     """Test that the Tweet utils funcs behave as expected in isolation"""
 
-    def test_get_time_and_room_correctly_returns_time_room_obj(self):
-        tweet = "a test tweet R123 2:05pm"
-
-        # what SUTime returns when it parses time in tweet
-        extracted_time = [
-                            {
-                            'type': 'TIME', 
-                            'end': 24, 
-                            'text': '2:05pm', 
-                            'value': '2017-04-11T14:05', 
-                            'start': 18
-                            }
-                          ]
-        expected_output = {'room': ['r123'], 'date': ['2017-04-11T14:05']}
-
-        result = tweet_utils.get_time_and_room(tweet, extracted_time)
-        self.assertEqual(result, expected_output)
-
-    @freeze_time("2017-08-05")
-    def test_schedule_tweets_saves_legit_tweets_to_db(self):
-        # need to setup a fake app config object
+    def setUp(self):
         OutgoingConfig.objects.create(auto_send=True, 
-                                default_send_interval=1, 
-                                ignore_users=[12345,])
+                                    default_send_interval=1, 
+                                    ignore_users=[12345,])
 
-        # building args for schedule tweets
+    def schedule_tweet_helper(self, talk_time):
         screen_name = "tw_testy"
         tweet = "a test tweet"
         tweet_id = 123456
-        talk_time = datetime.datetime.now()
 
+        tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, 
+                                    talk_time, num_tweets=2)
+
+    @freeze_time("2017-08-05")
+    def test_schedule_tweets_saves_legit_tweets_to_db(self):
         tweets_in_db_before = OutgoingTweet.objects.all()
         self.assertEqual(len(tweets_in_db_before), 0)
 
-        tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, talk_time)
+        talk_time = datetime.now(timezone.utc)
+        self.schedule_tweet_helper(talk_time)
 
         tweets_in_db_after = OutgoingTweet.objects.all()
         self.assertEqual(len(tweets_in_db_after), 2)
+
+    @freeze_time("2017-08-05")
+    def test_schedule_tweets_sets_approved_to_0_if_tweet_within_30_mins(self):
+        """Test to check tweets within 30 mins not auto approved"""
+        talk_time = datetime.now(timezone.utc) + timedelta(minutes=15)
+        self.schedule_tweet_helper(talk_time)
+        scheduled_tweet = OutgoingTweet.objects.first()
+
+        # tweet should need to be approved if event time is within 30 mins
+        self.assertEqual(scheduled_tweet.approved, 0)
+
+    def test_schedule_tweets_sets_approved_to_1_if_tweet_outside_30_mins(self):
+        talk_time = datetime.now(timezone.utc) + timedelta(minutes=31)
+        self.schedule_tweet_helper(talk_time)
+        scheduled_tweet = OutgoingTweet.objects.first()
+
+        self.assertEqual(scheduled_tweet.approved, 1)
+
+    def test_schedule_tweets_sets_approved_to_0_with_time_in_past(self):
+        talk_time = datetime.now(timezone.utc) - timedelta(minutes=30)
+        self.schedule_tweet_helper(talk_time)
+        scheduled_tweet = OutgoingTweet.objects.first()
+
+        self.assertEqual(scheduled_tweet.approved, 0)
+
+    def test_find_valid_rooms_grabs_correct_rooms(self):
+        tweet = "a fake tweet with a valid room b112".split()
+        result = tweet_utils.find_valid_rooms(tweet)
+        self.assertEqual(result, ["b112"])
+
+        multi_room = "a fake a105+a106 \t \n tweet @ # http::// ^ & * with mulitple rooms c123, b112.".split()
+        multi_result = tweet_utils.find_valid_rooms(multi_room)
+        self.assertEqual(multi_result, ["a105+a106", "b112"])
+
+        no_tweet = ""
+        no_result = tweet_utils.find_valid_rooms(no_tweet)
+        self.assertEqual(no_result, [])
+
+
+class TestTweetUtilsRegex(TestCase):
+    """Make sure the regex to extract room from a tweet behaves as expected"""
+
+    def setUp(self):
+        OutgoingConfig.objects.create(auto_send=True, 
+                                    default_send_interval=1, 
+                                    ignore_users=[12345,])
+        # what SUTime returns when it parses time in tweet
+        self.extracted_time = [
+                                {
+                                'type': 'TIME', 
+                                'end': 24, 
+                                'text': '2:05pm', 
+                                'value': '2017-04-11T14:05', 
+                                'start': 18
+                                }
+                              ]
+        self.no_extracted_time = []
+
+    def test_get_time_and_room_correctly_returns_time_room_obj(self):
+        tweet = "a test tweet B114 2:05pm"
+        result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
+
+        expected_output = {'room': ['b114'], 'date': ['2017-04-11T14:05']}
+        self.assertEqual(result, expected_output)
+
+    def test_get_time_and_room_with_period_after_room_number(self):
+        tweet = "a test tweet with a period after room num B112. 2:05pm"
+        result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
+
+        expected_output = {'room': ['b112'], 'date': ['2017-04-11T14:05']}
+        self.assertEqual(result, expected_output)
+
+    def test_get_time_and_room_with_only_room_present(self):
+        tweet = "a test tweet with only a room number present A105+A106"
+        result = tweet_utils.get_time_and_room(tweet, self.no_extracted_time)
+
+        expected_output = {'room': ['a105+a106'], 'date': []}
+        self.assertEqual(result, expected_output)
+
+    def test_get_time_and_room_with_only_time_present(self):
+        tweet = "a test tweet with only a time present 2:05pm"
+        result = tweet_utils.get_time_and_room(tweet, self.extracted_time)
+
+        expected_output = {'room': [], 'date': ['2017-04-11T14:05']}
+        self.assertEqual(result, expected_output)
+
+    def test_clean_times_pulls_years_out_correctly(self):
+        time_input = ['2017', '2017-05-18T17:00']
+        result = tweet_utils.clean_times(time_input)
+        self.assertEqual(result, ['2017-05-18T17:00'])
+
+    def test_clean_times_pulls_multiple_years_out_correctly(self):
+        time_input = ['2017', '2015', '1203', '2017-05-18T17:00']
+        result = tweet_utils.clean_times(time_input)
+        self.assertEqual(result, ['2017-05-18T17:00'])
+
+    def test_check_date_mention_works_with_example_tweet(self):
+        tweet_with_date = "@fakeuser \t \n http://www.example.com #pyconopenspaces 5/19"
+        result = tweet_utils.check_date_mention(tweet_with_date)
+        self.assertEqual(result, ["5/19"])
+
+    def test_check_date_mention_mulitple_return_false(self):
+        tweet_multi = "5/19 5/20 5/21 a bunch of dates should return false"
+        result = tweet_utils.check_date_mention(tweet_multi)
+        self.assertFalse(result)
+
+    def test_check_date_mention_wrong_dates_return_false(self):
+        tweet_wrong = "4/21 a talk for last month"
+        result = tweet_utils.check_date_mention(tweet_wrong)
+        self.assertFalse(result)
 
 
 class TestTimeUtils(TestCase):
     """Tests of the time utils used in bot"""
 
+    def setUp(self):
+        self.utc = pytz.utc
+
     @freeze_time("2017-08-05")
     def test_convert_to_utc_returns_correct_time(self):
-        time_str_from_sutime = "2017-04-11T08:00"
+        time_str_from_sutime = "2017-08-5T08:00"
         converted_time = time_utils.convert_to_utc(time_str_from_sutime)
-
-        utc = pytz.utc
-        expected_output = datetime.datetime(2017, 8, 4, 15, tzinfo=utc) 
+        expected_output = datetime(2017, 8, 4, 15, tzinfo=self.utc) 
 
         self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17")
+    def test_convert_to_utc_with_date_mention_changes_date(self):
+        sutime_str = "2017-05-17T12:00"
+        date_mention = ["5/19"]
+        converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
+
+        # 12pm is 19:00 in utc date should be same as in date_mention
+        expected_output = datetime(2017, 5, 19, 19, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17")
+    def test_convert_to_utc_with_date_mention_accounts_for_midnight_utc(self):
+        sutime_str = "2017-05-17T18:00"
+        date_mention = ["5/19"]
+        converted_time = time_utils.convert_to_utc(sutime_str, date_mention)
+
+        # 18:00 is 01:00 in utc date next day
+        expected_output = datetime(2017, 5, 20, 1, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+# ----------------------------------------------------------
+# testing logic in convert utc time with SUTime mention around day gap
+
+    @freeze_time("2017-05-17T02:00")
+    def test_convert_to_utc_when_sutime_off_default_inside_gap(self):
+        # time below is like a user saying tomorrow at 7pm when UTC is 
+        # already a day ahead of Portland
+        sutime_str_after_17_00 = "2017-05-18T19:00"
+        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
+        expected_output = datetime(2017, 5, 18, 2, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17T02:00")
+    def test_convert_to_utc_when_sutime_off_default_outside_gap(self):
+        sutime_str_after_17_00 = "2017-05-18T14:00"
+        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
+        expected_output = datetime(2017, 5, 17, 21, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17T12:00")
+    def test_convert_to_utc_when_sutime_off_default_outside_gap(self):
+        # time for talk before midnight UTC
+        sutime_str_after_17_00 = "2017-05-17T16:00"
+        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
+        expected_output = datetime(2017, 5, 17, 23, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+    @freeze_time("2017-05-17T12:00")
+    def test_convert_to_utc_when_sutime_off_default_outside_gap(self):
+        # time for talk after midnight UTC
+        sutime_str_after_17_00 = "2017-05-17T19:00"
+        converted_time = time_utils.convert_to_utc(sutime_str_after_17_00)
+        expected_output = datetime(2017, 5, 18, 2, tzinfo=self.utc)
+        self.assertEqual(converted_time, expected_output)
+
+# ----------------------------------------------------------
+
+    @freeze_time("2017-08-05")
+    def test_check_start_time_helper_func(self):
+        talk_time = datetime.now(timezone.utc) + timedelta(minutes=15)
+        within_30_mins = time_utils.check_start_time(talk_time)
+        self.assertTrue(within_30_mins)
+
+        talk_time = datetime.now(timezone.utc) + timedelta(minutes=31)
+        outside_30_mins = time_utils.check_start_time(talk_time)
+        self.assertFalse(outside_30_mins)
+
+    @freeze_time("2017-08-05")
+    def test_get_local_clock_time(self):
+        clock_t = time_utils.get_local_clock_time()
+        self.assertEqual(clock_t, "17:00")
+
