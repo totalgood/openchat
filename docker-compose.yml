@@ -4,7 +4,9 @@ services:
   db:
     image: postgres
   web:
-    build: .
+    build:
+      context: ./
+      dockerfile: ./deploy/openchat/Dockerfile
     image: openchat_web
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
