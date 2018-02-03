@@ -90,16 +90,26 @@ WSGI_APPLICATION = 'openchat.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-DATABASES = DATABASES if len(DATABASES) else {
+DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.getenv('DATABASE_NAME'),
-        'HOST': 'localhost',
-        'PORT': '5432',
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD')
-    },
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
+    }
 }
+
+# DATABASES = DATABASES if len(DATABASES) else {
+#     'default': {
+#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
+#         'NAME': os.getenv('DATABASE_NAME'),
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#         'USER': os.getenv('DATABASE_USER'),
+#         'PASSWORD': os.getenv('DATABASE_PASSWORD')
+#     },
+# }
 
 
 # Password validation
