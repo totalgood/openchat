@@ -194,15 +194,17 @@ APPS_TO_REST = []
 
 
 # settings for celery tasks
-# CELERY_BROKER_HOST = "127.0.0.1"
-# CELERY_BROKER_PORT = 5672  # default RabbitMQ listening port
-# CELERY_BROKER_USER = "hackor"
-# CELERY_BROKER_PASSWORD = "hackor"
-# CELERY_BROKER_VHOST = "hackor"
-# CELERY_RESULT_BACKEND = 'amqp'
+#CELERY_BROKER_HOST = "127.0.0.1"
+#CELERY_BROKER_HOST = "0.0.0.0"
+#CELERY_BROKER_PORT = 5672  # default RabbitMQ listening port
+#CELERY_BROKER_USER = "admin"
+#CELERY_BROKER_PASSWORD = "mypass"
+#CELERY_BROKER_VHOST = "hackor"
+#CELERY_RESULT_BACKEND = 'amqp'
 
 
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_BROKER_URL = 'amqp://admin:mypass@rabbit:5672//'
+#CELERY_BROKER_URL = 'rabbit://admin:mypass@localhost:5672//'
 CELERY_ALWAYS_EAGER = False
 CELERY_RESULT_BACKEND = 'django-db'
 

@@ -3,6 +3,7 @@ version: '3'
 services:
   db:
     image: postgres
+
   web:
     build:
       context: ./
@@ -13,9 +14,12 @@ services:
       - .:/code
     ports:
       - "8000:8000"
+    links:
+      - rabbit
     depends_on:
       - db
       - migration
+
   migration:
     image: openchat_web
     command: python manage.py migrate --no-input
@@ -23,3 +27,13 @@ services:
       - .:/code
     depends_on:
       - db
+
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # here, we can access rabbitmq management plugin
