@@ -58,3 +58,8 @@ def create_event(**kwargs):
     Create event record with a description, creator, time, and room
     """
     models.OpenspacesEvent.objects.create(**kwargs)
+
+def setup_outgoing_config():
+    models.OutgoingConfig.objects.create(auto_send=True,
+                                         default_send_interval=15,
+                                         ignore_users=[])
