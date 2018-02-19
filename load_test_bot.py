@@ -71,6 +71,7 @@ class Streambot:
     bot.run_stream(["PyCon"])
     """
     def __init__(self):
+        db_utils.setup_outgoing_config() # needs an outgoing config obj to check against
         self.api = self.setup_auth()
         self.stream_listener = StreamListener(self)
         jar_files = os.path.join(BASE_DIR, "python-sutime", "jars") 
@@ -131,16 +132,14 @@ class Streambot:
         conflict = db_utils.check_time_room_conflict(converted_time, room)
 
         # send message to slack when a tweet is scheduled to go out
-        slack_message = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
-        self.slacker.chat.post_message('#loadtest_tweets', slack_message)
+        # slack_message = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
+        # self.slacker.chat.post_message('#loadtest_tweets', slack_message)
 
         # This record lets us check that retweets not for same event
-        db_utils.create_event(
-                              description=tweet,
-                              start=converted_time, 
+        db_utils.create_event(description=tweet,
+                              start=converted_time,
                               location=room,
-                              creator=screen_name
-                             )
+                              creator=screen_name)
 
         tweet_utils.loadtest_schedule_tweets(screen_name, tweet, tweet_id, converted_time)
         print("tweet scheduled for retweet: {}".format(tweet))
@@ -149,16 +148,17 @@ class Streambot:
 
 if __name__ == '__main__':
     bot = Streambot()
+    bot.run_stream(["hotdog", "puppies"])
     # keyword = "Python"
     # print(keyword)
-    looking = True
+    # looking = True
 
-    while looking:
-        sentence = input("enter a fake tweet: ")
+    # while looking:
+    #     sentence = input("enter a fake tweet: ")
 
-        if sentence == "quit":
-            looking = False
-        else: 
-            output = bot.parse_time_room(sentence)
-            print(output)
+    #     if sentence == "quit":
+    #         looking = False
+    #     else:
+    #         output = bot.parse_time_room(sentence)
+    #         print(output)
 
