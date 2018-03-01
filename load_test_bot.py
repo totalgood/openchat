@@ -132,8 +132,8 @@ class Streambot:
         conflict = db_utils.check_time_room_conflict(converted_time, room)
 
         # send message to slack when a tweet is scheduled to go out
-        # slack_message = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
-        # self.slacker.chat.post_message('#loadtest_tweets', slack_message)
+        slack_message = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
+        self.slacker.chat.post_message('#test_tweets', slack_message)
 
         # This record lets us check that retweets not for same event
         db_utils.create_event(description=tweet,
@@ -147,18 +147,22 @@ class Streambot:
 
 
 if __name__ == '__main__':
-    bot = Streambot()
-    bot.run_stream(["hotdog", "puppies"])
+    # bot = Streambot()
+    # bot.run_stream(["hotdog", "puppies"])
+
+    slacker = Slacker(s.SLACK_TOKEN)
+
     # keyword = "Python"
     # print(keyword)
-    # looking = True
+    looking = True
 
-    # while looking:
-    #     sentence = input("enter a fake tweet: ")
+    while looking:
+        sentence = input("enter a fake tweet: ")
 
-    #     if sentence == "quit":
-    #         looking = False
-    #     else:
-    #         output = bot.parse_time_room(sentence)
-    #         print(output)
+        if sentence == "quit":
+            looking = False
+        else:
+            slacker.chat.post_message('#test_tweets', sentence)
+            # output = bot.parse_time_room(sentence)
+            # print(output)
 

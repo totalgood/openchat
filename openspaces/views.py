@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import FormParser
 
 from openspaces.models import OutgoingTweet, OutgoingConfig
 from openspaces.serializers import OutgoingTweetSerializer, OutgoingConfigSerializer
@@ -56,3 +58,13 @@ class RetriveUpdateOutgoingTweets(generics.RetrieveUpdateAPIView):
     """
     queryset = OutgoingTweet.objects.all()
     serializer_class = OutgoingTweetSerializer
+
+@api_view(['GET', 'POST'])
+@parser_classes((FormParser,))
+def slack_interactive_endpoint(request):
+    if request.method == 'POST':
+        print("*************************")
+        print(request.data)
+        return Response({"message": "Got some data!", "data": request.data})
+
+    return Response({"message": "Hello, world!"})
