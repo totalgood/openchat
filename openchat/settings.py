@@ -34,7 +34,7 @@ if not SECRET_KEY:
     os.environ["DJANGO_SECRET_KEY"] = random_str()
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ['openchat.totalgood.org', 'localhost', '127.0.0.1', 'openchat.totalgood.test', 'totalgood.org']
+ALLOWED_HOSTS = ['bfd5a8c2.ngrok.io', 'openchat.totalgood.org', 'localhost', '127.0.0.1', 'openchat.totalgood.test', 'totalgood.org']
 
 # Application definition
 
@@ -90,26 +90,29 @@ WSGI_APPLICATION = 'openchat.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db',
-        'PORT': 5432,
-    }
-}
-
-# DATABASES = DATABASES if len(DATABASES) else {
+# TODO fix the database mismatch
+# use this db for docker-compose
+# DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-#         'NAME': os.getenv('DATABASE_NAME'),
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#         'USER': os.getenv('DATABASE_USER'),
-#         'PASSWORD': os.getenv('DATABASE_PASSWORD')
-#     },
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'postgres',
+#         'HOST': 'db',
+#         'PORT': 5432,
+#     }
 # }
+
+# use this db for local tests
+DATABASES = DATABASES if len(DATABASES) else {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.getenv('DATABASE_NAME'),
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD')
+    },
+}
 
 
 # Password validation

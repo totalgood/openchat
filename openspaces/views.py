@@ -2,8 +2,11 @@ from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import FormParser
+
+import json
 
 from openspaces.models import OutgoingTweet, OutgoingConfig
 from openspaces.serializers import OutgoingTweetSerializer, OutgoingConfigSerializer
@@ -63,8 +66,15 @@ class RetriveUpdateOutgoingTweets(generics.RetrieveUpdateAPIView):
 @parser_classes((FormParser,))
 def slack_interactive_endpoint(request):
     if request.method == 'POST':
-        print("*************************")
-        print(request.data)
-        return Response({"message": "Got some data!", "data": request.data})
+        json_text = request.POST.get("payload")
+        json_data = json.loads(json_text)
+        tweet_type = json_data["callback_id"]
+        print(tweet_type)
+
+        if tweet_type == "tweet_approval":
+            print(json_data)
+            print(json_data["actions"][0]["value"]) # how you can access the value of a choice for an action
+            return Response({"message": "Got some data!", "data": request.data})
 
     return Response({"message": "Hello, world!"})
+

@@ -73,16 +73,16 @@ attachements_json_drop_down = [
     }
 ]
 
-# slack_client.api_call(
-#     "chat.postMessage",
-#     channel="C9F750BQW",
-#     text="Do you approve this tweet?",
-#     attachments=attachments_json_button
-# )
-
 slack_client.api_call(
     "chat.postMessage",
     channel="C9F750BQW",
-    text="Would you like to play a game?",
-    attachments=attachements_json_drop_down
+    text="Do you approve this tweet?",
+    attachments=attachments_json_button
 )
+
+# slack_client.api_call(
+#     "chat.postMessage",
+#     channel="C9F750BQW",
+#     text="Would you like to play a game?",
+#     attachments=attachements_json_drop_down
+# )
