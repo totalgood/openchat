@@ -99,6 +99,7 @@ def schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, interval=15):
         remind_time = talk_time - timedelta(minutes=mins)
         message = "Coming up in {} minutes! #PyConOpenSpace {}".format(mins, embeded_tweet)
 
+        # TODO add the updated tweet_id field to this object when it's saved
         db_utils.save_outgoing_tweet(
                                     tweet=message,
                                     approved=approved,

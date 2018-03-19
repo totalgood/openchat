@@ -76,6 +76,7 @@ APPROVAL_CHOICES = (
 
 class OutgoingTweet(BaseModel):
     # still need to add original tweet id from Tweet table foriegn key relation
+    tweet_id = models.CharField(max_length=256, default='')
     tweet = models.CharField(max_length=255)
     original_tweet = models.CharField(max_length=255)
     screen_name = models.CharField(max_length=100, null=True, blank=True)

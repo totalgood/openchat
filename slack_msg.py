@@ -8,7 +8,7 @@ attachments_json_button = [
         "fallback": "You are unable to appove a tweet", 
         "callback_id": "tweet_approval", 
         "color": "#3AA3E3", 
-        "attachment_type": "default", 
+        "attachment_type": "default",
         "actions": [
             {
                 "name": "approval", 
@@ -26,48 +26,57 @@ attachments_json_button = [
     }
 ]
 
-attachements_json_drop_down = [
+attachments_json_drop_down = [
     {
         "text": "Choose a game to play",
         "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
         "color": "#3AA3E3",
         "attachment_type": "default",
-        "callback_id": "game_selection",
+        "callback_id": "message_type|12345",
         "actions": [
             {
-                "name": "games_list",
-                "text": "Pick a game...",
+                "name": "options1",
+                "text": "Needs action",
                 "type": "select",
                 "options": [
                     {
-                        "text": "Hearts",
-                        "value": "hearts"
+                        "text": "A",
+                        "value": "A"
                     },
                     {
-                        "text": "Bridge",
-                        "value": "bridge"
+                        "text": "B",
+                        "value": "B"
                     },
                     {
-                        "text": "Checkers",
-                        "value": "checkers"
-                    },
-                    {
-                        "text": "Chess",
-                        "value": "chess"
-                    },
-                    {
-                        "text": "Poker",
-                        "value": "poker"
-                    },
-                    {
-                        "text": "Falken's Maze",
-                        "value": "maze"
-                    },
-                    {
-                        "text": "Global Thermonuclear War",
-                        "value": "war"
+                        "text": "C",
+                        "value": "C"
                     }
                 ]
+            },
+            {
+                "name": "approved",
+                "text": "Needs action",
+                "type": "select",
+                "options": [
+                    {
+                        "text": "Needs action",
+                        "value": "Needs action"
+                    },
+                    {
+                        "text": "Approved",
+                        "value": "Approved"
+                    },
+                    {
+                        "text": "Denied",
+                        "value": "Denied"
+                    }
+                ]
+            },
+            {
+                "name": "approval",
+                "text": "Yes",
+                "type": "button",
+                "value": "yes"
             }
         ]
     }
@@ -77,7 +86,9 @@ slack_client.api_call(
     "chat.postMessage",
     channel="C9F750BQW",
     text="Do you approve this tweet?",
-    attachments=attachments_json_button
+    #replace_original=True,
+    #response_type="in_channel",
+    attachments=attachments_json_drop_down
 )
 
 # slack_client.api_call(
