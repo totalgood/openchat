@@ -3,80 +3,97 @@ import openspaces.secrets as s
 
 slack_client = SlackClient(s.BOT_TOKEN)
 
-attachments_json_button = [
-    { 
-        "fallback": "You are unable to appove a tweet", 
-        "callback_id": "tweet_approval", 
-        "color": "#3AA3E3", 
-        "attachment_type": "default",
-        "actions": [
-            {
-                "name": "approval", 
-                "text": "Yes", 
-                "type": "button", 
-                "value": "yes"
-            }, 
-            {
-                "name": "approval", 
-                "text": "No", 
-                "type": "button", 
-                "value": "no"
-            }
-        ]
-    }
-]
-
 attachments_json_drop_down = [
     {
-        "text": "Choose a game to play",
+        "text": "Tweet body here",
         "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
         "color": "#3AA3E3",
         "attachment_type": "default",
+        "title": "User name here: fake-user",
         "callback_id": "message_type|12345",
         "actions": [
             {
-                "name": "options1",
-                "text": "Needs action",
+                "name": "Time of event",
+                "text": "Choose event time",
                 "type": "select",
-                "options": [
+                "option_groups": [
                     {
-                        "text": "A",
-                        "value": "A"
-                    },
+                        "text": "Time of event",
+                        "options": [
+                            {
+                                "text": "9:00",
+                                "value": "09:00"
+                            },
+                            {
+                                "text": "10:00",
+                                "value": "10:00"
+                            },
+                            {
+                                "text": "11:00",
+                                "value": "11:00"
+                            },
+                            {
+                                "text": "12:00",
+                                "value": "12:00"
+                            },
+                            {
+                                "text": "13:00",
+                                "value": "13:00"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Room",
+                "text": "Choose room",
+                "type": "select",
+                "option_groups": [
                     {
-                        "text": "B",
-                        "value": "B"
-                    },
-                    {
-                        "text": "C",
-                        "value": "C"
+                        "text": "Event room",
+                        "options": [
+                            {
+                                "text": "A112",
+                                "value": "A112"
+                            },
+                            {
+                                "text": "B114",
+                                "value": "B114"
+                            },
+                            {
+                                "text": "C115",
+                                "value": "C115"
+                            }
+                        ]
                     }
                 ]
             },
             {
                 "name": "approved",
-                "text": "Needs action",
+                "text": "Needs approval",
                 "type": "select",
-                "options": [
+                "option_groups": [
                     {
-                        "text": "Needs action",
-                        "value": "Needs action"
-                    },
-                    {
-                        "text": "Approved",
-                        "value": "Approved"
-                    },
-                    {
-                        "text": "Denied",
-                        "value": "Denied"
+                        "text": "Approve/deny tweet",
+                        "options": [
+                            {
+                                "text": "Approve",
+                                "value": "Approve"
+                            },
+                            {
+                                "text": "Deny",
+                                "value": "Deny"
+                            }
+                        ]
                     }
                 ]
             },
             {
-                "name": "approval",
-                "text": "Yes",
+                "name": "Submit",
+                "text": "Submit",
                 "type": "button",
-                "value": "yes"
+                "style": "primary",
+                "value": "submit"
             }
         ]
     }

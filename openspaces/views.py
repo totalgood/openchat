@@ -63,7 +63,7 @@ class RetriveUpdateOutgoingTweets(generics.RetrieveUpdateAPIView):
     serializer_class = OutgoingTweetSerializer
 
 
-def message_update_func(original_msg, action, tweet_id):
+def message_update_func(original_msg, user_action, tweet_id):
     """
     Take the original message and update the default in the
     selected button with the one selected. If user clicks approve/deny
@@ -72,19 +72,18 @@ def message_update_func(original_msg, action, tweet_id):
     """
 
     # lookup dict to convert text options in slack buttons to the db value
-    db_val_lookup = {"Needs action": 0,
-                     "Approved": 1,
-                     "Denied": 2}
+    db_val_lookup = {"Needs approval": 0,
+                     "Approve": 1,
+                     "Deny": 2}
 
     # two types of actions in our messages "select" or "button"
-    action_type = action[0]["type"]
-    selected_action = action[0]["name"]
+    action_type = user_action[0]["type"]
+    selected_action = user_action[0]["name"]
 
     actions_list = original_msg["attachments"][0]["actions"]
 
     if action_type == "select":
-        # TODO look at if you need to have these values split if you're only using the text and the db lookup above you may not need this
-        selected_val = action[0]["selected_options"][0]["value"]
+        selected_val = user_action[0]["selected_options"][0]["value"]
 
         # change the text value for the item selected by the user
         for sub_action in actions_list:
@@ -93,21 +92,15 @@ def message_update_func(original_msg, action, tweet_id):
 
     # make a submit button that then saves all the drop down values
     elif action_type == "button":
-        # TODO add a function here that saves the values out of the text slots in the message and updates the coressponding model
-        action_val = action[0]["value"]
+        action_val = user_action[0]["value"]
 
-        # TODO change button name to submit
-        if action_val == "yes":
+        if action_val == "submit":
             # get all of the current text values out of the select action slots, use these values later to populate model instance
             final_vals = {}
 
             for sub_action in actions_list:
-                if action["type"] == "select":
-                    print(action)
+                if sub_action["type"] == "select":
                     final_vals[sub_action["name"]] = db_val_lookup[sub_action["text"]]
-
-            print(selected_vals)
-            # print(selected_vals["approved"])
 
             target_tweet = OutgoingTweet.objects.get(tweet_id=tweet_id)
             target_tweet.approved = int(final_vals["approved"])
@@ -116,13 +109,6 @@ def message_update_func(original_msg, action, tweet_id):
     else:
         # TODO add error handling
         raise ValueError("missing action value in message")
-
-
-    # things that still need to be added:
-    # 1. need to link tweet id and meta info to link the slack message to the tweet it wants to change
-    # 2. change buttons to actual values you'll be using and correct number of buttons
-    # 3. ^^ start with adding buttons with actual values, and the ability to change the tweet with the correct id
-    # worry about pre populating with correct vaules as final step
 
     return original_msg
 
@@ -145,29 +131,7 @@ def slack_interactive_endpoint(request):
         tweet_type, tweet_id = json_data["callback_id"].split("|")
         print(tweet_id)
 
-        update_msg = message_update_func(original_message, action, tweet_id)
-
-
-
-
-        ############################################
-        tweet_type = json_data["callback_id"]
-        # print(tweet_type)
-
-        if tweet_type == "tweet_approval":
-            # use-id|tweet-id in name field of actions
-            # TODO use callback_id for meta info as opposed to the name below
-            twitter_handle, tweet_id  = json_data["actions"][0]["name"].split("|")
-
-            action_choice = json_data["actions"][0]["value"]
-
-            in_tweet = OutgoingTweet.objects.get(tweet="test tweet")
-            in_tweet.approved = 1
-            in_tweet.save()
-
-            return Response({"message": "Got some data!", "data": request.data})
-
-        ############################################
+        update_msg = message_update_func(original_message, user_action, tweet_id)
 
     # sending back a message that looks like the original but has been updated will replace the message in place in slack
     return Response(update_msg)

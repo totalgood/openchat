@@ -34,7 +34,7 @@ if not SECRET_KEY:
     os.environ["DJANGO_SECRET_KEY"] = random_str()
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ['bfd5a8c2.ngrok.io', 'openchat.totalgood.org', 'localhost', '127.0.0.1', 'openchat.totalgood.test', 'totalgood.org']
+ALLOWED_HOSTS = ['openchat.totalgood.org', 'localhost', '127.0.0.1', 'openchat.totalgood.test', 'totalgood.org']
 
 # Application definition
 
@@ -92,15 +92,15 @@ WSGI_APPLICATION = 'openchat.wsgi.application'
 
 # TODO fix the database mismatch
 # use this db for docker-compose
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'postgres',
-#         'USER': 'postgres',
-#         'HOST': 'db',
-#         'PORT': 5432,
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
+    }
+}
 
 # use this db for local tests
 DATABASES = DATABASES if len(DATABASES) else {
