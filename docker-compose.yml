@@ -19,6 +19,8 @@ services:
     depends_on:
       - db
       - migration
+    environment:
+      - DOCKER_DEV=true
 
   migration:
     image: openchat_web
@@ -27,6 +29,8 @@ services:
       - .:/code
     depends_on:
       - db
+    environment:
+      - DOCKER_DEV=true
 
   rabbit:
     hostname: rabbit

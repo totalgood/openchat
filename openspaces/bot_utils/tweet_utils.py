@@ -75,7 +75,8 @@ def get_time_and_room(tweet, extracted_time):
 
     return result
 
-def schedule_tweets(u_name, tweet, t_id, talk_time, event_obj, num_tweets=1, interval=15):
+# TODO make sure that the event_obj is supplied in streambot.py & possibly merge this func with schedule_slack_tweets
+def schedule_tweets(u_name, tweet, t_id, talk_time, event_obj=None, num_tweets=1, interval=15):
     """Schedule reminder tweets at set intervals. num_tweets controls
     the number of remindertweets sent and interval controls the minutes
     before the event the tweets are sent. 

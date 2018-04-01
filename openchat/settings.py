@@ -90,29 +90,36 @@ WSGI_APPLICATION = 'openchat.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-# TODO fix the database mismatch
-# use this db for docker-compose
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db',
-        'PORT': 5432,
-    }
-}
+try:
+    # this is set in docker-compose.yml
+    DOCKER_DEV = os.environ['DOCKER_DEV']
+except KeyError:
+    # default to normal settings for TG server
+    DOCKER_DEV = False
 
-# use this db for local tests
-DATABASES = DATABASES if len(DATABASES) else {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.getenv('DATABASE_NAME'),
-        'HOST': 'localhost',
-        'PORT': '5432',
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD')
-    },
-}
+if DOCKER_DEV == "true":
+    print("using docker")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'HOST': 'db',
+            'PORT': 5432,
+        }
+    }
+else:
+    # use this db for local tests
+    DATABASES = DATABASES if len(DATABASES) else {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': os.getenv('DATABASE_NAME'),
+            'HOST': 'localhost',
+            'PORT': '5432',
+            'USER': os.getenv('DATABASE_USER'),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD')
+        },
+    }
 
 
 # Password validation
