@@ -38,7 +38,7 @@ def save_outgoing_tweet(**kwargs):
     """
     Save a tweet object to the outgoing tweet table triggering celery stuff
     """
-    models.OutgoingTweet.objects.create(**kwargs)
+    return models.OutgoingTweet.objects.create(**kwargs)
 
 def check_time_room_conflict(a_time, a_room, mins_before=15, mins_after=30):
     """
@@ -57,7 +57,7 @@ def create_event(**kwargs):
     """
     Create event record with a description, creator, time, and room
     """
-    models.OpenspacesEvent.objects.create(**kwargs)
+    return models.OpenspacesEvent.objects.create(**kwargs)
 
 def setup_outgoing_config():
     models.OutgoingConfig.objects.create(auto_send=True,
