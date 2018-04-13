@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 
 services:
   db:
@@ -9,7 +9,7 @@ services:
       context: ./
       dockerfile: ./deploy/openchat/Dockerfile
     image: openchat_web
-    command: python3 manage.py runserver 0.0.0.0:8000
+    command: gunicorn openchat.wsgi -b 0.0.0.0:8000 --log-level=debug -k 'eventlet'
     volumes:
       - .:/code
     ports:
@@ -41,3 +41,14 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"  # here, we can access rabbitmq management plugin
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./deploy/nginx/Dockerfile
+    volumes:
+      - .:/code
+    links:
+      - web
+    ports:
+      - "80:80"
