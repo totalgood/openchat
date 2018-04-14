@@ -63,7 +63,18 @@ class StreamedTweet(BaseModel):
     text = models.CharField(max_length=256, blank=True, null=True)
 
     class Meta:
-        db_table = 'openchat_streamedtweet'    
+        db_table = 'openchat_streamedtweet'
+
+
+class OpenspacesEvent(BaseModel):
+    """Used to keep a record of rooms and times that have already been retweeted"""
+    description = models.TextField()
+    start = models.DateTimeField()
+    location = models.CharField(max_length=100)
+    creator = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        db_table = 'openchat_openspacesevent'
 
 
 # used in OutgoingTweet model
@@ -76,6 +87,7 @@ APPROVAL_CHOICES = (
 
 class OutgoingTweet(BaseModel):
     # still need to add original tweet id from Tweet table foriegn key relation
+    tweet_id = models.CharField(max_length=256, default='')
     tweet = models.CharField(max_length=255)
     original_tweet = models.CharField(max_length=255)
     screen_name = models.CharField(max_length=100, null=True, blank=True)
@@ -84,6 +96,7 @@ class OutgoingTweet(BaseModel):
     scheduled_time = models.DateTimeField(default=None, null=True, blank=True)
     task_scheduled = models.BooleanField(default=False)
     sent_time = models.DateTimeField(default=None, null=True, blank=True)
+    event_obj = models.OneToOneField(OpenspacesEvent, default=None, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         """
@@ -105,17 +118,6 @@ class OutgoingTweet(BaseModel):
 
     class Meta:
         db_table = 'openchat_outgoingtweet'
-
-
-class OpenspacesEvent(BaseModel):
-    """Used to keep a record of rooms and times that have already been retweeted"""
-    description = models.TextField()
-    start = models.DateTimeField()
-    location = models.CharField(max_length=100)
-    creator = models.CharField(max_length=100, blank=True, null=True)
-
-    class Meta:
-        db_table = 'openchat_openspacesevent'
 
 
 class OutgoingConfig(BaseModel):

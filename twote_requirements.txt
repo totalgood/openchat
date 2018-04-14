@@ -8,8 +8,10 @@ django-celery-results==1.0.1
 django-extensions==1.7.7
 django-filter==1.0.1
 djangorestframework==3.5.4
+eventlet==0.22.1
 flower==0.9.1
 freezegun==0.3.8
+gunicorn==19.7.1
 JPype1==0.6.2
 kombu==4.0.2
 mock==2.0.0
@@ -24,7 +26,8 @@ pytz==2016.10
 requests==2.13.0
 requests-oauthlib==0.8.0
 six==1.10.0
-slacker==0.9.42
+slackclient==1.1.2
+slacker==0.9.60
 sutime==0.2.0
 tornado==4.2
 tweepy==3.5.0

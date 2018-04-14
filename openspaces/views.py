@@ -1,9 +1,14 @@
+import json
 from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from openspaces.models import OutgoingTweet, OutgoingConfig
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import FormParser
+
+from openspaces.bot_utils import db_utils, tweet_utils, slack_utils
+from openspaces.models import OutgoingTweet, OutgoingConfig, OpenspacesEvent
 from openspaces.serializers import OutgoingTweetSerializer, OutgoingConfigSerializer
 from openspaces.tweet_filters import OutgoingTweetFilter
 
@@ -56,3 +61,18 @@ class RetriveUpdateOutgoingTweets(generics.RetrieveUpdateAPIView):
     """
     queryset = OutgoingTweet.objects.all()
     serializer_class = OutgoingTweetSerializer
+
+@api_view(['POST'])
+@parser_classes((FormParser,))
+def slack_interactive_endpoint(request):
+    if request.method == 'POST':
+        # turn payload into dict
+        json_text = request.POST.get("payload")
+        json_data = json.loads(json_text)
+        update_msg = slack_utils.message_update_func(json_data)
+
+        print(json.dumps(json_data, indent=4))
+
+    # send back an updated message to slack when a user takes action
+    return Response(update_msg)
+

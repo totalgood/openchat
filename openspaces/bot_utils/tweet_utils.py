@@ -75,7 +75,8 @@ def get_time_and_room(tweet, extracted_time):
 
     return result
 
-def schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, interval=15):
+# TODO make sure that the event_obj is supplied in streambot.py & possibly merge this func with schedule_slack_tweets
+def schedule_tweets(u_name, tweet, t_id, talk_time, event_obj=None, num_tweets=1, interval=15):
     """Schedule reminder tweets at set intervals. num_tweets controls
     the number of remindertweets sent and interval controls the minutes
     before the event the tweets are sent. 
@@ -99,13 +100,36 @@ def schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, interval=15):
         remind_time = talk_time - timedelta(minutes=mins)
         message = "Coming up in {} minutes! #PyConOpenSpace {}".format(mins, embeded_tweet)
 
-        db_utils.save_outgoing_tweet(
-                                    tweet=message,
-                                    approved=approved,
-                                    scheduled_time=remind_time,
-                                    original_tweet=tweet,
-                                    screen_name=u_name
-                                    )
+        db_utils.save_outgoing_tweet(tweet=message,
+                                     tweet_id=t_id,
+                                     approved=approved,
+                                     scheduled_time=remind_time,
+                                     original_tweet=tweet,
+                                     screen_name=u_name,
+                                     event_obj=event_obj)
+
+def schedule_slack_tweets(**kwargs):
+    """
+    Schedule a tweet to be sent out once it is user approved in slack
+    """
+    num_tweets = 1
+    interval = 15
+
+    tweet_url = "https://twitter.com/{name}/status/{tweet_id}"
+    embeded_tweet = tweet_url.format(name=kwargs["screen_name"], tweet_id=kwargs["tweet_id"])
+
+    for mins in range(interval,(num_tweets*interval+1), interval):
+        remind_time = kwargs["event_time"] - timedelta(minutes=mins)
+        message = "Coming up in {} minutes! #PyConOpenSpace {}".format(mins, embeded_tweet)
+
+        # TODO add the updated tweet_id field to this object when it's saved
+        db_utils.save_outgoing_tweet(tweet=message,
+                                     tweet_id=kwargs["tweet_id"],
+                                     approved=kwargs["approved"],
+                                     scheduled_time=remind_time,
+                                     original_tweet=kwargs["tweet"],
+                                     screen_name=kwargs["screen_name"],
+                                     event_obj=kwargs["event_obj"])
 
 def loadtest_schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, interval=1):
     """Func used during loadtesting to simulate a retweet without using any 
