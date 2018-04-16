@@ -19,7 +19,7 @@ All commands below should be run in the root directory of the project unless oth
 ### Shelling into the openchat container
 In order to turn on the bot and to run Celery you'll need to shell into the openchat container and run the setup steps described below. Both of these steps will be added to the container start up at a later date.
 
-* In a different terminal run `docker exec -it openchat_web_1 bash`, this will start up a bash terminal inside the openchat container. The following bot commands will need to be run from inside the openchat_web_1 container.
+* In a different terminal run `docker exec -it openchat_nginx_1 bash`, this will start up a bash terminal inside the openchat container. The following bot commands will need to be run from inside the openchat_web_1 container.
 
 #### Turning on the bot
 At the moment we will be using the load_test_bot.py script to work on developing new features. In order for this bot to work it needs access to the openchat/openspaces/secrets.py file. You'll need to create this file and add a dictionary called `sender` with the Twitter CONSUMER_SECRET, CONSUMER_KEY, ACCESS_TOKEN, and ACCESS_TOKEN_SECRET values.
