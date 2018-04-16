@@ -1,0 +1,3 @@
+[submodule "aichat"]
+	path = aichat
+	url = git@github.com:aira/aichat.git
