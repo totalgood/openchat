@@ -2,13 +2,15 @@ version: '2'
 
 services:
   db:
+    # memory: 1024
     image: postgres
 
   web:
+    # memory: 1024
+    image: openchat_web
     build:
       context: ./
       dockerfile: ./deploy/openchat/Dockerfile
-    image: openchat_web
     command: gunicorn openchat.wsgi -b 0.0.0.0:8000 --log-level=debug -k 'eventlet'
     volumes:
       - .:/code
@@ -24,6 +26,7 @@ services:
 
   migration:
     image: openchat_web
+    # memory: 1024
     command: python manage.py migrate --no-input
     volumes:
       - .:/code
@@ -35,6 +38,7 @@ services:
   rabbit:
     hostname: rabbit
     image: rabbitmq:latest
+    # memory: 1024
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=mypass
@@ -43,6 +47,8 @@ services:
       - "15672:15672"  # here, we can access rabbitmq management plugin
 
   nginx:
+    # memory: 1024
+    # image: openchat_nginx # ???
     build:
       context: ./
       dockerfile: ./deploy/nginx/Dockerfile
