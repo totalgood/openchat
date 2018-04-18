@@ -1,0 +1,66 @@
+{
+    "executionRoleArn": null,
+    "containerDefinitions": [
+        {
+            "dnsSearchDomains": null,
+            "logConfiguration": null,
+            "entryPoint": [],
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "protocol": "tcp",
+                    "containerPort": 80
+                },
+                {
+                    "hostPort": 8000,
+                    "protocol": "tcp",
+                    "containerPort": 8000
+                },
+                {
+                    "hostPort": 443,
+                    "protocol": "tcp",
+                    "containerPort": 443
+                }
+            ],
+            "command": [],
+            "linuxParameters": null,
+            "cpu": 10,
+            "environment": [],
+            "ulimits": null,
+            "dnsServers": null,
+            "mountPoints": [],
+            "workingDirectory": null,
+            "dockerSecurityOptions": null,
+            "memory": 1000,
+            "memoryReservation": null,
+            "volumesFrom": [],
+            "image": "nginx",
+            "disableNetworking": null,
+            "healthCheck": null,
+            "essential": true,
+            "links": [],
+            "hostname": null,
+            "extraHosts": null,
+            "user": null,
+            "readonlyRootFilesystem": null,
+            "dockerLabels": null,
+            "privileged": null,
+            "name": "openchat-webapp"
+        }
+    ],
+    "placementConstraints": [],
+    "memory": null,
+    "taskRoleArn": null,
+    "compatibilities": [
+        "EC2"
+    ],
+    "taskDefinitionArn": "arn:aws:ecs:us-west-2:519358996634:task-definition/openchat-task:1",
+    "family": "openchat-task",
+    "requiresAttributes": [],
+    "requiresCompatibilities": null,
+    "networkMode": null,
+    "cpu": null,
+    "revision": 1,
+    "status": "ACTIVE",
+    "volumes": []
+}
