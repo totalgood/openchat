@@ -1,7 +1,22 @@
 {
+    "family": "openchat-task",
+    "volumes": [
+        {
+            "host": {
+                "sourcePath": "."
+            },
+            "name": "_"
+        }
+    ],
+    "networkMode": null,
+    "memory": "500",
+    "cpu": "2",
+    "placementConstraints": [],
+    "taskRoleArn": "arn:aws:iam::519358996634:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "essential": true,
+            "memory": 500,
             "image": "postgres",
             "name": "db"
         },
@@ -19,6 +34,7 @@
                 }
             ],
             "essential": true,
+            "memory": 500,
             "image": "openchat_web",
             "mountPoints": [
                 {
@@ -30,6 +46,7 @@
         },
         {
             "essential": true,
+            "memory": 500,
             "links": [
                 "web"
             ],
@@ -63,6 +80,7 @@
                 }
             ],
             "essential": true,
+            "memory": 500,
             "image": "rabbitmq:latest",
             "name": "rabbit",
             "portMappings": [
@@ -93,6 +111,7 @@
                 }
             ],
             "essential": true,
+            "memory": 500,
             "image": "openchat_web",
             "links": [
                 "rabbit"
@@ -112,7 +131,7 @@
             ]
         }
     ],
-    "family": "",
+    "family": "openchat-task",
     "volumes": [
         {
             "host": {
@@ -120,5 +139,10 @@
             },
             "name": "_"
         }
-    ]
+    ],
+    "networkMode": null,
+    "memory": "500",
+    "cpu": "2",
+    "placementConstraints": [],
+    "taskRoleArn": "arn:aws:iam::519358996634:role/ecsTaskExecutionRole"
 }
