@@ -21,6 +21,7 @@ grep "domain $DOMAIN_NAME" /etc/resolv.conf || sudo echo "domain $DOMAIN_NAME" |
 
 # Create security group with Inbound rules that allow:
 #     22 80 443 8000 ICMP-echo-request ICMP-echo-reply ICMP-domainname-reply ICMP-traceroute-reply
+#     See: https://stackoverflow.com/a/30544572/623735
 # Assign that security group to you EC2 isntances
 
 # Add elastic IP to EC2 instance
