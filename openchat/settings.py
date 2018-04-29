@@ -43,7 +43,8 @@ if not SECRET_KEY:
     os.environ["DJANGO_SECRET_KEY"] = random_str()
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ['openchat.totalgood.org', 'localhost', '127.0.0.1', '34.211.189.63', 'openchat.totalgood.test', 'totalgood.org']
+ALLOWED_HOSTS = ['openchat.totalgood.org', 'localhost', '127.0.0.1',
+                 '34.211.189.63', 'openchat.totalgood.test', 'totalgood.org']
 
 # Application definition
 
@@ -150,6 +151,14 @@ USE_TZ = False
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
 
 STATIC_URL = '/static/'
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder'
+]
+
+STATICFILES_DIRS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder'
+]
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 30,
