@@ -154,10 +154,10 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'PAGE_SIZE': 30,
     'DEFAULT_RENDERER_CLASSES': (
-        'django_filters.rest_framework.renderers.BrowsableAPIRenderer',
-        'django_filters.rest_framework.renderers.JSONRenderer', ),
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer', ),
     'DEFAULT_PARSER_CLASSES': (
-        'django_filters.rest_framework.parsers.JSONParser',),
+        'rest_framework.parsers.JSONParser',),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.filters.DjangoFilterBackend',)
 }
