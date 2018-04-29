@@ -1,6 +1,7 @@
 # https://unix.stackexchange.com/questions/322883/how-to-correctly-set-hostname-and-domain-name#322886
 GH_ORG='totalgood'
 GH_PRJ='openchat'
+APPNAME='openspaces'
 DBNAME='hackor'
 DBUN=postgres
 DBPW=portland55\!\!
@@ -10,6 +11,7 @@ BASHRC_PATH="$HOME/.bashrc"
 PUBLIC_IP='34.211.189.63'  # from AWS EC2 Dashboard
 SRV='/srv'
 VIRTUALENVS="$SRV/virtualenvs"
+SRV_MANAGEPY="$SRV/$GH_PRJ" 
 export DOCKER_DEV=true  # DOCKER_DEV=false uses postgis instead of postgresql backend in settings.py
 
 if [[ -f "$BASHRC_PATH" ]] ; then
@@ -65,7 +67,7 @@ source "$VIRTUALENVS/${GH_PRJ}_venv/bin/activate"
 pip install --upgrade pip wheel
 
 git clone "https://github.com/${GH_ORG}/${GH_PRJ}.git" "$SRV/$GH_PRJ"
-pip install -r "$SRV/$GH_PRJ/requirements.txt"
+pip install -r "$SRV_MANAGEPY/requirements.txt"
 
 ###################################################
 
@@ -100,6 +102,15 @@ sudo service postgresql restart
 
 sudo -u postgres createdb --encoding='UTF-8' --lc-collate='en_US.UTF-8' --lc-ctype='en_US.UTF-8' --template='template0' $DBNAME "For openchat hackor and other totalgood.org projects"
 sudo -u postgres echo "ALTER USER $DBUN WITH PASSWORD '$DBPW';" | sudo -u postgres psql $DBNAME
+
+# empty the database and start over
+cd $SRV_MANAGEPY
+rm -rf $SRV_MANAGEPY/migrations
+rm -rf $SRV_MANAGEPY/$GH_PRJ/migrations
+rm -rf $SRV_MANAGEPY/$APPNAME/migrations
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser 
 
 # https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04
 sudo rm /etc/nginx/sites-available/totalgood.org.conf
