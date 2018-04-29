@@ -23,11 +23,11 @@ class User(BaseModel):
     should_ignore = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
+        """ Send out a signal if a user is saved that should be ignored
+
+        This signal is used to update the ignore list in the conifg model 
         """
-        Send out a signal if a user is saved that should be ignored this
-        signal is used to update the ignore list in the conifg model 
-        """
-        if self.should_ignore == True:
+        if self.should_ignore is True:
             ignore_user_signal.send(sender=self.__class__,
                                     id_str=self.id_str,
                                     screen_name=self.screen_name)
@@ -38,8 +38,8 @@ class User(BaseModel):
     def __str__(self):
         return str(self.screen_name)
 
-    class Meta:
-        db_table = 'openchat_user'
+    # class Meta:
+    #     db_table = 'openchat_user'
 
 
 @receiver(ignore_user_signal, sender=User)
@@ -63,8 +63,8 @@ class StreamedTweet(BaseModel):
     source = models.CharField(max_length=256, blank=True, null=True)
     text = models.CharField(max_length=256, blank=True, null=True)
 
-    class Meta:
-        db_table = 'openchat_streamedtweet'
+    # class Meta:
+    #     db_table = 'openchat_streamedtweet'
 
 
 class OpenspacesEvent(BaseModel):
@@ -74,8 +74,8 @@ class OpenspacesEvent(BaseModel):
     location = models.CharField(max_length=100)
     creator = models.CharField(max_length=100, blank=True, null=True)
 
-    class Meta:
-        db_table = 'openchat_openspacesevent'
+    # class Meta:
+    #     db_table = 'openchat_openspacesevent'
 
 
 # used in OutgoingTweet model
@@ -117,8 +117,8 @@ class OutgoingTweet(BaseModel):
             self.scheduled_time = eta
         super(OutgoingTweet, self).save(*args, **kwargs)
 
-    class Meta:
-        db_table = 'openchat_outgoingtweet'
+    # class Meta:
+    #     db_table = 'openchat_outgoingtweet'
 
 
 class OutgoingConfig(BaseModel):
@@ -127,5 +127,5 @@ class OutgoingConfig(BaseModel):
     # ignore_users = ArrayField(models.BigIntegerField())
     ignore_users = models.TextField()  # ArrayField not available in sqlite
 
-    class Meta:
-        db_table = 'openchat_outgoingconfig'
+    # class Meta:
+    #     db_table = 'openchat_outgoingconfig'
