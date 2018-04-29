@@ -98,17 +98,17 @@ WSGI_APPLICATION = 'openchat.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.getenv('DATABASE_NAME', 'hackor'),
-        'HOST': 'localhost',
-        'PORT': 5432,
-        'USER': os.getenv('DATABASE_USER', 'postgres'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', '')
+        # 'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        # 'NAME': os.getenv('DATABASE_NAME', 'hackor'),
+        # 'HOST': 'localhost',
+        # 'PORT': 5432,
+        # 'USER': os.getenv('DATABASE_USER', 'postgres'),
+        # 'PASSWORD': os.getenv('DATABASE_PASSWORD', '')
     },
 }
 
 
-for k in DATABASES:
+for k in LOCAL_DATABASES:
     DATABASES[k].update(LOCAL_DATABASES[k])
 
 
