@@ -97,7 +97,7 @@ class OutgoingTweet(BaseModel):
     scheduled_time = models.DateTimeField(default=None, null=True, blank=True)
     task_scheduled = models.BooleanField(default=False)
     sent_time = models.DateTimeField(default=None, null=True, blank=True)
-    event_obj = models.OneToOneField(OpenspacesEvent, default=None, null=True, blank=True)
+    event_obj = models.OneToOneField(OpenspacesEvent, on_delete=models.PROTECT, default=None, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         """
