@@ -158,6 +158,7 @@ STATIC_ROOT = None
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/srv/openchat/collected-static'
+print(STATIC_ROOT)
 
 
 REST_FRAMEWORK = {

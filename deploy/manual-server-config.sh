@@ -102,13 +102,18 @@ sudo -u postgres createdb --encoding='UTF-8' --lc-collate='en_US.UTF-8' --lc-cty
 sudo -u postgres echo "ALTER USER $DBUN WITH PASSWORD '$DBPW';" | sudo -u postgres psql $DBNAME
 
 # https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04
+sudo rm /etc/nginx/sites-available/totalgood.org.conf
+sudo rm /etc/nginx/sites-enabled/totalgood.org.conf
+sudo cp deploy/nginx/totalgood.org.conf /etc/nginx/sites-enabled/totalgood.org.conf
+sudo rm /etc/nginx/sites-enabled/default
+sudo ln etc/nginx/sites-enabled/totalgood.org.conf /etc/nginx/sites-available/totalgood.org.conf
 sudo add-apt-repository ppa:certbot/certbot
 sudo apt-get install -y python-certbot-nginx
-sudo certbot -n --agree-tos -m admin@totalgood.com --nginx -d totalgood.org -d www.totalgood.org -d pycon.totalgood.org -d openchat.totalgood.org -d big-openchat.totalgood.org -d big.openchat.totalgood.org -d openspaces.totalgood.org
+sudo certbot -n --agree-tos -m admin@totalgood.com --nginx -d totalgood.org,www.totalgood.org # -d pycon.totalgood.org -d openchat.totalgood.org -d big-openchat.totalgood.org -d big.openchat.totalgood.org -d openspaces.totalgood.org
 cd /srv/logs/
 mkdir -p letsencrypt
 cd letsencrypt
-wget https://www.ssllabs.com/ssltest/analyze.html?d=totalgood.org&latest
+ https://www.ssllabs.com/ssltest/analyze.html?d=totalgood.org&latest
 sudo certbot renew --dry-run
 
 ###################################################

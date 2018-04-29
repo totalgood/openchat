@@ -36,6 +36,7 @@ python-sutime
 *.eggs/
 .installed.cfg
 *.egg-info
+*venv/
 
 # Unittest and coverage
 htmlcov/*
