@@ -59,7 +59,7 @@ def ignore_handler(sender, **kwargs):
 
 class StreamedTweet(BaseModel):
     id_str = models.CharField(max_length=256, db_index=True, default='')
-    user = models.ForeignKey('User', blank=True, null=True)
+    user = models.ForeignKey('User', on_delete=models.PROTECT, blank=True, null=True)
     source = models.CharField(max_length=256, blank=True, null=True)
     text = models.CharField(max_length=256, blank=True, null=True)
 
