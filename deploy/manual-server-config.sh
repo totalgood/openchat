@@ -111,9 +111,12 @@ sudo -u postgres echo "ALTER USER $DBUN WITH PASSWORD '$DBPW';" | sudo -u postgr
 
 # WIPE THE DATABASE !!!!!
 rm -rf $SRV_MANAGEPY/$APPNAME/migrations
+mkdir -p $SRV_MANAGEPY/$APPNAME/migrations
+touch -p $SRV_MANAGEPY/$APPNAME/migrations/__init__.py  # ensures that migrations are created/run for this app
 rm -f db.sqlite3
 source "$VIRTUALENVS/${GH_PRJ}_venv/bin/activate"
 python manage.py makemigrations
+python manage.py makemigrations openspaces  # this should have already happened if everything went well above
 python manage.py migrate
 python manage.py collectstatic
 echo "from django.contrib.auth.models import User" > createadmin.py
