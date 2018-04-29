@@ -1,22 +1,30 @@
 # https://unix.stackexchange.com/questions/322883/how-to-correctly-set-hostname-and-domain-name#322886
 GH_ORG='totalgood'
 GH_PRJ='openchat'
+APPNAME='openspaces'
 DBNAME='hackor'
 DBUN=postgres
-DBPW=portland55\!\!
+RED='\033[0;31m'
+NC='\033[0m' # no color
+if [[ -n $DBPW || -z "$DBPW" ]] ; then
+    DBPW='\\ChangeMe\!\!\! '
+    printf "$RED WARNING: Don't forget to update your admin user info for Zak and Hobs !!!!!!!$NC\\n"
+    printf "$RED DBPW=$DBPW$NC\\n"
+fi
 DOMAIN_NAME='totalgood.org'
 SUBDOMAIN_NAME="GH_PRJ"
 BASHRC_PATH="$HOME/.bashrc"
 PUBLIC_IP='34.211.189.63'  # from AWS EC2 Dashboard
 SRV='/srv'
 VIRTUALENVS="$SRV/virtualenvs"
+SRV_MANAGEPY="$SRV/$GH_PRJ" 
 export DOCKER_DEV=true  # DOCKER_DEV=false uses postgis instead of postgresql backend in settings.py
 
 if [[ -f "$BASHRC_PATH" ]] ; then
-	BASHRC_PATH="$BASHRC_PATH"
+    BASHRC_PATH="$BASHRC_PATH"
 else
-	# for darwin/mac
-	BASHRC_PATH="$HOME/.bash_profile"
+    # for darwin/mac
+    BASHRC_PATH="$HOME/.bash_profile"
 fi
 
 
@@ -65,7 +73,7 @@ source "$VIRTUALENVS/${GH_PRJ}_venv/bin/activate"
 pip install --upgrade pip wheel
 
 git clone "https://github.com/${GH_ORG}/${GH_PRJ}.git" "$SRV/$GH_PRJ"
-pip install -r "$SRV/$GH_PRJ/requirements.txt"
+pip install -r "$SRV_MANAGEPY/requirements.txt"
 
 ###################################################
 
@@ -101,14 +109,31 @@ sudo service postgresql restart
 sudo -u postgres createdb --encoding='UTF-8' --lc-collate='en_US.UTF-8' --lc-ctype='en_US.UTF-8' --template='template0' $DBNAME "For openchat hackor and other totalgood.org projects"
 sudo -u postgres echo "ALTER USER $DBUN WITH PASSWORD '$DBPW';" | sudo -u postgres psql $DBNAME
 
+# empty the database and start over
+cd $SRV_MANAGEPY
+rm -rf $SRV_MANAGEPY/$APPNAME/migrations
+rm -f db.sqlite3
+python manage.py makemigrations
+python manage.py migrate
+echo "from django.contrib.auth.models import User" > createadmin.py
+echo "User.objects.create_superuser('hobs', 'hobs+$APPNAME@totalgood.com', 'hobs$DBPW')" >> createadmin.py
+echo "User.objects.create_superuser('zak', 'zak.kent+$APPNAME@gmail.com', 'zak$DBPW')" >> createadmin.py
+python manage.py shell < createadmin.py
+rm createadmin.py
+
 # https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04
+sudo rm /etc/nginx/sites-available/totalgood.org.conf
+sudo rm /etc/nginx/sites-enabled/totalgood.org.conf
+sudo cp deploy/nginx/totalgood.org.conf /etc/nginx/sites-enabled/totalgood.org.conf
+sudo rm /etc/nginx/sites-enabled/default
+sudo ln etc/nginx/sites-enabled/totalgood.org.conf /etc/nginx/sites-available/totalgood.org.conf
 sudo add-apt-repository ppa:certbot/certbot
 sudo apt-get install -y python-certbot-nginx
-sudo certbot -n --agree-tos -m admin@totalgood.com --nginx -d totalgood.org -d www.totalgood.org -d pycon.totalgood.org -d openchat.totalgood.org -d big-openchat.totalgood.org -d big.openchat.totalgood.org -d openspaces.totalgood.org
+sudo certbot -n --agree-tos -m admin@totalgood.com --nginx -d totalgood.org,www.totalgood.org # -d pycon.totalgood.org -d openchat.totalgood.org -d big-openchat.totalgood.org -d big.openchat.totalgood.org -d openspaces.totalgood.org
 cd /srv/logs/
 mkdir -p letsencrypt
 cd letsencrypt
-wget https://www.ssllabs.com/ssltest/analyze.html?d=totalgood.org&latest
+ https://www.ssllabs.com/ssltest/analyze.html?d=totalgood.org&latest
 sudo certbot renew --dry-run
 
 ###################################################

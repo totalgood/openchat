@@ -16,8 +16,7 @@ import string
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(BASE_DIR)
-print(os.path.join(BASE_DIR, 'collected-static'))
+# print(BASE_DIR)
 
 
 def random_str(n=50):
@@ -151,13 +150,13 @@ USE_L10N = True
 USE_TZ = False
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
-STATIC_ROOT = None
-# os.path.join(BASE_DIR, 'collected-static')
-
 STATIC_URL = '/static/'
-STATIC_ROOT = '/srv/openchat/collected-static'
+# https://docs.djangoproject.com/en/1.10/howto/static-files/
+if DEBUG is True:
+    STATIC_ROOT = None
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
+    # print(STATIC_ROOT)
 
 
 REST_FRAMEWORK = {
