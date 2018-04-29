@@ -159,7 +159,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',),
     'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.filters.DjangoFilterBackend',)
+        'rest_framework.filters.DjangoFilterBackend',)
 }
 APPS_TO_REST = []
 
