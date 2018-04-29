@@ -99,16 +99,17 @@ WSGI_APPLICATION = 'openchat.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.getenv('DATABASE_NAME'),
+        'NAME': os.getenv('DATABASE_NAME', 'hackor'),
         'HOST': 'localhost',
         'PORT': 5432,
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD')
+        'USER': os.getenv('DATABASE_USER', 'postgres'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', '')
     },
 }
 
 
-DATABASES.update(LOCAL_DATABASES)
+for k in DATABASES:
+    DATABASES[k].update(LOCAL_DATABASES[k])
 
 
 # Password validation
