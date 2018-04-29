@@ -10,6 +10,7 @@ BASHRC_PATH="$HOME/.bashrc"
 PUBLIC_IP='34.211.189.63'  # from AWS EC2 Dashboard
 SRV='/srv'
 VIRTUALENVS="$SRV/virtualenvs"
+export DOCKER_DEV=true  # DOCKER_DEV=false uses postgis instead of postgresql backend in settings.py
 
 if [[ -f "$BASHRC_PATH" ]] ; then
 	BASHRC_PATH="$BASHRC_PATH"
@@ -81,6 +82,7 @@ scp ~/src/openchat/openchat/local_settings.py $GH_PRJ:/srv/$GH_PRJ/$GH_PRJ/
 
 ####### on remote AWS EC2 instance #######
 
+source "$VIRTUALENVS/${GH_PRJ}_venv/bin/activate"
 sudo timedatectl set-timezone UTC
 sudo locale-gen en_US
 sudo locale-gen en_US.UTF-8
@@ -89,7 +91,12 @@ sudo update-locale en_US.UTF-8
 sudo add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -sc)-pgdg main"
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get update
-sudo apt-get install -y ntp postgresql-9.6 wget git nano postgresql-contrib python3-psycopg2
+sudo apt-get install -y ntp postgresql-10 wget git nano postgresql-contrib
+pip install --upgrade psycopg2 --no-cache-dir
+sudo sed -i -r 's/port[ ][=][ ]54[0-9][0-9]/port = 5432/g' /etc/postgresql/*/main/postgresql.conf
+# sudo apt remove -y postgresql-9.6
+sudo service postgresql restart
+
 
 sudo -u postgres createdb --encoding='UTF-8' --lc-collate='en_US.UTF-8' --lc-ctype='en_US.UTF-8' --template='template0' $DBNAME "For openchat hackor and other totalgood.org projects"
 sudo -u postgres echo "ALTER USER $DBUN WITH PASSWORD '$DBPW';" | sudo -u postgres psql $DBNAME
