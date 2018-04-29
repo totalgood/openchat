@@ -91,7 +91,7 @@ sudo update-locale en_US.UTF-8
 sudo add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -sc)-pgdg main"
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get update
-sudo apt install -y postgresql postgresql-contrib python3-psycopg2 ntp wget git nano 
+sudo apt install -y nginx postgresql postgresql-contrib python3-psycopg2 ntp wget git nano 
 pip install --upgrade psycopg2 --no-cache-dir
 sudo sed -i -r 's/port[ ][=][ ]54[0-9][0-9]/port = 5432/g' /etc/postgresql/*/main/postgresql.conf
 # sudo apt remove -y postgresql-9.6
