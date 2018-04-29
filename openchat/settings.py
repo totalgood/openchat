@@ -31,7 +31,7 @@ except ImportError:
     DEBUG = True
 
 try:
-    from .local_settigns import DATABASES as LOCAL_DATABASES
+    from .local_settings import DATABASES as LOCAL_DATABASES
 except ImportError:
     LOCAL_DATABASES = {'default': {}, }
 
@@ -43,8 +43,16 @@ if not SECRET_KEY:
     os.environ["DJANGO_SECRET_KEY"] = random_str()
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ['openchat.totalgood.org', 'localhost', '127.0.0.1',
-                 '34.211.189.63', 'openchat.totalgood.test', 'totalgood.org']
+ALLOWED_HOSTS = [
+    'openchat',
+    'totalgood.org',
+    'openchat.totalgood.org',
+    'openchat.totalgood.test',
+    'big.openchat.totalgood.org',
+    '34.211.189.63',
+    'localhost',
+    '127.0.0.1',
+]
 
 # Application definition
 
