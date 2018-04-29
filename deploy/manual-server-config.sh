@@ -101,4 +101,16 @@ sudo service postgresql restart
 sudo -u postgres createdb --encoding='UTF-8' --lc-collate='en_US.UTF-8' --lc-ctype='en_US.UTF-8' --template='template0' $DBNAME "For openchat hackor and other totalgood.org projects"
 sudo -u postgres echo "ALTER USER $DBUN WITH PASSWORD '$DBPW';" | sudo -u postgres psql $DBNAME
 
+# https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt-get install -y python-certbot-nginx
+sudo certbot -n --agree-tos -m admin@totalgood.com --nginx -d totalgood.org -d www.totalgood.org -d pycon.totalgood.org -d openchat.totalgood.org -d big-openchat.totalgood.org -d big.openchat.totalgood.org -d openspaces.totalgood.org
+cd /srv/logs/
+mkdir -p letsencrypt
+cd letsencrypt
+wget https://www.ssllabs.com/ssltest/analyze.html?d=totalgood.org&latest
+sudo certbot renew --dry-run
+
 ###################################################
+
+
