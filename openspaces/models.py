@@ -2,7 +2,7 @@ from __future__ import division, print_function, unicode_literals
 
 from django.dispatch import Signal, receiver
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
+# from django.contrib.postgres.fields import ArrayField
 from datetime import datetime, timedelta
 
 
@@ -28,8 +28,8 @@ class User(BaseModel):
         signal is used to update the ignore list in the conifg model 
         """
         if self.should_ignore == True:
-            ignore_user_signal.send(sender=self.__class__, 
-                                    id_str=self.id_str, 
+            ignore_user_signal.send(sender=self.__class__,
+                                    id_str=self.id_str,
                                     screen_name=self.screen_name)
         else:
             pass
@@ -48,8 +48,9 @@ def ignore_handler(sender, **kwargs):
     config_obj = OutgoingConfig.objects.latest('id')
     user_id = int(kwargs['id_str'])
 
-    if user_id not in config_obj.ignore_users:
-        config_obj.ignore_users.append(user_id)
+    ignore_users_list = config_obj.ignore_users.split()
+    if user_id not in set(i for i in config_obj.ignore_users.split()):
+        config_obj.ignore_users = ' '.join(ignore_users_list.append(str(user_id)))
         config_obj.save(update_fields=['ignore_users'])
     else:
         # user alread in ignored list
@@ -123,7 +124,8 @@ class OutgoingTweet(BaseModel):
 class OutgoingConfig(BaseModel):
     auto_send = models.BooleanField()
     default_send_interval = models.IntegerField(default=15)
-    ignore_users = ArrayField(models.BigIntegerField())
+    # ignore_users = ArrayField(models.BigIntegerField())
+    ignore_users = models.TextField()  # ArrayField not available in sqlite
 
     class Meta:
         db_table = 'openchat_outgoingconfig'
