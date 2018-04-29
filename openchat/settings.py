@@ -156,10 +156,6 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder'
 ]
 
-STATICFILES_DIRS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder'
-]
-
 REST_FRAMEWORK = {
     'PAGE_SIZE': 30,
     'DEFAULT_RENDERER_CLASSES': (
