@@ -31,7 +31,7 @@ except ImportError:
     DEBUG = True
 
 try:
-    from .local_settigns import DATABASES as LOCAL_DATABASES
+    from .local_settings import DATABASES as LOCAL_DATABASES
 except ImportError:
     LOCAL_DATABASES = {'default': {}, }
 
@@ -43,8 +43,16 @@ if not SECRET_KEY:
     os.environ["DJANGO_SECRET_KEY"] = random_str()
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ['openchat.totalgood.org', 'localhost', '127.0.0.1',
-                 '34.211.189.63', 'openchat.totalgood.test', 'totalgood.org']
+ALLOWED_HOSTS = [
+    'openchat',
+    'totalgood.org',
+    'openchat.totalgood.org',
+    'openchat.totalgood.test',
+    'big.openchat.totalgood.org',
+    '34.211.189.63',
+    'localhost',
+    '127.0.0.1',
+]
 
 # Application definition
 
@@ -134,27 +142,20 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
-STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
+STATIC_ROOT = None
+# os.path.join(BASE_DIR, 'collected-static')
 
 STATIC_URL = '/static/'
 
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder'
-]
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 30,
@@ -166,7 +167,8 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoFilterBackend',)
 }
-APPS_TO_REST = []
+
+# APPS_TO_REST = ['openspaces']
 
 # LOGGING = {
 #     'version': 1,
