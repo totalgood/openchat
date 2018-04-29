@@ -4,7 +4,9 @@ GH_PRJ='openchat'
 APPNAME='openspaces'
 DBNAME='hackor'
 DBUN=postgres
-DBPW=portland55\!\!
+if [[ -n $DBPW ]] ; then
+    DBPW=ChangeMe\!\!\!
+fi
 DOMAIN_NAME='totalgood.org'
 SUBDOMAIN_NAME="GH_PRJ"
 BASHRC_PATH="$HOME/.bashrc"
@@ -105,12 +107,15 @@ sudo -u postgres echo "ALTER USER $DBUN WITH PASSWORD '$DBPW';" | sudo -u postgr
 
 # empty the database and start over
 cd $SRV_MANAGEPY
-rm -rf $SRV_MANAGEPY/migrations
-rm -rf $SRV_MANAGEPY/$GH_PRJ/migrations
 rm -rf $SRV_MANAGEPY/$APPNAME/migrations
+rm -f db.sqlite3
 python manage.py makemigrations
 python manage.py migrate
-python manage.py createsuperuser 
+echo "from django.contrib.auth.models import User" > createadmin.py
+echo "User.objects.create_superuser('hobs', 'hobs+$APPNAME@totalgood.com', 'hobs$DBPW')" >> createadmin.py
+echo "User.objects.create_superuser('zak', 'zak.kent+$APPNAME@gmail.com', 'zak$DBPW')" >> createadmin.py
+python manage.py shell < createadmin.py
+rm createadmin.py
 
 # https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04
 sudo rm /etc/nginx/sites-available/totalgood.org.conf
