@@ -6,7 +6,7 @@ DBNAME='hackor'
 DBUN=postgres
 RED='\033[0;31m'
 NC='\033[0m' # no color
-if [[ -n $DBPW ]] ; then
+if [[ -n $DBPW || -z "$DBPW" ]] ; then
     DBPW='\\ChangeMe\!\!\! '
     printf "$RED WARNING: Don't forget to update your admin user info for Zak and Hobs !!!!!!!$NC\\n"
     printf "$RED DBPW=$DBPW$NC\\n"
