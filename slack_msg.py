@@ -169,7 +169,7 @@ def send_slack_message(**kwargs):
     print("sending")
     slack_client.api_call("chat.postMessage",
                           channel="C9F750BQW",
-                          text="Do you approve this tweet?",
+                          text=kwargs["slack_msg"],
                           attachments=[message_body])
     return
 
