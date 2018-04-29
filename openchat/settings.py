@@ -16,6 +16,8 @@ import string
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(BASE_DIR)
+print(os.path.join(BASE_DIR, 'collected-static'))
 
 
 def random_str(n=50):
@@ -155,6 +157,7 @@ STATIC_ROOT = None
 # os.path.join(BASE_DIR, 'collected-static')
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/srv/openchat/collected-static'
 
 
 REST_FRAMEWORK = {
