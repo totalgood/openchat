@@ -109,12 +109,16 @@ sudo service postgresql restart
 sudo -u postgres createdb --encoding='UTF-8' --lc-collate='en_US.UTF-8' --lc-ctype='en_US.UTF-8' --template='template0' $DBNAME "For openchat hackor and other totalgood.org projects"
 sudo -u postgres echo "ALTER USER $DBUN WITH PASSWORD '$DBPW';" | sudo -u postgres psql $DBNAME
 
-# empty the database and start over
-cd $SRV_MANAGEPY
+# WIPE THE DATABASE !!!!!
 rm -rf $SRV_MANAGEPY/$APPNAME/migrations
+mkdir -p $SRV_MANAGEPY/$APPNAME/migrations
+touch -p $SRV_MANAGEPY/$APPNAME/migrations/__init__.py  # ensures that migrations are created/run for this app
 rm -f db.sqlite3
+source "$VIRTUALENVS/${GH_PRJ}_venv/bin/activate"
 python manage.py makemigrations
+python manage.py makemigrations openspaces  # this should have already happened if everything went well above
 python manage.py migrate
+python manage.py collectstatic
 echo "from django.contrib.auth.models import User" > createadmin.py
 echo "User.objects.create_superuser('hobs', 'hobs+$APPNAME@totalgood.com', 'hobs$DBPW')" >> createadmin.py
 echo "User.objects.create_superuser('zak', 'zak.kent+$APPNAME@gmail.com', 'zak$DBPW')" >> createadmin.py

@@ -47,9 +47,10 @@ if not SECRET_KEY:
 ALLOWED_HOSTS = [
     'openchat',
     'totalgood.org',
+    'www.totalgood.org',
     'openchat.totalgood.org',
-    'openchat.totalgood.test',
-    'big.openchat.totalgood.org',
+    'openspaces.totalgood.org',
+    'pycon.totalgood.org',
     '34.211.189.63',
     'localhost',
     '127.0.0.1',
