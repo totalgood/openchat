@@ -213,7 +213,7 @@ REST_FRAMEWORK = {
 # CELERY_RESULT_BACKEND = 'amqp'
 
 
-CELERY_BROKER_URL = 'amqp://admin:mypass@rabbit:5672//'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 # CELERY_BROKER_URL = 'rabbit://admin:mypass@localhost:5672//'
 CELERY_ALWAYS_EAGER = False
 CELERY_RESULT_BACKEND = 'django-db'
