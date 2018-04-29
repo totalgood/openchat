@@ -4,11 +4,12 @@ Django>=1.10.7
 django-celery-results>=1.0.1
 django-extensions>=1.7.9
 django-filter>=1.0.2
-djangorestframework>=3.6.2
-djangorestframework-csv>=2.0.0
+# django_filters
+djangorestframework==3.6.2
+djangorestframework-csv==2.0.0
 flower>=0.9.1
 gunicorn>=19.7.1
-psycopg2>=2.7.1
+# psycopg2>=2.7.1
 python-dateutil==2.6.0
 slacker>=0.9.42
 sutime>=0.2.0
