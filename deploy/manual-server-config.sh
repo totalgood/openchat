@@ -21,10 +21,10 @@ SRV_MANAGEPY="$SRV/$GH_PRJ"
 export DOCKER_DEV=true  # DOCKER_DEV=false uses postgis instead of postgresql backend in settings.py
 
 if [[ -f "$BASHRC_PATH" ]] ; then
-	BASHRC_PATH="$BASHRC_PATH"
+    BASHRC_PATH="$BASHRC_PATH"
 else
-	# for darwin/mac
-	BASHRC_PATH="$HOME/.bash_profile"
+    # for darwin/mac
+    BASHRC_PATH="$HOME/.bash_profile"
 fi
 
 
