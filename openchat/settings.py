@@ -14,9 +14,6 @@ import os
 import random
 import string
 
-from .local_settings import SECRET_KEY, DATABASES, DEBUG
-assert(DEBUG or True)
-assert(len(DATABASES))
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,6 +22,18 @@ def random_str(n=50):
     chars = ''.join([string.ascii_letters, string.digits, string.punctuation]
                     ).replace('\'', '').replace('"', '').replace('\\', '')
     return ''.join([random.SystemRandom().choice(chars) for i in range(n)])
+
+
+try:
+    from .local_settings import SECRET_KEY, DEBUG
+except ImportError:
+    SECRET_KEY = random_str()
+    DEBUG = True
+
+try:
+    from .local_settigns import DATABASES as LOCAL_DATABASES
+except ImportError:
+    LOCAL_DATABASES = {'default': {}, }
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -87,40 +96,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'openchat.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.getenv('DATABASE_NAME'),
+        'HOST': 'localhost',
+        'PORT': 5432,
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD')
+    },
+}
 
-try:
-    # this is set in docker-compose.yml
-    DOCKER_DEV = os.environ['DOCKER_DEV']
-except KeyError:
-    # default to normal settings for TG server
-    DOCKER_DEV = "true"  # FIXME: Zak needs this False or "false" for his Docker image!!!!!!
 
-if DOCKER_DEV == "true":
-    print("using docker (or manually configured AWS server)")
-    DATABASES = {
-        'default': {
-            'ENGINE': 'sqlite',
-            'NAME': os.path.join('BASE_DIR', 'db.sqlite3'),
-            # 'NAME': 'postgres',
-            # 'USER': 'postgres',
-            # 'HOST': 'db',
-            # 'PORT': 5432,
-        }
-    }
-else:
-    # use this db for local tests
-    DATABASES = DATABASES if len(DATABASES) else {
-        'default': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME': os.getenv('DATABASE_NAME'),
-            'HOST': 'localhost',
-            'PORT': 5432,
-            'USER': os.getenv('DATABASE_USER'),
-            'PASSWORD': os.getenv('DATABASE_PASSWORD')
-        },
-    }
+DATABASES.update(LOCAL_DATABASES)
 
 
 # Password validation
