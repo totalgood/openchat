@@ -101,11 +101,12 @@ if DOCKER_DEV == "true":
     print("using docker (or manually configured AWS server)")
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'HOST': 'db',
-            'PORT': 5432,
+            'ENGINE': 'sqlite',
+            'NAME': os.path.join('BASE_DIR', 'db.sqlite3'),
+            # 'NAME': 'postgres',
+            # 'USER': 'postgres',
+            # 'HOST': 'db',
+            # 'PORT': 5432,
         }
     }
 else:
@@ -115,7 +116,7 @@ else:
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': os.getenv('DATABASE_NAME'),
             'HOST': 'localhost',
-            'PORT': '5432',
+            'PORT': 5432,
             'USER': os.getenv('DATABASE_USER'),
             'PASSWORD': os.getenv('DATABASE_PASSWORD')
         },
