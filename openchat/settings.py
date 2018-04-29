@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'django.contrib.gis',
+    # 'django.contrib.gis',  # FIXME: Zak needs this!!!!!
 
     'rest_framework',
     'django_extensions',
@@ -171,7 +171,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoFilterBackend',)
 }
-APPS_TO_REST = []  
+APPS_TO_REST = []
 
 # LOGGING = {
 #     'version': 1,
@@ -204,17 +204,16 @@ APPS_TO_REST = []
 
 
 # settings for celery tasks
-#CELERY_BROKER_HOST = "127.0.0.1"
-#CELERY_BROKER_HOST = "0.0.0.0"
-#CELERY_BROKER_PORT = 5672  # default RabbitMQ listening port
-#CELERY_BROKER_USER = "admin"
-#CELERY_BROKER_PASSWORD = "mypass"
-#CELERY_BROKER_VHOST = "hackor"
-#CELERY_RESULT_BACKEND = 'amqp'
+# CELERY_BROKER_HOST = "127.0.0.1"
+# CELERY_BROKER_HOST = "0.0.0.0"
+# CELERY_BROKER_PORT = 5672  # default RabbitMQ listening port
+# CELERY_BROKER_USER = "admin"
+# CELERY_BROKER_PASSWORD = "mypass"
+# CELERY_BROKER_VHOST = "hackor"
+# CELERY_RESULT_BACKEND = 'amqp'
 
 
 CELERY_BROKER_URL = 'amqp://admin:mypass@rabbit:5672//'
-#CELERY_BROKER_URL = 'rabbit://admin:mypass@localhost:5672//'
+# CELERY_BROKER_URL = 'rabbit://admin:mypass@localhost:5672//'
 CELERY_ALWAYS_EAGER = False
 CELERY_RESULT_BACKEND = 'django-db'
-

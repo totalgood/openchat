@@ -65,6 +65,7 @@ collected-static/
 local_settings.py*
 secrets.py*
 secrets.tar
+secrets*
 
 # bin
 bin/
@@ -73,3 +74,4 @@ lib/
 .Python
 venv3
 celerybeat-schedule
+
