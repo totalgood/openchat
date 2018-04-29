@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.gis',
+    # 'django.contrib.gis',
 
     'rest_framework',
     'django_extensions',
@@ -95,10 +95,10 @@ try:
     DOCKER_DEV = os.environ['DOCKER_DEV']
 except KeyError:
     # default to normal settings for TG server
-    DOCKER_DEV = False
+    DOCKER_DEV = "true"  # FIXME: Zak needs this False or "false" for his Docker image!!!!!!
 
 if DOCKER_DEV == "true":
-    print("using docker")
+    print("using docker (or manually configured AWS server)")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -115,7 +115,7 @@ else:
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': os.getenv('DATABASE_NAME'),
             'HOST': 'localhost',
-            'PORT': '5432',
+            'PORT': 5432,
             'USER': os.getenv('DATABASE_USER'),
             'PASSWORD': os.getenv('DATABASE_PASSWORD')
         },
