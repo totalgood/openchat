@@ -1,6 +1,15 @@
 # https://unix.stackexchange.com/questions/322883/how-to-correctly-set-hostname-and-domain-name#322886
-DOMAIN_NAME=totalgood.org
+GH_ORG='totalgood'
+GH_PRJ='openchat'
+DBNAME='hackor'
+DBUN=postgres
+DBPW=portland55\!\!
+DOMAIN_NAME='totalgood.org'
+SUBDOMAIN_NAME="GH_PRJ"
 BASHRC_PATH="$HOME/.bashrc"
+PUBLIC_IP='34.211.189.63'  # from AWS EC2 Dashboard
+SRV='/srv'
+VIRTUALENVS="$SRV/virtualenvs"
 
 if [[ -f "$BASHRC_PATH" ]] ; then
 	BASHRC_PATH="$BASHRC_PATH"
@@ -8,6 +17,23 @@ else
 	# for darwin/mac
 	BASHRC_PATH="$HOME/.bash_profile"
 fi
+
+
+
+###### ON MAC LAPTOP !!!!!!!! #######
+
+sudo echo "$PUBLIC_IP $DOMAIN_NAME" | sudo tee --append /etc/hosts
+sudo echo "$PUBLIC_IP www.$DOMAIN_NAME" | sudo tee --append /etc/hosts
+sudo echo "$PUBLIC_IP $SUBDOMAIN_NAME.$DOMAIN_NAME" | sudo tee --append /etc/hosts
+
+ssh $SUBDOMAIN_NAME
+
+# add domain and pem file path to .ssh/config
+#####################################
+
+
+
+####### on remote AWS EC2 instance #######
 
 sed 's/HISTCONTROL=[a-z]*/HISTCONTROL=""/g' -i "$BASHRC_PATH"
 sed 's/HISTSIZE=[0-9]*/HISTSIZE=1000000/g' -i "$BASHRC_PATH"
@@ -27,3 +53,45 @@ grep "domain $DOMAIN_NAME" /etc/resolv.conf || sudo echo "domain $DOMAIN_NAME" |
 # Add elastic IP to EC2 instance
 # Add A-record to Route 53 DNS table with empty subdomain and public IP address
 # Add CNAME-record to Route 53 with www subdomain and target same as A-record
+
+sudo mkdir -p "$SRV"
+sudo chown $USER "$SRV"
+mkdir -p "$VIRTUALENVS"
+ln -s "$VIRTUALENVS" "$HOME/.virtualenvs"
+cd "$SRV"
+python3 -m venv "$VIRTUALENVS/${GH_PRJ}_venv"
+source "$VIRTUALENVS/${GH_PRJ}_venv/bin/activate"
+pip install --upgrade pip wheel
+
+git clone "https://github.com/${GH_ORG}/${GH_PRJ}.git" "$SRV/$GH_PRJ"
+pip install -r "$SRV/$GH_PRJ/requirements.txt"
+
+###################################################
+
+
+
+
+###### ON MAC LAPTOP !!!!!!!! #######
+
+scp ~/src/openchat/openchat/local_settings.py $GH_PRJ:/srv/$GH_PRJ/$GH_PRJ/
+
+#####################################
+
+
+
+####### on remote AWS EC2 instance #######
+
+sudo timedatectl set-timezone UTC
+sudo locale-gen en_US
+sudo locale-gen en_US.UTF-8
+sudo update-locale en_US.UTF-8
+
+sudo add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -sc)-pgdg main"
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install -y ntp postgresql-9.6 wget git nano postgresql-contrib python3-psycopg2
+
+sudo -u postgres createdb --encoding='UTF-8' --lc-collate='en_US.UTF-8' --lc-ctype='en_US.UTF-8' --template='template0' $DBNAME "For openchat hackor and other totalgood.org projects"
+sudo -u postgres echo "ALTER USER $DBUN WITH PASSWORD '$DBPW';" | sudo -u postgres psql $DBNAME
+
+###################################################
