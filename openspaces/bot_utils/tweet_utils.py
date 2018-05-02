@@ -79,17 +79,17 @@ def get_time_and_room(tweet, extracted_time):
 def schedule_tweets(u_name, tweet, t_id, talk_time, event_obj=None, num_tweets=1, interval=15):
     """Schedule reminder tweets at set intervals. num_tweets controls
     the number of remindertweets sent and interval controls the minutes
-    before the event the tweets are sent. 
+    before the event the tweets are sent.
 
-    Ex. 
-    num_tweets = 2 & interval = 15 
+    Ex.
+    num_tweets = 2 & interval = 15
     will send 2 tweets 30 & 15 mins before event
     """
     # check config table to see if autosend on
     approved = db_utils.check_for_auto_send()
 
     within_30_mins = time_utils.check_start_time(talk_time)
-    
+
     if within_30_mins:
         approved = 0
 
@@ -131,10 +131,14 @@ def schedule_slack_tweets(**kwargs):
                                      screen_name=kwargs["screen_name"],
                                      event_obj=kwargs["event_obj"])
 
-def loadtest_schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, interval=1):
-    """Func used during loadtesting to simulate a retweet without using any 
+def loadtest_schedule_tweets(**kwargs):
+    """
+    Func used during loadtesting to simulate a retweet without using any
     of the original senders content
     """
+    num_tweets = 1
+    interval = 15
+
     # check config table to see if autosend on
     approved = db_utils.check_for_auto_send()
 
@@ -142,13 +146,13 @@ def loadtest_schedule_tweets(u_name, tweet, t_id, talk_time, num_tweets=1, inter
     # embeded_tweet = tweet_url.format(name=u_name, tweet_id=t_id)
 
     for mins in range(interval,(num_tweets*interval+1), interval):
-        remind_time = talk_time - timedelta(minutes=mins)
+        remind_time = kwargs["event_time"] - timedelta(minutes=mins)
         message = "fake tweet about a event! {}".format(datetime.utcnow())
 
-        db_utils.save_outgoing_tweet(
-                                    tweet=message,
-                                    approved=approved,
-                                    scheduled_time=remind_time,
-                                    original_tweet=tweet,
-                                    screen_name=u_name
-                                    )
+        db_utils.save_outgoing_tweet(tweet=message,
+                                     tweet_id=kwargs["tweet_id"],
+                                     approved=approved,
+                                     scheduled_time=remind_time,
+                                     original_tweet=kwargs["tweet"],
+                                     screen_name=kwargs["screen_name"],
+                                     event_obj=kwargs["event_obj"])

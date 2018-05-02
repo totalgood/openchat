@@ -103,7 +103,7 @@ class Streambot:
         """
         hours_mins = time_utils.get_local_clock_time()
 
-        mention = "@{} just saw your Open Spaces tweet at {}." 
+        mention = "@{} just saw your Open Spaces tweet at {}."
         mention += " We'll retweet a reminder before your event!"
         mention = mention.format(screen_name, hours_mins)
 
@@ -193,13 +193,6 @@ class Streambot:
 
         elif val_check == (0, 0):
             # tweet found but without valid time or room extracted, ignore
-            slack_msg = "hello from streambot"
-            send_slack_message(user_id=user_id,
-                               tweet_id=tweet_id,
-                               screen_name=screen_name,
-                               tweet_created=False,
-                               tweet=tweet,
-                               slack_msg=slack_msg)
             pass
 
         else:
