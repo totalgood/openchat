@@ -137,11 +137,14 @@ def send_slack_message(**kwargs):
     those in the tweet and send message to slack
     """
 
+    # make a copy of the default body
+    message_body = copy.deepcopy(attachments_json_drop_down)
+
     if kwargs["tweet_created"]:
         # lookup dict to change values from model to text representation
         approved_lookup = {0: "Needs approval",
-                           1: "Approve",
-                           2: "Deny"}
+                           1: "Approved",
+                           2: "Denied"}
 
         tweet_instance = OutgoingTweet.objects.get(tweet_id=kwargs["tweet_id"])
 
@@ -149,15 +152,27 @@ def send_slack_message(**kwargs):
         date_val, time_val = slack_utils.utc_datetime_to_button_format(event_time)
         room_val = tweet_instance.event_obj.location
         approved_val = approved_lookup[tweet_instance.approved]
-        print ("created")
+
+
     else:
         date_val = None
         time_val = None
         room_val = None
         approved_val = None
 
-    # make a copy of the default body
-    message_body = copy.deepcopy(attachments_json_drop_down)
+    # set action message and icon in slack message
+    if approved_val is not None:
+        if approved_val == approved_lookup[1]:
+            message_body["footer"] = "auto approved by OpenSpacesBot"
+            message_body["footer_icon"] = "https://emojipedia-us.s3.amazonaws.com/thumbs/120/microsoft/106/heavy-check-mark_2714.png"
+        elif approved_val == approved_lookup[0]:
+            message_body["footer"] = "Tweet needs approval"
+            message_body["footer_icon"] = "https://d1nhio0ox7pgb.cloudfront.net/_img/g_collection_png/standard/256x256/eyeglasses.png"
+        else:
+            print("missing valid value for approval")
+    else:
+        message_body["footer"] = "Tweet needs information in order to be approved"
+        message_body["footer_icon"] = "https://d1nhio0ox7pgb.cloudfront.net/_img/g_collection_png/standard/256x256/eyeglasses.png"
 
     message_body["text"] = kwargs["tweet"]
     message_body["callback_id"] = "incoming_tweet|{}|{}".format(kwargs["tweet_id"], kwargs["screen_name"])
@@ -166,10 +181,9 @@ def send_slack_message(**kwargs):
     message_body["actions"][2]["text"] = room_val if room_val is not None else "Choose room"
     message_body["actions"][3]["text"] = approved_val if approved_val is not None else "Needs approval"
 
-    print("sending")
     slack_client.api_call("chat.postMessage",
                           channel="C9F750BQW",
-                          text="Do you approve this tweet?",
+                          text=kwargs["slack_msg"],
                           attachments=[message_body])
     return
 
