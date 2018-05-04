@@ -5,7 +5,7 @@ import pytz
 
 def convert_to_utc(talk_time, date_mention=False):
     """Convert the datetime string we get from SUTime to utcnow"""
-    local_tz = pytz.timezone('US/Pacific')
+    local_tz = pytz.timezone('US/Eastern')
     parsed_tt = pytz.utc.localize(parse(talk_time))
     utc_aware_now = datetime.utcnow().replace(tzinfo=pytz.utc)
 
