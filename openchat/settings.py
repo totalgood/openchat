@@ -156,7 +156,7 @@ STATIC_URL = '/static/'
 if DEBUG is True:
     STATIC_ROOT = None
 else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'collected/static')
+    STATIC_ROOT = os.path.join(BASE_DIR, 'collected', 'static')
     # print(STATIC_ROOT)
 
 
