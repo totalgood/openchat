@@ -58,7 +58,11 @@ docs/_build/*
 cover/*
 MANIFEST
 
+# Django Static Files gatherd up with manage.py collectstatic
+collected/
 collected-static/
+
+
 .ipynb_checkpoints/
 
 # SECRETS!
