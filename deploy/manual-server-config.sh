@@ -128,18 +128,101 @@ rm createadmin.py
 # https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04
 sudo rm /etc/nginx/sites-available/totalgood.org.conf
 sudo rm /etc/nginx/sites-enabled/totalgood.org.conf
-sudo cp deploy/nginx/totalgood.org.conf /etc/nginx/sites-enabled/totalgood.org.conf
+sudo cp deploy/nginx/simple.totalgood.org.conf /etc/nginx/sites-enabled/totalgood.org.conf
 sudo rm /etc/nginx/sites-enabled/default
 sudo ln etc/nginx/sites-enabled/totalgood.org.conf /etc/nginx/sites-available/totalgood.org.conf
 sudo add-apt-repository ppa:certbot/certbot
 sudo apt-get install -y python-certbot-nginx
 sudo certbot -n --agree-tos -m admin@totalgood.com --nginx -d totalgood.org,www.totalgood.org # -d pycon.totalgood.org -d openchat.totalgood.org -d big-openchat.totalgood.org -d big.openchat.totalgood.org -d openspaces.totalgood.org
+
 cd /srv/logs/
 mkdir -p letsencrypt
 cd letsencrypt
- https://www.ssllabs.com/ssltest/analyze.html?d=totalgood.org&latest
+wget 'https://www.ssllabs.com/ssltest/analyze.html?d=totalgood.org&latest' -O ssllabs_analyze_totalgood.org.html
 sudo certbot renew --dry-run
 
 ###################################################
 
 
+##############################################################################
+## webroot certonly letsencrypt session
+
+## second attempt
+sudo certbot -m admin@totalgood.com certonly --webroot -d www.totalgood.org -d totalgood.org
+# Saving debug log to /var/log/letsencrypt/letsencrypt.log
+# Plugins selected: Authenticator webroot, Installer None
+# Cert not yet due for renewal
+
+# You have an existing certificate that has exactly the same domains or certificate name you requested and isn't close to expiry.
+# (ref: /etc/letsencrypt/renewal/totalgood.org.conf)
+
+# What would you like to do?
+# -------------------------------------------------------------------------------
+# 1: Keep the existing certificate for now
+# 2: Renew & replace the cert (limit ~5 per 7 days)
+# -------------------------------------------------------------------------------
+# Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 2
+# Renewing an existing certificate
+# Performing the following challenges:
+# http-01 challenge for www.totalgood.org
+# http-01 challenge for totalgood.org
+# Input the webroot for www.totalgood.org: (Enter 'c' to cancel): /srv/openchat/collected
+
+# Select the webroot for totalgood.org:
+# -------------------------------------------------------------------------------
+# 1: Enter a new webroot
+# 2: /srv/openchat/collected
+# -------------------------------------------------------------------------------
+# Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 2
+# Waiting for verification...
+# Cleaning up challenges
+
+# IMPORTANT NOTES:
+#  - Congratulations! Your certificate and chain have been saved at:
+#    /etc/letsencrypt/live/totalgood.org/fullchain.pem
+#    Your key file has been saved at:
+#    /etc/letsencrypt/live/totalgood.org/privkey.pem
+#    Your cert will expire on 2018-08-03. To obtain a new or tweaked
+#    version of this certificate in the future, simply run certbot
+#    again. To non-interactively renew *all* of your certificates, run
+#    "certbot renew"
+#  - If you like Certbot, please consider supporting our work by:
+
+#    Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+#    Donating to EFF:                    https://eff.org/donate-le
+
+
+sudo certbot -m admin@totalgood.com certonly --webroot -d totalgood.org
+# Saving debug log to /var/log/letsencrypt/letsencrypt.log
+# Plugins selected: Authenticator webroot, Installer None
+# Obtaining a new certificate
+# Performing the following challenges:
+# http-01 challenge for totalgood.org
+# http-01 challenge for www.totalgood.org
+# Input the webroot for totalgood.org: (Enter 'c' to cancel): /srv/openchat/collected
+
+# Select the webroot for www.totalgood.org:
+# -------------------------------------------------------------------------------
+# 1: Enter a new webroot
+# 2: /srv/openchat/collected
+# -------------------------------------------------------------------------------
+# Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 2
+# Waiting for verification...
+# Cleaning up challenges
+
+# IMPORTANT NOTES:
+#  - Congratulations! Your certificate and chain have been saved at:
+#    /etc/letsencrypt/live/totalgood.org/fullchain.pem
+#    Your key file has been saved at:
+#    /etc/letsencrypt/live/totalgood.org/privkey.pem
+#    Your cert will expire on 2018-08-03. To obtain a new or tweaked
+#    version of this certificate in the future, simply run certbot
+#    again. To non-interactively renew *all* of your certificates, run
+#    "certbot renew"
+#  - If you like Certbot, please consider supporting our work by:
+
+#    Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+#    Donating to EFF:                    https://eff.org/donate-le
+
+
+###############################################################################
