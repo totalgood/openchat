@@ -12,6 +12,8 @@ from openspaces.models import OutgoingTweet, OutgoingConfig, OpenspacesEvent
 from openspaces.serializers import OutgoingTweetSerializer, OutgoingConfigSerializer
 from openspaces.tweet_filters import OutgoingTweetFilter
 
+import sys
+
 
 class ListOutgoingTweets(generics.ListCreateAPIView):
     """
@@ -70,8 +72,6 @@ def slack_interactive_endpoint(request):
         json_text = request.POST.get("payload")
         json_data = json.loads(json_text)
         update_msg = slack_utils.message_update_func(json_data)
-
-        print(json.dumps(json_data, indent=4))
 
     # send back an updated message to slack when a user takes action
     return Response(update_msg)
