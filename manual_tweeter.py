@@ -25,12 +25,15 @@ class Tweeter:
 
     def send_tweet(self, hashtag, room_num=None, room=False):
         tweet = f"test tweet #{hashtag} "
+        local_tz = pytz.timezone('US/Eastern')
+        # 17 mins in the future, triggers reminder 2 mins from send time
+        # comment out within 30 check in tweet_utils for bot to auto approve
+        sample_time = datetime.datetime.now(local_tz) + datetime.timedelta(minutes=17)
+        sample_time = sample_time.strftime("%H:%M")
 
+        tweet = f"test tweet #{hashtag} today at {sample_time} "
         if room:
-            local_tz = pytz.timezone('US/Eastern')
-            sample_time = datetime.datetime.now(local_tz) + datetime.timedelta(minutes=45)
-            sample_time = sample_time.strftime("%H:%M")
-            tweet += f"room {room_num} today at {sample_time}"
+            tweet += f"in room {room_num}"
 
         self.api.update_status(status=tweet)
 
@@ -52,16 +55,16 @@ if __name__ == '__main__':
     looking = True
 
     while looking:
-        tweet = input("Type: quit, tweet room, tweet plain\n")
+        tweet = input("Type: quit, tweet-full, tweet-miss\n")
 
         if tweet == "quit":
             looking = False
 
-        elif tweet == "tweet room":
+        elif tweet == "tweet-full":
             room_num = room_num_gen()
             tweeter.send_tweet(hashtag, room_num, True)
 
-        elif tweet == "tweet plain":
+        elif tweet == "tweet-miss":
             tweeter.send_tweet(hashtag)
 
         else:

@@ -30,16 +30,16 @@ attachments_json_drop_down = {
                     "text": "Event date",
                     "options": [
                         {
-                            "text": "5/19",
-                            "value": "5/19"
+                            "text": "5/11",
+                            "value": "5/11"
                         },
                         {
-                            "text": "5/20",
-                            "value": "5/20"
+                            "text": "5/12",
+                            "value": "5/12"
                         },
                         {
-                            "text": "5/21",
-                            "value": "5/21"
+                            "text": "5/13",
+                            "value": "5/13"
                         }
                     ]
                 }
@@ -54,7 +54,11 @@ attachments_json_drop_down = {
                     "text": "Time of event",
                     "options": [
                         {
-                            "text": "9:00",
+                            "text": "08:00",
+                            "value": "08:00"
+                        },
+                        {
+                            "text": "09:00",
                             "value": "09:00"
                         },
                         {
@@ -72,6 +76,26 @@ attachments_json_drop_down = {
                         {
                             "text": "13:00",
                             "value": "13:00"
+                        },
+                        {
+                            "text": "14:00",
+                            "value": "14:00"
+                        },
+                        {
+                            "text": "15:00",
+                            "value": "15:00"
+                        },
+                        {
+                            "text": "16:00",
+                            "value": "16:00"
+                        },
+                        {
+                            "text": "17:00",
+                            "value": "17:00"
+                        },
+                        {
+                            "text": "18:00",
+                            "value": "18:00"
                         }
                     ]
                 }
@@ -174,6 +198,10 @@ def send_slack_message(**kwargs):
         message_body["footer"] = "Tweet needs information in order to be approved"
         message_body["footer_icon"] = "https://d1nhio0ox7pgb.cloudfront.net/_img/g_collection_png/standard/256x256/eyeglasses.png"
 
+    screen_name = kwargs["screen_name"]
+    user_id = kwargs["user_id"]
+    message_body["title"] = f"tweet from: {screen_name}, twitter id: {user_id}"
+
     message_body["text"] = kwargs["tweet"]
     message_body["callback_id"] = "incoming_tweet|{}|{}".format(kwargs["tweet_id"], kwargs["screen_name"])
     message_body["actions"][0]["text"] = date_val if date_val is not None else "Choose date"
@@ -204,7 +232,7 @@ if __name__ == '__main__':
     def create_sample_tweet(tweet, tweet_id, screen_name):
         """helper func to create a tweet instance in db for manual testing"""
         event_obj = db_utils.create_event(description="fake event description",
-                                          start=datetime.datetime(2018, 5, 19, 1, tzinfo=pytz.utc),
+                                          start=datetime.datetime(2018, 5, 10, 1, tzinfo=pytz.utc),
                                           location="A123",
                                           creator="5/29 tweeter")
         tweet_instance = db_utils.save_outgoing_tweet(tweet_id=tweet_id,
@@ -223,5 +251,5 @@ if __name__ == '__main__':
                        tweet_id=tweet_id,
                        screen_name=screen_name,
                        tweet_created=tweet_created,
-                       tweet=tweet)
-
+                       tweet=tweet,
+                       slack_msg=tweet)
