@@ -10,7 +10,7 @@ def convert_to_utc(talk_time, date_mention=False):
     utc_aware_now = datetime.utcnow().replace(tzinfo=pytz.utc)
 
     # diff needed for time mentions in future extracted with SUTime
-    days_diff = (parsed_tt - utc_aware_now).days
+    date_diff = parsed_tt.date() - utc_aware_now.date()
 
     # get local year, month, day 
     local_date = datetime.now(local_tz)
@@ -28,7 +28,7 @@ def convert_to_utc(talk_time, date_mention=False):
 
     # build up correct datetime obj, normalize & localize, switch to utc 
     correct_dt = datetime(int(year), int(month), int(day), int(hours), int(mins))
-    correct_dt += timedelta(days=days_diff)
+    correct_dt += date_diff
     tz_aware_local = local_tz.normalize(local_tz.localize(correct_dt))
     local_as_utc = tz_aware_local.astimezone(pytz.utc)
 
