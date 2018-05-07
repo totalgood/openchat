@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals
 from datetime import datetime, timedelta
 from celery.decorators import periodic_task
 
-from openspaces.tweepy_connect import tweepy_send_tweet
+from openspaces.tweepy_connect import tweepy_send_tweet, tweepy_send_test_tweet
 from openspaces.models import OutgoingTweet, OutgoingConfig
 from openchat.celery import app 
 
@@ -45,4 +45,7 @@ def tweeter(self, tweet, id):
     time_sent = datetime.utcnow()
     OutgoingTweet.objects.filter(pk=id).update(sent_time=time_sent)
 
-    tweepy_send_tweet(tweet)
+    # TODO switch this back on when running real thing
+    # tweepy_send_tweet(tweet)
+    tweepy_send_test_tweet(tweet)
+

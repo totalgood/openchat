@@ -162,7 +162,7 @@ class Streambot:
                                    tweet=tweet,
                                    slack_msg=slack_msg)
 
-                # self.send_mention_tweet(screen_name)
+                self.send_mention_tweet(screen_name, room, converted_time)
 
             else:
                 message = """Tweet recived for an event bot is already scheduled

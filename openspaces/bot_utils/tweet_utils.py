@@ -98,7 +98,8 @@ def schedule_tweets(u_name, tweet, t_id, talk_time, event_obj=None, num_tweets=1
 
     for mins in range(interval,(num_tweets*interval+1), interval):
         remind_time = talk_time - timedelta(minutes=mins)
-        message = "Coming up in {} minutes! #PyConOpenSpace {}".format(mins, embeded_tweet)
+        # #PyConOpenSpace add this back into message when done testing
+        message = "Coming up in {} minutes! {}".format(mins, embeded_tweet)
 
         db_utils.save_outgoing_tweet(tweet=message,
                                      tweet_id=t_id,
@@ -120,7 +121,8 @@ def schedule_slack_tweets(**kwargs):
 
     for mins in range(interval,(num_tweets*interval+1), interval):
         remind_time = kwargs["event_time"] - timedelta(minutes=mins)
-        message = "Coming up in {} minutes! #PyConOpenSpace {}".format(mins, embeded_tweet)
+        # #PyConOpenSpace add this back into message when done testing
+        message = "Coming up in {} minutes! {}".format(mins, embeded_tweet)
 
         # TODO add the updated tweet_id field to this object when it's saved
         db_utils.save_outgoing_tweet(tweet=message,
