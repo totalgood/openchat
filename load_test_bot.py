@@ -152,7 +152,7 @@ class Streambot:
                 tweet_utils.schedule_tweets(screen_name, tweet, tweet_id,
                                             converted_time, event_obj)
 
-                slack_msg = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
+                # slack_msg = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
                 # self.send_slack_message('#outgoing_tweets', slack_message)
 
                 send_slack_message(user_id=user_id,
@@ -160,7 +160,7 @@ class Streambot:
                                    screen_name=screen_name,
                                    tweet_created=True,
                                    tweet=tweet,
-                                   slack_msg=slack_msg)
+                                   slack_msg=tweet)
 
                 self.send_mention_tweet(screen_name, room, converted_time)
 
