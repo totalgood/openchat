@@ -143,14 +143,12 @@ class Streambot:
             conflict = db_utils.check_time_room_conflict(converted_time, room)
 
             if not conflict:
-                # TODO make sure event obj is passed in to schedule_tweets in the real Streambot
                 event_obj = db_utils.create_event(description=tweet,
                                                   start=converted_time,
                                                   location=room,
                                                   creator=screen_name)
 
-                tweet_utils.schedule_tweets(screen_name, tweet, tweet_id,
-                                            converted_time, event_obj)
+                tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, converted_time, event_obj)
 
                 # slack_msg = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
                 # self.send_slack_message('#outgoing_tweets', slack_message)
@@ -165,12 +163,14 @@ class Streambot:
                 self.send_mention_tweet(screen_name, room, converted_time)
 
             else:
-                message = """Tweet recived for an event bot is already scheduled
-                    to retweet about. Sender: {}, room: {}, time: {},
-                    tweet: {} tweet_id: {}
-                    """
-                # message = message.format(screen_name, room, converted_time, tweet, tweet_id)
-                # self.send_slack_message("#event_conflict", message)
+                message = f"Tweet found for an already scheduled event: {tweet}"
+                send_slack_message(user_id=user_id,
+                                   tweet_id=tweet_id,
+                                   screen_name=screen_name,
+                                   tweet_created=False,
+                                   tweet=tweet,
+                                   slack_msg=message,
+                                   channel="conflict")
 
         elif val_check == (0, 0):
             # tweet found but without valid time or room extracted, ignore
@@ -202,7 +202,6 @@ class Streambot:
         sample_time = sample_time.strftime("%Y-%m-%d %H:%M:%S")
 
         event_time = time_utils.convert_to_utc(sample_time)
-        print(event_time)
         room = random.randint(0, 3000)
 
         # check for a time and room conflict, only 1 set of retweets per event
@@ -243,31 +242,3 @@ if __name__ == '__main__':
     hashtag = input("Provide current hashtag: ")
     print(f"listening for: {hashtag}")
     bot.run_stream([hashtag])
-
-    # bot.retweet_logic("tweet room a523 today at 10:05 am",
-    #                   random.randint(0, 1000),
-    #                   "screen name",
-    #                   random.randint(0, 1000))
-
-    # seeing java errors when running bot on diff thread
-    # thread = Thread(target=bot.run_stream, args=([hashtag],))
-    # thread.start()
-
-    # looking = True
-    # while looking:
-    #     tweet = input("Type: quit, tweet room, tweet plain:\n")
-
-    #     if tweet == "quit":
-    #         looking = False
-    #         thread.stop()
-
-    #     elif tweet == "tweet room":
-    #         tweeter.send_tweet(hashtag, True)
-
-    #     elif tweet == "tweet plain":
-    #         tweeter.send_tweet(hashtag, False)
-
-    #     else:
-    #         print("invalid option")
-    #         #bot.loadtest_logic(tweet, random.randint(0, 50000), "blarg", random.randint(0, 50000))
-

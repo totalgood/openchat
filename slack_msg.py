@@ -110,16 +110,40 @@ attachments_json_drop_down = {
                     "text": "Event room",
                     "options": [
                         {
-                            "text": "A112",
-                            "value": "A112"
+                            "text": "Room 09",
+                            "value": "09"
                         },
                         {
-                            "text": "B114",
-                            "value": "B114"
+                            "text": "Room 10",
+                            "value": "10"
                         },
                         {
-                            "text": "C115",
-                            "value": "C115"
+                            "text": "Room 14",
+                            "value": "14"
+                        },
+                        {
+                            "text": "Room 15",
+                            "value": "15"
+                        },
+                        {
+                            "text": "Room 16",
+                            "value": "16"
+                        },
+                        {
+                            "text": "Room 19",
+                            "value": "19"
+                        },
+                        {
+                            "text": "Room 20",
+                            "value": "20"
+                        },
+                        {
+                            "text": "Room 21",
+                            "value": "21"
+                        },
+                        {
+                            "text": "Room 22",
+                            "value": "22"
                         }
                     ]
                 }
@@ -209,8 +233,20 @@ def send_slack_message(**kwargs):
     message_body["actions"][2]["text"] = room_val if room_val is not None else "Choose room"
     message_body["actions"][3]["text"] = approved_val if approved_val is not None else "Needs approval"
 
+    try:
+        channel = kwargs["channel"]
+    except KeyError:
+        # defaults to outgoing-tweets channel if not conflict
+        channel = "outgoing-tweets"
+
+    if channel == "conflict":
+        channel_id = "CAKSUH0RG"
+    else:
+        # id for outgoing-tweets channel
+        channel_id = "CAKSJ1PLG"
+
     slack_client.api_call("chat.postMessage",
-                          channel="C9F750BQW",
+                          channel=channel_id,
                           text=kwargs["slack_msg"],
                           attachments=[message_body])
     return
