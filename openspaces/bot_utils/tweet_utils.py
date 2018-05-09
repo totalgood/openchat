@@ -18,11 +18,11 @@ def clean_times(extracted_time):
 
 def check_date_mention(tweet):
     """Check the tweet to see if there is a valid date mention for the 
-    three dates of pyconopenspaces: 5/19, 5/20, 5/21. Quick fix to override 
+    three dates of pyconopenspaces: 5/11, 5/12, 5/13. Quick fix to override 
     SUTime defaulting to today's date and missing numeric info about event's date
     """
     date_pat = re.compile("([5]{1}\/\d{2})")
-    valid_dates = ["5/19", "5/20", "5/21"]
+    valid_dates = ["5/11", "5/12", "5/13"]
     dates = [d for d in tweet.split() if date_pat.match(d) and d in valid_dates]
     return dates if len(dates) == 1 else False
 
@@ -37,10 +37,11 @@ def find_valid_rooms(words):
     words = "".join(ch for ch in words if ch not in exclude).split()
 
     #lower case because all words lowered in time and room func
-    valid_rooms = [
-        "a105+a106", "a107+a108", "b110+111", "b112",
-        "b113", "b114", "b115", "b116", "b117"
-    ]
+    # valid_rooms = [
+    #     "a105+a106", "a107+a108", "b110+111", "b112",
+    #     "b113", "b114", "b115", "b116", "b117"
+    # ]
+    valid_rooms = ["09", "9", "10", "14", "15", "16", "19", "20", "21", "22"]
     return [room for room in words if room in valid_rooms]
 
 def get_time_and_room(tweet, extracted_time):
@@ -61,14 +62,14 @@ def get_time_and_room(tweet, extracted_time):
     filter_known_words = [word.lower() for word in word_tokenize(tweet_without_time)]
 
     # regular expression for room, allows any 3 num combo following "a" or "b"
-    room_re = re.compile("([a-bA-B](\d{3})[-+]?[aA]?(\d{3})?)")
+    # room_re = re.compile("([a-bA-B](\d{3})[-+]?[aA]?(\d{3})?)")
 
-    for word in filter_known_words:
-        if room_re.match(word):
-            result["room"].append(room_re.match(word).group())
+    # for word in filter_known_words:
+    #     if room_re.match(word):
+    #         result["room"].append(room_re.match(word).group())
 
-    # super strict, only allows rooms exactly as seen on board 
-    # result["room"] = find_valid_rooms(filter_known_words)
+    # super strict, only allows rooms exactly as seen on board
+    result["room"] = find_valid_rooms(filter_known_words)
 
     # using clean_times to drop any year mentions in tweet
     result["date"] = clean_times(result["date"])

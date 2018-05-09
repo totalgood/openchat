@@ -17,7 +17,6 @@ from openspaces.bot_utils import db_utils, tweet_utils, time_utils
 import openspaces.secrets as s
 from openchat.settings import BASE_DIR
 
-loggly = logging.getLogger('loggly')
 
 
 class StreamListener(tweepy.StreamListener):
@@ -27,7 +26,7 @@ class StreamListener(tweepy.StreamListener):
         self.api = api or API()
         # needed ref to streambot so method can be called
         self.streambot = streambot
-        self.tw_bot_id = 856937832706842624
+        self.tw_bot_id = 964215184951713792
         self.ignored_users = []
 
     def update_ignore_users(self):
@@ -42,7 +41,6 @@ class StreamListener(tweepy.StreamListener):
         self.update_ignore_users()
 
         if status.user.id in self.ignored_users:
-            loggly.info("tweet recived from igonred user: {}".format(status.user.id))
             return
 
         # create or update user and tweet records in Django models
@@ -54,7 +52,6 @@ class StreamListener(tweepy.StreamListener):
 
     def on_error(self, status_code):
         if status_code == 420:
-            loggly.error("error with tweepy, bot is down! status code: 420")
             return False
 
 
@@ -78,10 +75,10 @@ class Streambot:
 
     def setup_auth(self):
         """Set up auth stuff for api and return tweepy api object"""
-        auth = tweepy.OAuthHandler(s.openspaces["CONSUMER_KEY"],
-                                   s.openspaces["CONSUMER_SECRET"])
-        auth.set_access_token(s.openspaces["ACCESS_TOKEN"],
-                              s.openspaces["ACCESS_TOKEN_SECRET"])
+        auth = tweepy.OAuthHandler(s.openspacesbot["CONSUMER_KEY"],
+                                   s.openspacesbot["CONSUMER_SECRET"])
+        auth.set_access_token(s.openspacesbot["ACCESS_TOKEN"],
+                              s.openspacesbot["ACCESS_TOKEN_SECRET"])
 
         api = tweepy.API(auth)
         return api
@@ -103,8 +100,8 @@ class Streambot:
         """
         hours_mins = time_utils.get_local_clock_time()
 
-        mention = "@{} just saw your Open Spaces tweet at {}."
-        mention += " We'll retweet a reminder before your event!"
+        mention = "@{} just saw your Open Spaces tweet!"
+        mention += " I'll retweet a reminder 15 minutes before your event!"
         mention = mention.format(screen_name, hours_mins)
 
         try:
@@ -112,17 +109,7 @@ class Streambot:
         except:
             # if same user tweets valid openspaces tweet at exact same clock time
             # it causes a duplicate tweet which bot can't send
-            loggly.info("duplicate tweet by openspaces bot in send_mention_tweet")
-
-    def send_slack_message(self, channel, message):
-        """Send a slack message a channel
-
-        channel options:
-        #outgoing_tweets
-        #need_review
-        #event_conflict
-        """
-        self.slacker.chat.post_message(channel, message)
+            pass
 
     def parse_time_room(self, tweet):
         """Get time and room number from a tweet using SUTime and tweet_utils"""
@@ -153,8 +140,7 @@ class Streambot:
         if val_check == (1, 1):
             room = time_room["room"][0]
             date_mention = tweet_utils.check_date_mention(tweet)
-            converted_time = time_utils.convert_to_utc(time_room["date"][0],
-                                                        date_mention)
+            converted_time = time_utils.convert_to_utc(time_room["date"][0], date_mention)
 
             # check for a time and room conflict, only 1 set of retweets per event
             # default time range that a room is resrved for is -15 +30 mins
@@ -162,16 +148,14 @@ class Streambot:
 
             if not conflict:
                 # This record lets us check that retweets not for same event
-                db_utils.create_event(description=tweet,
-                                      start=converted_time,
-                                      location=room,
-                                      creator=screen_name)
+                event_obj = db_utils.create_event(description=tweet,
+                                                  start=converted_time,
+                                                  location=room,
+                                                  creator=screen_name)
 
-                tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, converted_time)
-                loggly.info("scheduled this tweet for retweet: {}".format(tweet))
+                tweet_utils.schedule_tweets(screen_name, tweet, tweet_id, converted_time, event_obj)
 
-                slack_msg = "{} From: {}, id: {}".format(tweet, screen_name, user_id)
-                # self.send_slack_message('#outgoing_tweets', slack_message)
+                slack_msg = "{} \n Tweet from: {}, \n id: {}".format(tweet, screen_name, user_id)
 
                 send_slack_message(user_id=user_id,
                                    tweet_id=tweet_id,
@@ -180,16 +164,17 @@ class Streambot:
                                    tweet=tweet,
                                    slack_msg=slack_msg)
 
-                # self.send_mention_tweet(screen_name)
+                self.send_mention_tweet(screen_name)
 
             else:
-                message = """Tweet recived for an event bot is already scheduled
-                    to retweet about. Sender: {}, room: {}, time: {},
-                    tweet: {} tweet_id: {}
-                    """
-                # message = message.format(screen_name, room, converted_time, tweet, tweet_id)
-                # self.send_slack_message("#event_conflict", message)
-                loggly.info(message)
+                message = f"Tweet found for an already scheduled event: \n {tweet}"
+                send_slack_message(user_id=user_id,
+                                   tweet_id=tweet_id,
+                                   screen_name=screen_name,
+                                   tweet_created=False,
+                                   tweet=tweet,
+                                   slack_msg=message,
+                                   channel="conflict")
 
         elif val_check == (0, 0):
             # tweet found but without valid time or room extracted, ignore
@@ -197,11 +182,8 @@ class Streambot:
 
         else:
             # tweet with relevant information but not exactly 1 time & 1 room
-            slack_msg = """Tweet found that needs review: {}  tweet_id: {}
-                screen_name: {}, user_id: {}
-                """
+            slack_msg = "Tweet found that needs review: {} \n tweet_id: {} \n screen_name: {} \n user_id: {}"
             slack_msg = slack_msg.format(tweet, tweet_id, screen_name, user_id)
-            # self.send_slack_message("#need_review", message)
 
             send_slack_message(user_id=user_id,
                                tweet_id=tweet_id,
@@ -213,5 +195,4 @@ class Streambot:
 
 if __name__ == '__main__':
     bot = Streambot()
-    bot.run_stream(["hotdog", "puppies"])
-    # ["pyconopenspaces", "pyconopenspace"]
+    bot.run_stream(["pyconopenspaces", "pyconopenspace"])
